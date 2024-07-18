@@ -34,4 +34,4 @@ Our mission is to push the boundaries of psychometrics and data science through 
 
 ## Visitor Map
 
-<script type='text/javascript' id='mapmyvisitors' src='https://mapmyvisitors.com/map.js?cl=ffffff&w=a&t=tt&d=CQrYm3Ntbq0dcEflqC_TRCFWpH9W3D9TcuTHbo9HCag&co=121212&cmo=f19a37&cmn=c15be5'></script>
+<script type='text/javascript' id='mapmyvisitors' src='https://mapmyvisitors.com/map.js?cl=ffffff&w=a&t=tt&d=4ddFzzXEmMuOFyniKmrHFOZT2kjjwQKL_ynZc2UlEZM&co=121212&cmo=f19a37&cmn=c15be5'></script>
