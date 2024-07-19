@@ -33,4 +33,4 @@ excerpt: "directed by Professor J. Chen"
 
 ## Current Project
 
-[Advancing Generative AI in Personalized Learning](https://psychometrics-ds.github.io/projects/2024-04-01-Advancing-Generative-AI-in-Personalized-Learning.html)
+[Advancing Generative AI in Personalized Learning](https://psym-ds.github.io/projects/2024-04-01-Advancing-Generative-AI-in-Personalized-Learning.html)
