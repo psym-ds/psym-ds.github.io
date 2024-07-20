@@ -10,7 +10,7 @@ article_header:
   background_color: '#123'
   background_image:
     src: /assets/bg.webp
-excerpt: "directed by Professor J. Chen"
+excerpt: "under construction"
 ---
 
 <!-- 
