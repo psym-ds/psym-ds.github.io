@@ -62,6 +62,31 @@ h1 {
   text-align: center;
 }
 
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+#question-count {
+  width: 60px;
+  padding: 8px;
+}
+
+button {
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #0077cc;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: #005fa3;
+}
+
 .question-card {
   background-color: #fff;
   padding: 20px;
@@ -76,12 +101,4 @@ h1 {
   margin-top: 20px;
   font-weight: bold;
   color: #007700;
-}
-
-button {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  margin: 20px 0;
-  font-size: 16px;
 }

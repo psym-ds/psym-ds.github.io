@@ -85,3 +85,16 @@ document.getElementById('search-bar').addEventListener('input', (event) => {
   populateQuestionList(filteredQuestions);  // Update the sidebar with filtered questions
   displayQuestions(filteredQuestions);  // Show the filtered questions
 });
+
+// Handle picking random questions
+document.getElementById('random-question-button').addEventListener('click', () => {
+  const questionCount = parseInt(document.getElementById('question-count').value, 10) || 1;
+  const randomQuestions = getRandomQuestions(questions, questionCount);
+  displayQuestions(randomQuestions);
+});
+
+// Function to select a random set of questions
+function getRandomQuestions(questionArray, num) {
+  const shuffled = [...questionArray].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, num);
+}
