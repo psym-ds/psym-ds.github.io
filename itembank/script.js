@@ -26,7 +26,16 @@ function displayQuestion() {
 
     // Create the question element
     const questionElement = document.createElement('div');
-    questionElement.innerHTML = `<p>${question.question}</p>`;
+
+    // Display question ID above the question
+    const questionIdElement = document.createElement('p');
+    questionIdElement.innerHTML = `<strong>Question ID:</strong> ${question.id}`;
+    questionElement.appendChild(questionIdElement);
+
+    // Display the question
+    const questionTextElement = document.createElement('p');
+    questionTextElement.innerHTML = question.question;
+    questionElement.appendChild(questionTextElement);
 
     // If options exist, display them
     if (question.options) {
