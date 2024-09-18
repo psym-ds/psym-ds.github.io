@@ -1,32 +1,57 @@
 body {
   font-family: Arial, sans-serif;
   background-color: #f4f4f4;
-  padding: 20px;
+  margin: 0;
+  padding: 0;
 }
 
 .container {
-  max-width: 600px;
-  margin: 0 auto;
-  background-color: #fff;
+  display: flex;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #333;
+  color: white;
+  height: 100vh;
+  overflow-y: auto; /* Allow scrolling only in sidebar */
   padding: 20px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+.sidebar h2 {
+  font-size: 18px;
+  color: #fff;
+}
+
+.sidebar ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sidebar li {
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.sidebar li:hover {
+  background-color: #444;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.content {
+  flex-grow: 1;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto; /* Ensure main content scrolls separately from the sidebar */
 }
 
 h1 {
   text-align: center;
 }
 
-button {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  margin: 20px 0;
-  font-size: 16px;
-}
-
-#answer-container {
-  background-color: #e0ffe0;
-  padding: 10px;
+.answer-box {
   margin-top: 20px;
   font-weight: bold;
   color: #007700;

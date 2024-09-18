@@ -7,12 +7,26 @@ fetch('questions.json')
   .then(response => response.json())
   .then(data => {
     questions = data;
-    displayQuestion();  // Display the first question and answer
+    populateQuestionList();  // Populate the sidebar with questions
+    displayQuestion(0);  // Display the first question and answer
   })
   .catch(error => console.error('Error loading questions:', error));
 
+// Populate the list of questions in the sidebar
+function populateQuestionList() {
+  const questionList = document.getElementById('question-list');
+  questions.forEach((question, index) => {
+    // Create a list item with question id and first few characters of the question text
+    const listItem = document.createElement('li');
+    listItem.textContent = `${question.id}: ${question.question.substring(0, 30)}...`;
+    listItem.addEventListener('click', () => displayQuestion(index));
+    questionList.appendChild(listItem);
+  });
+}
+
 // Display a question and its answer
-function displayQuestion() {
+function displayQuestion(index) {
+  currentIndex = index;  // Update the current question index
   const questionContainer = document.getElementById('question-container');
   const answerContainer = document.getElementById('answer-container');
 
@@ -20,50 +34,35 @@ function displayQuestion() {
   questionContainer.innerHTML = '';
   answerContainer.innerHTML = '';
 
-  // Check if there are more questions
-  if (currentIndex < questions.length) {
-    const question = questions[currentIndex];
+  // Get the selected question
+  const question = questions[currentIndex];
 
-    // Create the question element
-    const questionElement = document.createElement('div');
+  // Display question ID and text
+  const questionElement = document.createElement('div');
+  const questionIdElement = document.createElement('p');
+  questionIdElement.innerHTML = `<strong>Question ID:</strong> ${question.id}`;
+  questionElement.appendChild(questionIdElement);
 
-    // Display question ID above the question
-    const questionIdElement = document.createElement('p');
-    questionIdElement.innerHTML = `<strong>Question ID:</strong> ${question.id}`;
-    questionElement.appendChild(questionIdElement);
+  const questionTextElement = document.createElement('p');
+  questionTextElement.innerHTML = question.question;
+  questionElement.appendChild(questionTextElement);
 
-    // Display the question
-    const questionTextElement = document.createElement('p');
-    questionTextElement.innerHTML = question.question;
-    questionElement.appendChild(questionTextElement);
-
-    // If options exist, display them
-    if (question.options) {
-      const ul = document.createElement('ul');
-      for (let key in question.options) {
-        const li = document.createElement('li');
-        li.textContent = `${key}. ${question.options[key]}`;
-        ul.appendChild(li);
-      }
-      questionElement.appendChild(ul);
+  // If options exist, display them
+  if (question.options) {
+    const ul = document.createElement('ul');
+    for (let key in question.options) {
+      const li = document.createElement('li');
+      li.textContent = `${key}. ${question.options[key]}`;
+      ul.appendChild(li);
     }
-
-    // Append the question to the question container
-    questionContainer.appendChild(questionElement);
-
-    // Display the answer in the answer container
-    const answerElement = document.createElement('p');
-    answerElement.innerHTML = `<strong>Answer:</strong> ${question.answer}`;
-    answerContainer.appendChild(answerElement);
-
-  } else {
-    questionContainer.innerHTML = '<p>No more questions available.</p>';
-    answerContainer.innerHTML = '';
+    questionElement.appendChild(ul);
   }
-}
 
-// Handle "Next Question" button click
-document.getElementById('next-question').addEventListener('click', () => {
-  currentIndex++;
-  displayQuestion();
-});
+  // Append the question to the question container
+  questionContainer.appendChild(questionElement);
+
+  // Display the answer in the answer container
+  const answerElement = document.createElement('p');
+  answerElement.innerHTML = `<strong>Answer:</strong> ${question.answer}`;
+  answerContainer.appendChild(answerElement);
+}
