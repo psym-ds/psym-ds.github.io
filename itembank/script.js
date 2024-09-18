@@ -66,9 +66,22 @@ function displayQuestions(questions) {
 // Handle search bar input for real-time filtering
 document.getElementById('search-bar').addEventListener('input', (event) => {
   const query = event.target.value.toLowerCase();
-  const filteredQuestions = questions.filter(question =>
-    question.question.toLowerCase().includes(query) || question.id.toString().includes(query)
-  );
+  
+  // Filter questions based on the query, considering both the question and its options
+  const filteredQuestions = questions.filter(question => {
+    const questionMatches = question.question.toLowerCase().includes(query);
+    
+    // Check if any option contains the query
+    let optionMatches = false;
+    if (question.options) {
+      optionMatches = Object.values(question.options).some(option =>
+        option.toLowerCase().includes(query)
+      );
+    }
+
+    return questionMatches || optionMatches || question.id.toString().includes(query);
+  });
+
   populateQuestionList(filteredQuestions);  // Update the sidebar with filtered questions
   displayQuestions(filteredQuestions);  // Show the filtered questions
 });
