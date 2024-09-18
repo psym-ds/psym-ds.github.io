@@ -1,0 +1,849 @@
+[
+  {
+    "id": 1,
+    "question": "What is one of Python's major strengths in natural language processing?",
+    "options": {
+      "1": "Multiple high-level frameworks",
+      "2": "Limited library support",
+      "3": "Lack of flexibility for large datasets",
+      "4": "Inefficient memory management"
+    },
+    "answer": "1"
+  },
+  {
+    "id": 2,
+    "question": "What does the 'Zen of Python' emphasize as a core design principle?",
+    "options": {
+      "1": "Performance is more important than simplicity",
+      "2": "Simple is better than complex",
+      "3": "Implicit is better than explicit",
+      "4": "Complicated is better than complex"
+    },
+    "answer": "2"
+  },
+  {
+    "id": 3,
+    "question": "Which feature does Python NOT support?",
+    "options": {
+      "1": "Object-oriented programming",
+      "2": "Functional programming",
+      "3": "Procedural programming",
+      "4": "Assembly language programming"
+    },
+    "answer": "4"
+  },
+  {
+    "id": 4,
+    "question": "Which tool is recommended for managing Python packages in a virtual environment?",
+    "options": {
+      "1": "Docker",
+      "2": "pip",
+      "3": "Git",
+      "4": "Ansible"
+    },
+    "answer": "2"
+  },
+  {
+    "id": 5,
+    "question": "What is the main advantage of using virtual environments in Python?",
+    "options": {
+      "1": "They speed up program execution.",
+      "2": "They ensure code works across all platforms.",
+      "3": "They isolate project dependencies.",
+      "4": "They increase memory management efficiency."
+    },
+    "answer": "3"
+  },
+  {
+    "id": 6,
+    "question": "Which command is used to activate a virtual environment in Python?",
+    "options": {
+      "1": "python activate",
+      "2": "venv start",
+      "3": "venv\\Scripts\\activate",
+      "4": "py manage"
+    },
+    "answer": "3"
+  },
+  {
+    "id": 7,
+    "question": "What is the purpose of the Anaconda distribution in Python?",
+    "options": {
+      "1": "It is used for web development only.",
+      "2": "It provides pre-installed libraries for data science and AI.",
+      "3": "It only works for graphical applications.",
+      "4": "It is required to run Python scripts."
+    },
+    "answer": "2"
+  },
+  {
+    "id": 8,
+    "question": "In Python, how are raw strings denoted?",
+    "options": {
+      "1": "By using the letter 'b' before the string",
+      "2": "By using double quotes only",
+      "3": "By using the letter 'r' before the string",
+      "4": "By using backticks around the string"
+    },
+    "answer": "3"
+  },
+  {
+    "id": 9,
+    "question": "Which Python method is used to convert text to uppercase?",
+    "options": {
+      "1": "str.lower()",
+      "2": "str.capitalize()",
+      "3": "str.upper()",
+      "4": "str.strip()"
+    },
+    "answer": "3"
+  },
+  {
+    "id": 10,
+    "question": "Which Python function returns the length of a string?",
+    "options": {
+      "1": "str.size()",
+      "2": "count()",
+      "3": "index()",
+      "4": "len()"
+    },
+    "answer": "4"
+  },
+  {
+    "id": 11,
+    "question": "Which of the following can be used for text substitution in Python?",
+    "options": {
+      "1": "re.find()",
+      "2": "re.match()",
+      "3": "re.split()",
+      "4": "re.sub()"
+    },
+    "answer": "4"
+  },
+  {
+    "id": 12,
+    "question": "Which function is used to tokenize a sentence in Python using spaces?",
+    "options": {
+      "1": "split()",
+      "2": "tokenize()",
+      "3": "find()",
+      "4": "replace()"
+    },
+    "answer": "1"
+  },
+  {
+    "id": 13,
+    "question": "Which method checks if a string contains only alphanumeric characters in Python?",
+    "options": {
+      "1": "isalpha()",
+      "2": "isalnum()",
+      "3": "isdigit()",
+      "4": "isdecimal()"
+    },
+    "answer": "2"
+  },
+  {
+    "id": 14,
+    "question": "What is the advantage of using compiled regular expressions in Python?",
+    "options": {
+      "1": "It reduces memory usage.",
+      "2": "It speeds up execution for repeated matches.",
+      "3": "It simplifies syntax.",
+      "4": "It makes code harder to read."
+    },
+    "answer": "2"
+  },
+  {
+    "id": 15,
+    "question": "Which of the following is NOT a common type of string literal in Python?",
+    "options": {
+      "1": "Short strings",
+      "2": "Long strings",
+      "3": "Escape sequences",
+      "4": "Complex strings"
+    },
+    "answer": "4"
+  },
+  {
+    "id": 16,
+    "question": "What happens when you apply np.random.shuffle() to a list of words from a sentence?",
+    "options": {
+      "1": "The words are sorted alphabetically.",
+      "2": "The words are reversed.",
+      "3": "The words are randomly reordered.",
+      "4": "The words are removed."
+    },
+    "answer": "3"
+  },
+  {
+    "id": 17,
+    "question": "What is the main drawback of Python regarding execution speed?",
+    "options": {
+      "1": "It is interpreted rather than compiled.",
+      "2": "It is a high-level language.",
+      "3": "It has a global interpreter lock.",
+      "4": "It is not suitable for multi-threading."
+    },
+    "answer": "1"
+  },
+  {
+    "id": 18,
+    "question": "What can be done to improve Python's execution speed?",
+    "options": {
+      "1": "Use a different programming language.",
+      "2": "Optimize the code for multi-threading.",
+      "3": "Use static typing and C extensions.",
+      "4": "All of the above."
+    },
+    "answer": "4"
+  },
+  {
+    "id": 19,
+    "question": "What is a potential problem with using different Python versions?",
+    "options": {
+      "1": "Code written for one version may not work in another version.",
+      "2": "It slows down the execution of programs.",
+      "3": "It increases the size of the program.",
+      "4": "It makes the program harder to debug."
+    },
+    "answer": "1"
+  },
+  {
+    "id": 20,
+    "question": "What is the Global Interpreter Lock (GIL)?",
+    "options": {
+      "1": "A mechanism to prevent multiple threads from accessing the same data simultaneously.",
+      "2": "A mechanism to limit the number of threads that can run in Python.",
+      "3": "A mechanism to ensure that only one thread can execute Python code at a time.",
+      "4": "A mechanism to improve the performance of Python."
+    },
+    "answer": "3"
+  },
+  {
+    "id": 21,
+    "question": "What is an Integrated Development Environment (IDE)?",
+    "options": {
+      "1": "A simple text editor for writing code.",
+      "2": "A software suite that provides tools for writing, managing, and executing code.",
+      "3": "A debugging tool for finding errors in code.",
+      "4": "A web browser for accessing online resources."
+    },
+    "answer": "2"
+  },
+  {
+    "id": 22,
+    "question": "Which of the following is NOT typically a component of an Integrated Development Environment (IDE)?",
+    "options": {
+      "1": "Source editor",
+      "2": "Debugger",
+      "3": "Spreadsheet editor",
+      "4": "Compiler"
+    },
+    "answer": "3"
+  },
+  {
+    "id": 23,
+    "question": "Which of the following IDE features helps in detecting and correcting errors as you write code?",
+    "options": {
+      "1": "Code-completion",
+      "2": "Syntax highlighting",
+      "3": "Error highlighting and checks",
+      "4": "Object explorer"
+    },
+    "answer": "3"
+  },
+  {
+    "id": 24,
+    "question": "What is one advantage of using an IDE over a simple text editor for writing code?",
+    "options": {
+      "1": "IDEs allow for faster typing.",
+      "2": "IDEs provide a suite of tools like debuggers and compilers.",
+      "3": "IDEs are always easier to learn for beginners.",
+      "4": "IDEs are more commonly available."
+    },
+    "answer": "2"
+  },
+  {
+    "id": 25,
+    "question": "Which package is required to set up a virtual environment in Python?",
+    "options": {
+      "1": "virtualenv",
+      "2": "pip",
+      "3": "setuptools",
+      "4": "wheel"
+    },
+    "answer": "1"
+  },
+  {
+    "id": 26,
+    "question": "What is a virtual environment in Python?",
+    "options": {
+      "1": "A text editor for writing Python code.",
+      "2": "A standalone Python environment with its own interpreter and libraries.",
+      "3": "A web development framework for Python.",
+      "4": "A package manager for Python."
+    },
+    "answer": "2"
+  },
+  {
+    "id": 27,
+    "question": "What is a primary purpose of using a virtual environment in Python?",
+    "options": {
+      "1": "To improve the speed of Python scripts.",
+      "2": "To isolate dependencies for different projects.",
+      "3": "To enable multi-threading in Python applications.",
+      "4": "To manage large datasets more efficiently."
+    },
+    "answer": "2"
+  },
+  {
+    "id": 28,
+    "question": "In Python, indexing of strings starts from:",
+    "options": {
+      "1": "1",
+      "2": "0",
+      "3": "-1",
+      "4": "None of the above"
+    },
+    "answer": "2"
+  },
+  {
+    "id": 29,
+    "question": "What does the index -1 refer to in a string in Python?",
+    "options": {
+      "1": "The first character",
+      "2": "The last character",
+      "3": "The second last character",
+      "4": "It's an invalid index"
+    },
+    "answer": "2"
+  },
+  {
+    "id": 30,
+    "question": "What will s[::2] do for a string s?",
+    "options": {
+      "1": "Return every second character starting from the first",
+      "2": "Return every second character starting from the second",
+      "3": "Return the string in reverse",
+      "4": "Return the first two characters"
+    },
+    "answer": "1"
+  },
+  {
+    "id": 31,
+    "question": "What is one of the main challenges associated with textual data?",
+    "options": {
+      "1": "High storage cost",
+      "2": "Unstructured nature of data",
+      "3": "Lack of variety in data types",
+      "4": "Limited data availability"
+    },
+    "answer": "2"
+  },
+  {
+    "id": 32,
+    "question": "What are the 3Vs of data commonly associated with Big Data?",
+    "options": {
+      "1": "Volume, Variety, Velocity",
+      "2": "Value, Variety, Volume",
+      "3": "Volume, Validity, Veracity",
+      "4": "Variety, Velocity, Veracity"
+    },
+    "answer": "1"
+  },
+  {
+    "id": 33,
+    "question": "What is the main focus of Natural Language Processing?",
+    "options": {
+      "1": "Processing structured numerical data",
+      "2": "Analyzing and understanding unstructured text data",
+      "3": "Compressing multimedia files",
+      "4": "Enhancing machine-to-machine communication"
+    },
+    "answer": "2"
+  },
+  {
+    "id": 34,
+    "question": "What is an example of a natural language?",
+    "options": {
+      "1": "Python",
+      "2": "JavaScript",
+      "3": "English",
+      "4": "HTML"
+    },
+    "answer": "3"
+  },
+  {
+    "id": 35,
+    "question": "Which field studies the structure, meaning, and context of language?",
+    "options": {
+      "1": "Programming",
+      "2": "Linguistics",
+      "3": "Data Science",
+      "4": "Mathematics"
+    },
+    "answer": "2"
+  },
+  {
+    "id": 36,
+    "question": "What does the field of phonetics study?",
+    "options": {
+      "1": "The meaning of words",
+      "2": "The acoustic properties of sounds",
+      "3": "The grammar of sentences",
+      "4": "The use of body language in communication"
+    },
+    "answer": "2"
+  },
+  {
+    "id": 37,
+    "question": "Which part of speech typically modifies a noun?",
+    "options": {
+      "1": "Verb",
+      "2": "Adjective",
+      "3": "Adverb",
+      "4": "Preposition"
+    },
+    "answer": "2"
+  },
+  {
+    "id": 38,
+    "question": "What does the acronym 'POS' stand for in text processing?",
+    "options": {
+      "1": "Part of Syntax",
+      "2": "Part of Sentence",
+      "3": "Part of Speech",
+      "4": "Point of Syntax"
+    },
+    "answer": "3"
+  },
+  {
+    "id": 39,
+    "question": "In shallow parsing, which type of phrase has a noun as its head word?",
+    "options": {
+      "1": "Adjective phrase",
+      "2": "Verb phrase",
+      "3": "Prepositional phrase",
+      "4": "Noun phrase"
+    },
+    "answer": "4"
+  },
+  {
+    "id": 40,
+    "question": "Which syntactic category does the sentence 'The cat is sleeping' belong to?",
+    "options": {
+      "1": "Imperative",
+      "2": "Declarative",
+      "3": "Exclamative",
+      "4": "Interrogative"
+    },
+    "answer": "2"
+  },
+  {
+    "id": 41,
+    "question": "What does the 'det' dependency tag represent?",
+    "options": {
+      "1": "A verb phrase",
+      "2": "A noun subject",
+      "3": "A determiner",
+      "4": "An adjective modifier"
+    },
+    "answer": "3"
+  },
+  {
+    "id": 42,
+    "question": "What is the main distinction between dependency grammar and constituency grammar?",
+    "options": {
+      "1": "Dependency grammar focuses on word relationships, while constituency grammar emphasizes hierarchical structure.",
+      "2": "Dependency grammar uses trees, while constituency grammar uses graphs.",
+      "3": "Constituency grammar is for formal languages, while dependency grammar is for natural languages.",
+      "4": "Both grammars emphasize sentence structure over word order."
+    },
+    "answer": "1"
+  },
+  {
+    "id": 43,
+    "question": "Which branch of linguistics deals with the meaning of words and how they combine to form sentences?",
+    "options": {
+      "1": "Syntax",
+      "2": "Semantics",
+      "3": "Morphology",
+      "4": "Pragmatics"
+    },
+    "answer": "2"
+  },
+  {
+    "id": 44,
+    "question": "The study of how context affects the meaning of language expressions is known as:",
+    "options": {
+      "1": "Semiotics",
+      "2": "Pragmatics",
+      "3": "Discourse Analysis",
+      "4": "Stylistics"
+    },
+    "answer": "2"
+  },
+  {
+    "id": 45,
+    "question": "Which field of linguistics would be most concerned with the analysis of conversations?",
+    "options": {
+      "1": "Discourse Analysis",
+      "2": "Semantics",
+      "3": "Syntax",
+      "4": "Phonetics"
+    },
+    "answer": "1"
+  },
+  {
+    "id": 46,
+    "question": "What does the process of 'shallow parsing' typically involve?",
+    "options": {
+      "1": "Analyzing the deep structure of sentences",
+      "2": "Identifying the main verb in a sentence",
+      "3": "Determining the constituents like phrases and clauses in a sentence",
+      "4": "Translating sentences into another language"
+    },
+    "answer": "3"
+  },
+  {
+    "id": 47,
+    "question": "In the sentence structure hierarchy, what directly combines to form a clause?",
+    "options": {
+      "1": "Words",
+      "2": "Phrases",
+      "3": "Sentences",
+      "4": "Paragraphs"
+    },
+    "answer": "2"
+  },
+  {
+    "id": 48,
+    "question": "The POS tag for words that describe actions or states is:",
+    "options": {
+      "1": "N",
+      "2": "V",
+      "3": "ADJ",
+      "4": "ADV"
+    },
+    "answer": "2"
+  },
+  {
+    "id": 49,
+    "question": "Which of the following is NOT a characteristic of dependency grammar?",
+    "options": {
+      "1": "Focuses on word-word relationships",
+      "2": "Represents sentence structure using a directed acyclic graph",
+      "3": "Uses dependency tags to denote the type of relationship between words",
+      "4": "Emphasizes constituents like phrases and clauses"
+    },
+    "answer": "4"
+  },
+  {
+    "id": 50,
+    "question": "Which of the following is NOT one of the five major categories of phrases?",
+    "options": {
+      "1": "Noun Phrase (NP)",
+      "2": "Verb Phrase (VP)",
+      "3": "Conjunction Phrase (CP)",
+      "4": "Prepositional Phrase (PP)"
+    },
+    "answer": "3"
+  },
+  {
+    "id": 51,
+    "question": "Which type of clause is used to issue a command or request?",
+    "options": {
+      "1": "Imperative",
+      "2": "Declarative",
+      "3": "Relative",
+      "4": "Interrogative"
+    },
+    "answer": "1"
+  },
+  {
+    "id": 52,
+    "question": "What is the main role of an adjective phrase (ADJP) in a sentence?",
+    "options": {
+      "1": "To describe or qualify nouns and pronouns",
+      "2": "To act as the subject of a sentence",
+      "3": "To provide direction",
+      "4": "To act as a verb"
+    },
+    "answer": "1"
+  },
+  {
+    "id": 53,
+    "question": "What does the dependency tag 'amod' represent in a dependency grammar tree?",
+    "options": {
+      "1": "Adjectival modifier",
+      "2": "Adverbial modifier",
+      "3": "Subject of the verb",
+      "4": "Object of the preposition"
+    },
+    "answer": "1"
+  },
+  {
+    "id": 54,
+    "question": "Which of the following statements about dependency grammars is TRUE?",
+    "options": {
+      "1": "They prioritize the order of words in a sentence.",
+      "2": "The root of the sentence is always the noun.",
+      "3": "They are not capable of representing semantic relationships between words.",
+      "4": "They use a one-to-one relationship to represent each word in a sentence."
+    },
+    "answer": "4"
+  },
+  {
+    "id": 55,
+    "question": "Which of the following best defines a 'constituent' in constituency grammar?",
+    "options": {
+      "1": "A group of words that function together as a unit",
+      "2": "A word that can have multiple meanings",
+      "3": "The main verb in a sentence",
+      "4": "The subject of a sentence"
+    },
+    "answer": "1"
+  },
+  {
+    "id": 56,
+    "question": "In the phrase structure rule, S → NP VP, what do NP and VP stand for?",
+    "options": {
+      "1": "Noun Phrase and Verb Phrase",
+      "2": "Noun Phrase and Adjective Phrase",
+      "3": "Noun Phrase and Prepositional Phrase",
+      "4": "Noun Phrase and Conjunction Phrase"
+    },
+    "answer": "1"
+  },
+  {
+    "id": 57,
+    "question": "Which of the following is not a possible component of a verb phrase (VP) according to the rules provided?",
+    "options": {
+      "1": "Adjective Phrase (ADJP)",
+      "2": "Noun Phrase (NP)",
+      "3": "Determiner (DET)",
+      "4": "Adverbial Phrase (ADVP)"
+    },
+    "answer": "3"
+  },
+  {
+    "id": 58,
+    "question": "What is the first step in text processing for natural language analysis?",
+    "options": {
+      "1": "Feature extraction",
+      "2": "Data visualization",
+      "3": "Deep learning",
+      "4": "Cleaning and preprocessing"
+    },
+    "answer": "4"
+  },
+  {
+    "id": 59,
+    "question": "Which of the following is not a typical step in text preprocessing?",
+    "options": {
+      "1": "Tokenization",
+      "2": "Stemming",
+      "3": "Convolution",
+      "4": "Lemmatization"
+    },
+    "answer": "3"
+  },
+  {
+    "id": 60,
+    "question": "HTML tags in text data are usually considered:",
+    "options": {
+      "1": "Essential for analysis",
+      "2": "Irrelevant noise",
+      "3": "Important for sentiment analysis",
+      "4": "Crucial for text parsing"
+    },
+    "answer": "2"
+  },
+  {
+    "id": 61,
+    "question": "What Python library is commonly used to remove HTML tags from text data?",
+    "options": {
+      "1": "Pandas",
+      "2": "BeautifulSoup",
+      "3": "TensorFlow",
+      "4": "Seaborn"
+    },
+    "answer": "2"
+  },
+  {
+    "id": 62,
+    "question": "Tokenization is the process of:",
+    "options": {
+      "1": "Reducing words to their root forms",
+      "2": "Splitting text into smaller meaningful units",
+      "3": "Correcting spelling mistakes",
+      "4": "Removing punctuation marks"
+    },
+    "answer": "2"
+  },
+  {
+    "id": 63,
+    "question": "Which technique is used to break down a sentence into its constituent words?",
+    "options": {
+      "1": "Sentence tokenization",
+      "2": "Word tokenization",
+      "3": "Lemmatization",
+      "4": "Chunking"
+    },
+    "answer": "2"
+  },
+  {
+    "id": 64,
+    "question": "What does stemming do?",
+    "options": {
+      "1": "Converts words into their base or root forms",
+      "2": "Translates text into another language",
+      "3": "Corrects misspelled words",
+      "4": "Identifies named entities"
+    },
+    "answer": "1"
+  },
+  {
+    "id": 65,
+    "question": "What is the main difference between stemming and lemmatization?",
+    "options": {
+      "1": "Stemming considers grammatical context.",
+      "2": "Lemmatization results in valid words, while stemming may not.",
+      "3": "Stemming is slower than lemmatization.",
+      "4": "Lemmatization removes punctuation marks."
+    },
+    "answer": "2"
+  },
+  {
+    "id": 66,
+    "question": "What does the strip_html_tags function in Python typically do?",
+    "options": {
+      "1": "Eliminates HTML and iframe tags from text",
+      "2": "Removes stopwords",
+      "3": "Expands contractions",
+      "4": "Tokenizes sentences into words"
+    },
+    "answer": "1"
+  },
+  {
+    "id": 67,
+    "question": "Which tokenizer is commonly used for tokenizing text based on regular expressions?",
+    "options": {
+      "1": "PunktTokenizer",
+      "2": "RegexTokenizer",
+      "3": "SpaCyTokenizer",
+      "4": "GensimTokenizer"
+    },
+    "answer": "2"
+  },
+  {
+    "id": 68,
+    "question": "What Python library can be used to convert accented characters into standard ASCII characters?",
+    "options": {
+      "1": "NumPy",
+      "2": "unicodedata",
+      "3": "Matplotlib",
+      "4": "TensorFlow"
+    },
+    "answer": "2"
+  },
+  {
+    "id": 69,
+    "question": "The process of expanding words like 'can't' into 'cannot' is called:",
+    "options": {
+      "1": "Tokenization",
+      "2": "Chunking",
+      "3": "Expanding contractions",
+      "4": "Lemmatization"
+    },
+    "answer": "3"
+  },
+  {
+    "id": 70,
+    "question": "Which of the following functions is used to remove special characters from text?",
+    "options": {
+      "1": "remove_special_characters()",
+      "2": "remove_stopwords()",
+      "3": "correct_spelling()",
+      "4": "remove_punctuation()"
+    },
+    "answer": "1"
+  },
+  {
+    "id": 71,
+    "question": "The purpose of case conversion in text preprocessing is to:",
+    "options": {
+      "1": "Standardize the text for easier comparison and matching",
+      "2": "Remove all punctuation",
+      "3": "Increase computational efficiency",
+      "4": "Parse grammatical structure"
+    },
+    "answer": "1"
+  },
+  {
+    "id": 72,
+    "question": "What is the main function of a stemmer in text processing?",
+    "options": {
+      "1": "Correcting spelling",
+      "2": "Translating text",
+      "3": "Reducing words to their root form",
+      "4": "Removing punctuation"
+    },
+    "answer": "3"
+  },
+  {
+    "id": 73,
+    "question": "What is a disadvantage of stemming compared to lemmatization?",
+    "options": {
+      "1": "It is more computationally expensive.",
+      "2": "It may not result in valid words.",
+      "3": "It is too slow for large datasets.",
+      "4": "It only works for the English language."
+    },
+    "answer": "2"
+  },
+  {
+    "id": 74,
+    "question": "What is the output of ps.stem('lying') where ps is a PorterStemmer object?",
+    "options": {
+      "1": "lie",
+      "2": "lying",
+      "3": "lay",
+      "4": "lieing"
+    },
+    "answer": "1"
+  },
+  {
+    "id": 75,
+    "question": "What are stopwords?",
+    "options": {
+      "1": "Words that are frequently used in a language.",
+      "2": "Words that have little or no significance in a text.",
+      "3": "Words that are always capitalized.",
+      "4": "Words that are used to indicate the beginning or end of a sentence."
+    },
+    "answer": "2"
+  },
+  {
+    "id": 76,
+    "question": "Why are stopwords removed from text?",
+    "options": {
+      "1": "To improve the speed of processing.",
+      "2": "To reduce the size of the text.",
+      "3": "To retain only the most important words.",
+      "4": "All of the above."
+    },
+    "answer": "4"
+  },
+  {
+    "id": 77,
+    "question": "Which of the following is a common stopword?",
+    "options": {
+      "1": "'is'",
+      "2": "'the'",
+      "3": "'and'",
+      "4": "All of the above."
+    },
+    "answer": "4"
+  }
+]
