@@ -7,19 +7,16 @@ fetch('questions.json')
   .then(response => response.json())
   .then(data => {
     questions = data;
-    displayQuestion();
+    displayQuestion();  // Display the first question and answer
   })
   .catch(error => console.error('Error loading questions:', error));
 
-// Display a question
+// Display a question and its answer
 function displayQuestion() {
   const questionContainer = document.getElementById('question-container');
-  const answerContainer = document.getElementById('answer-container');
-  const answerText = document.getElementById('answer');
 
   // Clear previous content
   questionContainer.innerHTML = '';
-  answerContainer.style.display = 'none';
 
   // Check if there are more questions
   if (currentIndex < questions.length) {
@@ -40,11 +37,13 @@ function displayQuestion() {
       questionElement.appendChild(ul);
     }
 
-    // Append the question to the container
-    questionContainer.appendChild(questionElement);
+    // Display the answer directly below the question
+    const answerElement = document.createElement('p');
+    answerElement.innerHTML = `<strong>Answer:</strong> ${question.answer}`;
+    questionElement.appendChild(answerElement);
 
-    // Set answer
-    answerText.textContent = question.answer;
+    // Append the question and answer to the container
+    questionContainer.appendChild(questionElement);
   } else {
     questionContainer.innerHTML = '<p>No more questions available.</p>';
   }
@@ -54,5 +53,4 @@ function displayQuestion() {
 document.getElementById('next-question').addEventListener('click', () => {
   currentIndex++;
   displayQuestion();
-  document.getElementById('answer-container').style.display = 'block';
 });
