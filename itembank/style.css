@@ -77,14 +77,14 @@ button {
   padding: 10px;
   font-size: 16px;
   cursor: pointer;
-  background-color: #0077cc;
+  background-color: #7c7c7c;
   color: white;
   border: none;
   border-radius: 5px;
 }
 
 button:hover {
-  background-color: #005fa3;
+  background-color: #5c5c5c;
 }
 
 .question-card {
