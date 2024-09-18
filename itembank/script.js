@@ -7,6 +7,7 @@ fetch('questions.json')
   .then(response => response.json())
   .then(data => {
     questions = data;
+    console.log(questions); // Debugging: log the questions array to verify
     displayQuestion();  // Display the first question and answer
   })
   .catch(error => console.error('Error loading questions:', error));
@@ -21,6 +22,9 @@ function displayQuestion() {
   // Check if there are more questions
   if (currentIndex < questions.length) {
     const question = questions[currentIndex];
+
+    // Debugging: log the current question object to verify
+    console.log("Displaying question:", question);
 
     // Create the question element
     const questionElement = document.createElement('div');
@@ -40,6 +44,10 @@ function displayQuestion() {
     // Display the answer directly below the question
     const answerElement = document.createElement('p');
     answerElement.innerHTML = `<strong>Answer:</strong> ${question.answer}`;
+    
+    // Debugging: check if the answer is populated
+    console.log("Answer:", question.answer);
+
     questionElement.appendChild(answerElement);
 
     // Append the question and answer to the container
