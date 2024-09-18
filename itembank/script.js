@@ -7,7 +7,6 @@ fetch('questions.json')
   .then(response => response.json())
   .then(data => {
     questions = data;
-    console.log(questions); // Debugging: log the questions array to verify
     displayQuestion();  // Display the first question and answer
   })
   .catch(error => console.error('Error loading questions:', error));
@@ -15,16 +14,15 @@ fetch('questions.json')
 // Display a question and its answer
 function displayQuestion() {
   const questionContainer = document.getElementById('question-container');
+  const answerContainer = document.getElementById('answer-container');
 
   // Clear previous content
   questionContainer.innerHTML = '';
+  answerContainer.innerHTML = '';
 
   // Check if there are more questions
   if (currentIndex < questions.length) {
     const question = questions[currentIndex];
-
-    // Debugging: log the current question object to verify
-    console.log("Displaying question:", question);
 
     // Create the question element
     const questionElement = document.createElement('div');
@@ -41,19 +39,17 @@ function displayQuestion() {
       questionElement.appendChild(ul);
     }
 
-    // Display the answer directly below the question
+    // Append the question to the question container
+    questionContainer.appendChild(questionElement);
+
+    // Display the answer in the answer container
     const answerElement = document.createElement('p');
     answerElement.innerHTML = `<strong>Answer:</strong> ${question.answer}`;
-    
-    // Debugging: check if the answer is populated
-    console.log("Answer:", question.answer);
+    answerContainer.appendChild(answerElement);
 
-    questionElement.appendChild(answerElement);
-
-    // Append the question and answer to the container
-    questionContainer.appendChild(questionElement);
   } else {
     questionContainer.innerHTML = '<p>No more questions available.</p>';
+    answerContainer.innerHTML = '';
   }
 }
 
