@@ -1,68 +1,74 @@
-// Load JSON file and manage questions
 let questions = [];
-let currentIndex = 0;
 
 // Fetch questions from the JSON file
 fetch('questions.json')
   .then(response => response.json())
   .then(data => {
     questions = data;
-    populateQuestionList();  // Populate the sidebar with questions
-    displayQuestion(0);  // Display the first question and answer
+    populateQuestionList(questions);  // Populate the sidebar with questions
+    displayQuestions(questions);  // Display all questions initially
   })
   .catch(error => console.error('Error loading questions:', error));
 
 // Populate the list of questions in the sidebar
-function populateQuestionList() {
+function populateQuestionList(questions) {
   const questionList = document.getElementById('question-list');
+  questionList.innerHTML = '';  // Clear previous list
+
   questions.forEach((question, index) => {
-    // Create a list item with question id and first few characters of the question text
     const listItem = document.createElement('li');
     listItem.textContent = `${question.id}: ${question.question.substring(0, 30)}...`;
-    listItem.addEventListener('click', () => displayQuestion(index));
+    listItem.addEventListener('click', () => displayQuestions([question]));  // Show clicked question
     questionList.appendChild(listItem);
   });
 }
 
-// Display a question and its answer
-function displayQuestion(index) {
-  currentIndex = index;  // Update the current question index
+// Display a question and its answer in card format
+function displayQuestions(questions) {
   const questionContainer = document.getElementById('question-container');
-  const answerContainer = document.getElementById('answer-container');
+  questionContainer.innerHTML = '';  // Clear previous content
 
-  // Clear previous content
-  questionContainer.innerHTML = '';
-  answerContainer.innerHTML = '';
+  questions.forEach((question) => {
+    // Create a card for each question
+    const questionCard = document.createElement('div');
+    questionCard.classList.add('question-card');
 
-  // Get the selected question
-  const question = questions[currentIndex];
+    // Display question ID and text
+    const questionIdElement = document.createElement('p');
+    questionIdElement.innerHTML = `<strong>Question ID:</strong> ${question.id}`;
+    questionCard.appendChild(questionIdElement);
 
-  // Display question ID and text
-  const questionElement = document.createElement('div');
-  const questionIdElement = document.createElement('p');
-  questionIdElement.innerHTML = `<strong>Question ID:</strong> ${question.id}`;
-  questionElement.appendChild(questionIdElement);
+    const questionTextElement = document.createElement('p');
+    questionTextElement.innerHTML = question.question;
+    questionCard.appendChild(questionTextElement);
 
-  const questionTextElement = document.createElement('p');
-  questionTextElement.innerHTML = question.question;
-  questionElement.appendChild(questionTextElement);
-
-  // If options exist, display them
-  if (question.options) {
-    const ul = document.createElement('ul');
-    for (let key in question.options) {
-      const li = document.createElement('li');
-      li.textContent = `${key}. ${question.options[key]}`;
-      ul.appendChild(li);
+    // If options exist, display them
+    if (question.options) {
+      const ul = document.createElement('ul');
+      for (let key in question.options) {
+        const li = document.createElement('li');
+        li.textContent = `${key}. ${question.options[key]}`;
+        ul.appendChild(li);
+      }
+      questionCard.appendChild(ul);
     }
-    questionElement.appendChild(ul);
-  }
 
-  // Append the question to the question container
-  questionContainer.appendChild(questionElement);
+    // Display the answer
+    const answerElement = document.createElement('p');
+    answerElement.innerHTML = `<strong>Answer:</strong> ${question.answer}`;
+    questionCard.appendChild(answerElement);
 
-  // Display the answer in the answer container
-  const answerElement = document.createElement('p');
-  answerElement.innerHTML = `<strong>Answer:</strong> ${question.answer}`;
-  answerContainer.appendChild(answerElement);
+    // Append the card to the question container
+    questionContainer.appendChild(questionCard);
+  });
 }
+
+// Handle search bar input for real-time filtering
+document.getElementById('search-bar').addEventListener('input', (event) => {
+  const query = event.target.value.toLowerCase();
+  const filteredQuestions = questions.filter(question =>
+    question.question.toLowerCase().includes(query) || question.id.toString().includes(query)
+  );
+  populateQuestionList(filteredQuestions);  // Update the sidebar with filtered questions
+  displayQuestions(filteredQuestions);  // Show the filtered questions
+});
