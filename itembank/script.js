@@ -1,44 +1,76 @@
+// Firebase imports and initialization
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+
+// Your Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCXAb_OA1bZAVpAZbborRq5cFTOaCj-RCA",
+  authDomain: "itembank-bfd86.firebaseapp.com",
+  databaseURL: "https://itembank-bfd86-default-rtdb.firebaseio.com",
+  projectId: "itembank-bfd86",
+  storageBucket: "itembank-bfd86.appspot.com",
+  messagingSenderId: "806451241042",
+  appId: "1:806451241042:web:25974e69cf2322f469ff8b"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+
 let questions = [];
 let showAnswers = true;
 let currentQuestions = []; // Keep track of current displayed questions in test mode
 
-// Fetch questions from the JSON file
-fetch('questions.json')
-  .then(response => response.json())
-  .then(data => {
-    questions = data;
-    populateQuestionList(questions); // Populate the sidebar with questions for view mode
-    displayQuestions(questions, 'view-mode'); // Display all questions initially in view mode
-  })
-  .catch(error => console.error('Error loading questions:', error));
+// Fetch questions from Firebase Realtime Database
+const questionsRef = ref(database, '/'); // Assuming questions are stored directly in the root
 
-// Populate the list of questions in the sidebar (first tab)
-function populateQuestionList(questions) {
-  const questionList = document.getElementById('question-list');
+onValue(questionsRef, (snapshot) => {
+  const data = snapshot.val();
+  
+  // Ensure the data exists and is an array
+  if (data && Array.isArray(data)) {
+    questions = data; // Assign to global `questions` variable
+    populateQuestionList(questions, 'view-mode'); // Populate the sidebar with questions for view mode
+    populateQuestionList(questions, 'manage-mode'); // Populate the sidebar with questions for manage mode
+    displayQuestions(questions, 'view-mode'); // Display all questions initially in view mode
+    displayQuestions(questions, 'manage-mode'); // Display all questions initially in manage mode
+  } else {
+    console.error('No questions found or data is not in the expected format');
+  }
+}, (error) => {
+  console.error('Error fetching questions from Firebase:', error);
+});
+
+// Populate the list of questions in the sidebar for both view and manage modes
+function populateQuestionList(questions, mode) {
+  const questionList = document.getElementById(mode === 'view-mode' ? 'question-list' : 'manage-question-list');
   questionList.innerHTML = ''; // Clear previous list
 
   questions.forEach((question) => {
     const listItem = document.createElement('li');
     listItem.textContent = `${question.id}: ${question.question.substring(0, 30)}...`;
-    listItem.addEventListener('click', () => displayQuestions([question], 'view-mode'));
+    listItem.addEventListener('click', () => displayQuestions([question], mode));
     questionList.appendChild(listItem);
   });
 }
 
-// Display a question and its answer in the specified container (either view-mode or test-mode)
+// Display a question and its answer in the specified container (either view-mode or manage-mode)
 function displayQuestions(questions, containerId) {
   const questionContainer = document.querySelector(`#${containerId} #question-container`);
   questionContainer.innerHTML = ''; // Clear previous content
 
-  if (containerId === 'test-mode') {
-    currentQuestions = questions; // Track currently displayed questions in test mode
-    const displayedIds = questions.map(q => q.id).join(', ');
-    document.getElementById('displayed-ids').textContent = displayedIds || 'None';
-  }
-
   questions.forEach((question) => {
     const questionCard = document.createElement('div');
     questionCard.classList.add('question-card');
+
+    if (containerId === 'manage-mode') {
+      // Add remove (delete) button for each question in manage mode
+      const deleteButton = document.createElement('span');
+      deleteButton.classList.add('red-cross');
+      deleteButton.textContent = '×';
+      deleteButton.addEventListener('click', () => confirmDelete(question.id));
+      questionCard.appendChild(deleteButton);
+    }
 
     const questionIdElement = document.createElement('p');
     questionIdElement.innerHTML = `<strong>Question ID:</strong> ${question.id}`;
@@ -70,6 +102,206 @@ function displayQuestions(questions, containerId) {
   });
 }
 
+// Handle Add Panel toggle and make it draggable
+document.getElementById('toggle-add-panel').addEventListener('click', () => {
+  const addPanel = document.getElementById('add-panel');
+  addPanel.style.display = 'block'; // Display the pop-up box
+  makeMovable(addPanel); // Make the panel movable
+});
+
+// Close the Add Panel when the red cross is clicked
+document.getElementById('close-add-panel').addEventListener('click', () => {
+  const addPanel = document.getElementById('add-panel');
+  addPanel.style.display = 'none'; // Hide the pop-up box
+});
+
+// Confirm delete function
+function confirmDelete(questionId) {
+  showNotification('Are you sure you want to delete this question?', 'Delete', 'Cancel', () => {
+    removeQuestion(Number(questionId));  // Ensure ID is treated as a number
+  });
+}
+
+// Remove question from Firebase
+function removeQuestion(questionId) {
+  const questionIndex = questions.findIndex(q => q.id === questionId);
+  if (questionIndex > -1) {
+    questions.splice(questionIndex, 1);
+    set(ref(database, '/'), questions); // Update Firebase after deletion
+  }
+}
+
+// Handle Add Question functionality
+document.getElementById('add-question-button').addEventListener('click', () => {
+  const newId = Number(document.getElementById('new-question-id').value.trim());  // Ensure ID is a number
+  const newText = document.getElementById('new-question-text').value.trim();
+  const newAnswer = document.getElementById('new-question-answer').value.trim();
+
+  // Check if any required fields are empty
+  if (!newId || !newText || !newAnswer) {
+    showNotification('Please fill in all the required fields.', 'OK');
+    return;
+  }
+
+  // Check if the question ID already exists
+  const existingQuestion = questions.find(question => Number(question.id) === newId);  // Compare IDs as numbers
+  if (existingQuestion) {
+    // Ask the user whether to replace the existing question
+    showNotification(
+      'A question with this ID already exists. Do you want to replace it?',
+      'Replace',
+      'Cancel',
+      () => {
+        replaceQuestion(newId, newText, newAnswer); // Replace the question if confirmed
+      }
+    );
+    return;
+  }
+
+  // Proceed to add the new question if no conflict
+  addNewQuestion(newId, newText, newAnswer);
+});
+
+// Replace the existing question in Firebase
+function replaceQuestion(newId, newText, newAnswer) {
+  const updatedQuestion = {
+    id: newId,
+    question: newText,
+    options: {},
+    answer: newAnswer
+  };
+
+  // Get options from the inputs
+  document.querySelectorAll('.option-input').forEach((input, index) => {
+    if (input.value.trim()) {
+      updatedQuestion.options[index + 1] = input.value.trim();
+    }
+  });
+
+  // Find the existing question and replace it
+  const questionIndex = questions.findIndex(q => Number(q.id) === newId);
+  questions[questionIndex] = updatedQuestion;
+
+  // Update Firebase
+  set(ref(database, '/'), questions);
+
+  // Clear input fields after adding
+  document.getElementById('new-question-id').value = '';
+  document.getElementById('new-question-text').value = '';
+  document.getElementById('new-question-answer').value = '';
+  resetAdditionalOptions();
+}
+
+// Add new question to Firebase
+function addNewQuestion(newId, newText, newAnswer) {
+  const newQuestion = {
+    id: newId,
+    question: newText,
+    options: {},
+    answer: newAnswer
+  };
+
+  // Get options from the inputs
+  document.querySelectorAll('.option-input').forEach((input, index) => {
+    if (input.value.trim()) {
+      newQuestion.options[index + 1] = input.value.trim();
+    }
+  });
+
+  // Add the new question
+  questions.push(newQuestion);
+  set(ref(database, '/'), questions); // Update Firebase with the new question
+
+  // Clear input fields after adding
+  document.getElementById('new-question-id').value = '';
+  document.getElementById('new-question-text').value = '';
+  document.getElementById('new-question-answer').value = '';
+  resetAdditionalOptions();
+}
+
+// Function to reset additional options and clear the first option input
+function resetAdditionalOptions() {
+  const optionContainer = document.getElementById('new-options-container');
+  optionContainer.querySelectorAll('.option-wrapper').forEach((wrapper, index) => {
+    if (index === 0) {
+      // Clear the first option input
+      wrapper.querySelector('.option-input').value = '';
+    } else {
+      // Remove only the extra option inputs
+      wrapper.remove();
+    }
+  });
+}
+
+// Function to add option input box with delete button
+function addOptionInput() {
+  const optionContainer = document.getElementById('new-options-container');
+  
+  // Create a new option input
+  const optionWrapper = document.createElement('div');
+  optionWrapper.classList.add('option-wrapper');
+
+  const newOptionInput = document.createElement('input');
+  newOptionInput.type = 'text';
+  newOptionInput.classList.add('modern-input', 'option-input');
+  newOptionInput.placeholder = `Enter option ${optionContainer.querySelectorAll('.option-input').length + 1}`;
+  optionWrapper.appendChild(newOptionInput);
+
+  // Add delete button for the new option input
+  const deleteButton = document.createElement('button');
+  deleteButton.textContent = 'Delete';
+  deleteButton.classList.add('delete-option-button');
+  deleteButton.addEventListener('click', () => {
+    optionWrapper.remove(); // Remove the option
+    renumberOptions(); // Renumber remaining options
+  });
+  optionWrapper.appendChild(deleteButton);
+
+  optionContainer.appendChild(optionWrapper);
+}
+
+// Function to renumber options after deletion
+function renumberOptions() {
+  const optionInputs = document.querySelectorAll('.option-input');
+  optionInputs.forEach((input, index) => {
+    input.placeholder = `Enter option ${index + 1}`; // Renumber the placeholders
+  });
+}
+
+// Handle adding new options
+document.getElementById('add-option-button').addEventListener('click', () => {
+  addOptionInput(); // Add an empty option input box
+});
+
+// Custom notification box for errors, warnings, and confirmation
+function showNotification(message, confirmText, cancelText = null, confirmCallback = null) {
+  const notificationBox = document.createElement('div');
+  notificationBox.classList.add('confirm-box');
+  notificationBox.innerHTML = `
+    <p>${message}</p>
+    <div class="button-container">
+      <button class="confirm-button confirm-replace">${confirmText}</button>
+      ${cancelText ? `<button class="confirm-button confirm-cancel">${cancelText}</button>` : ''}
+    </div>
+  `;
+  document.body.appendChild(notificationBox);
+
+  // Handle confirm action
+  notificationBox.querySelector('.confirm-replace').addEventListener('click', () => {
+    document.body.removeChild(notificationBox);
+    if (confirmCallback) {
+      confirmCallback();
+    }
+  });
+
+  // Handle cancel action if provided
+  if (cancelText) {
+    notificationBox.querySelector('.confirm-cancel').addEventListener('click', () => {
+      document.body.removeChild(notificationBox);
+    });
+  }
+}
+
 // Handle search bar input in view mode
 document.getElementById('search-bar').addEventListener('input', (event) => {
   const query = event.target.value.toLowerCase();
@@ -86,6 +318,24 @@ document.getElementById('search-bar').addEventListener('input', (event) => {
   });
 
   displayQuestions(filteredQuestions, 'view-mode');
+});
+
+// Handle search bar input in manage mode
+document.getElementById('manage-search-bar').addEventListener('input', (event) => {
+  const query = event.target.value.toLowerCase();
+
+  const filteredQuestions = questions.filter(question => {
+    const questionMatches = question.question.toLowerCase().includes(query);
+    let optionMatches = false;
+    if (question.options) {
+      optionMatches = Object.values(question.options).some(option =>
+        option.toLowerCase().includes(query)
+      );
+    }
+    return questionMatches || optionMatches || question.id.toString().includes(query);
+  });
+
+  displayQuestions(filteredQuestions, 'manage-mode');
 });
 
 // Handle mode change in Test Mode
@@ -109,9 +359,9 @@ document.getElementById('mode-select').addEventListener('change', () => {
 
 // Handle fixed ID input for Fixed mode and display in specified order
 document.getElementById('fixed-id-list').addEventListener('input', () => {
-  const idList = document.getElementById('fixed-id-list').value.split(',').map(id => id.trim());
+  const idList = document.getElementById('fixed-id-list').value.split(',').map(id => Number(id.trim())); // Ensure IDs are treated as numbers
   const orderedQuestions = idList
-    .map(id => questions.find(q => q.id.toString() === id))
+    .map(id => questions.find(q => Number(q.id) === id))  // Compare IDs as numbers
     .filter(q => q !== undefined); // Filter out invalid IDs
   displayQuestions(orderedQuestions, 'test-mode');
 });
@@ -163,3 +413,30 @@ document.querySelectorAll('.tab-link').forEach(button => {
     }
   });
 });
+
+// Add functionality to make the add panel draggable
+function makeMovable(element) {
+  let isDragging = false;
+  let offsetX, offsetY;
+
+  element.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    offsetX = e.clientX - element.offsetLeft;
+    offsetY = e.clientY - element.offsetTop;
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
+
+  function onMouseMove(e) {
+    if (isDragging) {
+      element.style.left = `${e.clientX - offsetX}px`;
+      element.style.top = `${e.clientY - offsetY}px`;
+    }
+  }
+
+  function onMouseUp() {
+    isDragging = false;
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+  }
+}

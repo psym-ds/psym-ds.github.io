@@ -8,14 +8,14 @@
 </head>
 <body>
   <div class="tabs">
-    <button class="tab-link active" data-mode="view">View Mode</button>
-    <button class="tab-link" data-mode="edit">Edit Mode</button>
-    <button class="tab-link" data-mode="test">Test Mode</button>
+    <button class="tab-link active" data-mode="view">View</button>
+    <button class="tab-link" data-mode="manage">Manage</button>
+    <button class="tab-link" data-mode="test">Test</button>
   </div>
 
   <div class="container" id="view-mode">
     <div class="sidebar">
-      <h2>Questions List</h2>
+      <h2>Question List</h2>
       <input type="text" id="search-bar" placeholder="Search for a question..." />
       <ul id="question-list">
         <!-- List of questions will be injected here -->
@@ -29,9 +29,30 @@
     </div>
   </div>
 
-  <div class="container" id="edit-mode" style="display: none;">
-    <p>Edit mode content will be added here later.</p>
-  </div>
+  <div class="container" id="manage-mode" style="display: none;">
+    <div class="sidebar">
+      <!-- Reuse the search bar and question list panel -->
+      <h2>Question List</h2>
+      <input type="text" id="manage-search-bar" placeholder="Search for a question..." />
+      <ul id="manage-question-list">
+        <!-- List of questions will be injected here for managing -->
+      </ul>
+    </div>
+
+    <div class="content">
+      <div class="control-buttons">
+        <!-- Buttons for adding, editing, selecting, and importing -->
+        <button id="toggle-add-panel" class="modern-button">Add</button>
+        <button id="delete-button" class="modern-button">Delete</button>
+        <button id="select-button" class="modern-button">Select</button>
+        <button id="import-button" class="modern-button">Import</button>
+      </div>
+
+      <div id="question-container">
+        <!-- Questions and answers will be injected here for managing -->
+      </div>
+    </div>
+  </div>  
 
   <div class="container" id="test-mode" style="display: none;">
     <div class="content">
@@ -62,8 +83,28 @@
         <!-- Questions will be injected here -->
       </div>
     </div>
-  </div>
-
-  <script src="script.js"></script>
+  </div> 
+  <div class="add-panel" id="add-panel" style="display: none;">
+    <span class="red-cross" id="close-add-panel">×</span> <!-- Red cross to close the panel -->
+    <label for="new-question-id">ID:</label>
+    <input type="text" id="new-question-id" class="modern-input" placeholder="Enter question ID" />
+    
+    <label for="new-question-text">Question:</label>
+    <textarea id="new-question-text" class="modern-input" placeholder="Enter question text"></textarea>
+    
+    <label for="new-question-options">Options:</label>
+    <div id="new-options-container">
+      <div class="option-wrapper">
+        <input type="text" class="modern-input option-input" placeholder="Enter option 1" />
+        <button id="add-option-button" class="modern-button add-option-button">Add</button>
+      </div>
+    </div>
+  
+    <label for="new-question-answer">Answer:</label>
+    <input type="text" id="new-question-answer" class="modern-input" placeholder="Enter answer" />
+    
+    <button id="add-question-button" class="modern-button full-width-button">Add</button>
+  </div>  
+  <script type="module" src="script.js"></script>
 </body>
 </html>
