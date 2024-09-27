@@ -5,9 +5,30 @@ body {
   padding: 0;
 }
 
+.tabs {
+  display: flex;
+  justify-content: space-around;
+  background-color: #333;
+}
+
+.tab-link {
+  flex-grow: 1;
+  padding: 15px;
+  cursor: pointer;
+  color: white;
+  background-color: #333;
+  border: none;
+  outline: none;
+  text-align: center;
+}
+
+.tab-link.active {
+  background-color: #444;
+}
+
 .container {
   display: flex;
-  height: 100vh;
+  height: calc(100vh - 50px);
 }
 
 .sidebar {
@@ -59,14 +80,44 @@ body {
   overflow-y: auto;
 }
 
-h1 {
-  text-align: center;
-}
-
 .controls {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
+  align-items: center;
+}
+
+.dropdown {
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.modern-input {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #fff;
+}
+
+.modern-button {
+  padding: 10px 15px;
+  background-color: #7c7c7c;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.modern-button:hover {
+  background-color: #5c5c5c;
 }
 
 #question-count {
@@ -81,7 +132,6 @@ button {
   background-color: #7c7c7c;
   color: white;
   border: none;
-  border-radius: 5px;
 }
 
 button:hover {
@@ -96,10 +146,13 @@ button:hover {
   border-radius: 8px;
 }
 
-#answer-container {
-  background-color: #e0ffe0;
-  padding: 10px;
-  margin-top: 20px;
+.toggle-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+#displayed-ids {
   font-weight: bold;
-  color: #007700;
 }

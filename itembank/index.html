@@ -7,7 +7,13 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
+  <div class="tabs">
+    <button class="tab-link active" data-mode="view">View Mode</button>
+    <button class="tab-link" data-mode="edit">Edit Mode</button>
+    <button class="tab-link" data-mode="test">Test Mode</button>
+  </div>
+
+  <div class="container" id="view-mode">
     <div class="sidebar">
       <h2>Questions List</h2>
       <input type="text" id="search-bar" placeholder="Search for a question..." />
@@ -17,12 +23,43 @@
     </div>
 
     <div class="content">
-      <div class="controls">
-        <input type="number" id="question-count" value="1" min="1" placeholder="Number of questions" />
-        <button id="random-question-button">Pick Random Question(s)</button>
-      </div>
       <div id="question-container">
         <!-- Questions and answers will be injected here in card format -->
+      </div>
+    </div>
+  </div>
+
+  <div class="container" id="edit-mode" style="display: none;">
+    <p>Edit mode content will be added here later.</p>
+  </div>
+
+  <div class="container" id="test-mode" style="display: none;">
+    <div class="content">
+      <div class="controls">
+        <!-- Dropdown to choose mode -->
+        <select id="mode-select" class="dropdown">
+          <option value="fixed" selected>Fixed</option>
+          <option value="random">Random</option>
+          <option value="custom">Custom</option>
+        </select>
+
+        <!-- Input field for Fixed mode -->
+        <input type="text" id="fixed-id-list" class="modern-input" placeholder="Enter question IDs (comma separated)" />
+        
+        <!-- Number input field for Random mode -->
+        <input type="number" id="question-count" class="modern-input" value="1" min="1" placeholder="Number of questions" style="display: none;" />
+        
+        <!-- Pick button for Random mode -->
+        <button id="random-question-button" class="modern-button" style="display: none;">Pick Questions</button>
+      </div>
+
+      <div class="toggle-controls">
+        <p><strong>Displayed Question IDs:</strong> <span id="displayed-ids">None</span></p>
+        <button id="toggle-answers-button">Hide Answers</button>
+      </div>
+
+      <div id="question-container">
+        <!-- Questions will be injected here -->
       </div>
     </div>
   </div>
