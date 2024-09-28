@@ -61,6 +61,10 @@ function displayQuestions(questions, containerId) {
   const questionContainer = document.querySelector(`#${containerId} #question-container`);
   questionContainer.innerHTML = ''; // Clear previous content
 
+  if (containerId === 'test-mode') {
+    currentQuestions = [...questions]; // Update currentQuestions for test mode to store the current displayed questions
+  }
+
   questions.forEach((question) => {
     const questionCard = document.createElement('div');
     questionCard.classList.add('question-card');
