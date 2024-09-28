@@ -133,19 +133,22 @@ function openModifyPanel(question = null) {
     document.getElementById('new-question-text').value = question.question;
     document.getElementById('new-question-answer').value = question.answer;
 
-    // Fill options
+    // Fill options, including blank ones, by iterating over all possible option keys
     resetAdditionalOptions(); // Reset the options first
     if (question.options) {
-      Object.keys(question.options).forEach((key, index) => {
-        if (index === 0) {
+      // Find the highest option number to account for missing or blank options
+      const maxOptionKey = Math.max(...Object.keys(question.options).map(Number));
+      
+      for (let i = 1; i <= maxOptionKey; i++) {
+        if (i === 1) {
           // Fill first option
-          document.querySelector('.option-input').value = question.options[key];
+          document.querySelector('.option-input').value = question.options[i] || '';
         } else {
-          // Add other options
+          // Add other options, including blank ones
           addOptionInput();
-          document.querySelectorAll('.option-input')[index].value = question.options[key];
+          document.querySelectorAll('.option-input')[i - 1].value = question.options[i] || ''; // Maintain index
         }
-      });
+      }
     }
 
     currentEditingQuestionId = question.id; // Store the ID of the question being edited
