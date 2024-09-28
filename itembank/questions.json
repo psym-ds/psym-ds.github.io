@@ -1,5 +1,6 @@
 [
   {
+    "type": "question",
     "id": 1,
     "question": "What is one of Python's major strengths in natural language processing?",
     "options": {
@@ -11,6 +12,7 @@
     "answer": "1"
   },
   {
+    "type": "question",
     "id": 2,
     "question": "What does the 'Zen of Python' emphasize as a core design principle?",
     "options": {
@@ -22,6 +24,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 3,
     "question": "Which feature does Python NOT support?",
     "options": {
@@ -33,6 +36,7 @@
     "answer": "4"
   },
   {
+    "type": "question",
     "id": 4,
     "question": "Which tool is recommended for managing Python packages in a virtual environment?",
     "options": {
@@ -44,6 +48,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 5,
     "question": "What is the main advantage of using virtual environments in Python?",
     "options": {
@@ -55,6 +60,7 @@
     "answer": "3"
   },
   {
+    "type": "question",
     "id": 6,
     "question": "Which command is used to activate a virtual environment in Python?",
     "options": {
@@ -66,6 +72,7 @@
     "answer": "3"
   },
   {
+    "type": "question",
     "id": 7,
     "question": "What is the purpose of the Anaconda distribution in Python?",
     "options": {
@@ -77,6 +84,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 8,
     "question": "In Python, how are raw strings denoted?",
     "options": {
@@ -88,6 +96,7 @@
     "answer": "3"
   },
   {
+    "type": "question",
     "id": 9,
     "question": "Which Python method is used to convert text to uppercase?",
     "options": {
@@ -99,6 +108,7 @@
     "answer": "3"
   },
   {
+    "type": "question",
     "id": 10,
     "question": "Which Python function returns the length of a string?",
     "options": {
@@ -110,6 +120,7 @@
     "answer": "4"
   },
   {
+    "type": "question",
     "id": 11,
     "question": "Which of the following can be used for text substitution in Python?",
     "options": {
@@ -121,6 +132,7 @@
     "answer": "4"
   },
   {
+    "type": "question",
     "id": 12,
     "question": "Which function is used to tokenize a sentence in Python using spaces?",
     "options": {
@@ -132,6 +144,7 @@
     "answer": "1"
   },
   {
+    "type": "question",
     "id": 13,
     "question": "Which method checks if a string contains only alphanumeric characters in Python?",
     "options": {
@@ -143,6 +156,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 14,
     "question": "What is the advantage of using compiled regular expressions in Python?",
     "options": {
@@ -154,6 +168,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 15,
     "question": "Which of the following is NOT a common type of string literal in Python?",
     "options": {
@@ -165,6 +180,7 @@
     "answer": "4"
   },
   {
+    "type": "question",
     "id": 16,
     "question": "What happens when you apply np.random.shuffle() to a list of words from a sentence?",
     "options": {
@@ -176,6 +192,7 @@
     "answer": "3"
   },
   {
+    "type": "question",
     "id": 17,
     "question": "What is the main drawback of Python regarding execution speed?",
     "options": {
@@ -187,6 +204,7 @@
     "answer": "1"
   },
   {
+    "type": "question",
     "id": 18,
     "question": "What can be done to improve Python's execution speed?",
     "options": {
@@ -198,6 +216,7 @@
     "answer": "4"
   },
   {
+    "type": "question",
     "id": 19,
     "question": "What is a potential problem with using different Python versions?",
     "options": {
@@ -209,6 +228,7 @@
     "answer": "1"
   },
   {
+    "type": "question",
     "id": 20,
     "question": "What is the Global Interpreter Lock (GIL)?",
     "options": {
@@ -220,6 +240,7 @@
     "answer": "3"
   },
   {
+    "type": "question",
     "id": 21,
     "question": "What is an Integrated Development Environment (IDE)?",
     "options": {
@@ -231,6 +252,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 22,
     "question": "Which of the following is NOT typically a component of an Integrated Development Environment (IDE)?",
     "options": {
@@ -242,6 +264,7 @@
     "answer": "3"
   },
   {
+    "type": "question",
     "id": 23,
     "question": "Which of the following IDE features helps in detecting and correcting errors as you write code?",
     "options": {
@@ -253,6 +276,7 @@
     "answer": "3"
   },
   {
+    "type": "question",
     "id": 24,
     "question": "What is one advantage of using an IDE over a simple text editor for writing code?",
     "options": {
@@ -264,6 +288,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 25,
     "question": "Which package is required to set up a virtual environment in Python?",
     "options": {
@@ -275,6 +300,7 @@
     "answer": "1"
   },
   {
+    "type": "question",
     "id": 26,
     "question": "What is a virtual environment in Python?",
     "options": {
@@ -286,6 +312,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 27,
     "question": "What is a primary purpose of using a virtual environment in Python?",
     "options": {
@@ -297,6 +324,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 28,
     "question": "In Python, indexing of strings starts from:",
     "options": {
@@ -308,6 +336,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 29,
     "question": "What does the index -1 refer to in a string in Python?",
     "options": {
@@ -319,6 +348,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 30,
     "question": "What will s[::2] do for a string s?",
     "options": {
@@ -330,6 +360,7 @@
     "answer": "1"
   },
   {
+    "type": "question",
     "id": 31,
     "question": "What is one of the main challenges associated with textual data?",
     "options": {
@@ -341,6 +372,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 32,
     "question": "What are the 3Vs of data commonly associated with Big Data?",
     "options": {
@@ -352,6 +384,7 @@
     "answer": "1"
   },
   {
+    "type": "question",
     "id": 33,
     "question": "What is the main focus of Natural Language Processing?",
     "options": {
@@ -363,6 +396,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 34,
     "question": "What is an example of a natural language?",
     "options": {
@@ -374,6 +408,7 @@
     "answer": "3"
   },
   {
+    "type": "question",
     "id": 35,
     "question": "Which field studies the structure, meaning, and context of language?",
     "options": {
@@ -385,6 +420,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 36,
     "question": "What does the field of phonetics study?",
     "options": {
@@ -396,6 +432,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 37,
     "question": "Which part of speech typically modifies a noun?",
     "options": {
@@ -407,6 +444,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 38,
     "question": "What does the acronym 'POS' stand for in text processing?",
     "options": {
@@ -418,6 +456,7 @@
     "answer": "3"
   },
   {
+    "type": "question",
     "id": 39,
     "question": "In shallow parsing, which type of phrase has a noun as its head word?",
     "options": {
@@ -429,6 +468,7 @@
     "answer": "4"
   },
   {
+    "type": "question",
     "id": 40,
     "question": "Which syntactic category does the sentence 'The cat is sleeping' belong to?",
     "options": {
@@ -440,6 +480,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 41,
     "question": "What does the 'det' dependency tag represent?",
     "options": {
@@ -451,6 +492,7 @@
     "answer": "3"
   },
   {
+    "type": "question",
     "id": 42,
     "question": "What is the main distinction between dependency grammar and constituency grammar?",
     "options": {
@@ -462,6 +504,7 @@
     "answer": "1"
   },
   {
+    "type": "question",
     "id": 43,
     "question": "Which branch of linguistics deals with the meaning of words and how they combine to form sentences?",
     "options": {
@@ -473,6 +516,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 44,
     "question": "The study of how context affects the meaning of language expressions is known as:",
     "options": {
@@ -484,6 +528,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 45,
     "question": "Which field of linguistics would be most concerned with the analysis of conversations?",
     "options": {
@@ -495,6 +540,7 @@
     "answer": "1"
   },
   {
+    "type": "question",
     "id": 46,
     "question": "What does the process of 'shallow parsing' typically involve?",
     "options": {
@@ -506,6 +552,7 @@
     "answer": "3"
   },
   {
+    "type": "question",
     "id": 47,
     "question": "In the sentence structure hierarchy, what directly combines to form a clause?",
     "options": {
@@ -517,6 +564,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 48,
     "question": "The POS tag for words that describe actions or states is:",
     "options": {
@@ -528,6 +576,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 49,
     "question": "Which of the following is NOT a characteristic of dependency grammar?",
     "options": {
@@ -539,6 +588,7 @@
     "answer": "4"
   },
   {
+    "type": "question",
     "id": 50,
     "question": "Which of the following is NOT one of the five major categories of phrases?",
     "options": {
@@ -550,6 +600,7 @@
     "answer": "3"
   },
   {
+    "type": "question",
     "id": 51,
     "question": "Which type of clause is used to issue a command or request?",
     "options": {
@@ -561,6 +612,7 @@
     "answer": "1"
   },
   {
+    "type": "question",
     "id": 52,
     "question": "What is the main role of an adjective phrase (ADJP) in a sentence?",
     "options": {
@@ -572,6 +624,7 @@
     "answer": "1"
   },
   {
+    "type": "question",
     "id": 53,
     "question": "What does the dependency tag 'amod' represent in a dependency grammar tree?",
     "options": {
@@ -583,6 +636,7 @@
     "answer": "1"
   },
   {
+    "type": "question",
     "id": 54,
     "question": "Which of the following statements about dependency grammars is TRUE?",
     "options": {
@@ -594,6 +648,7 @@
     "answer": "4"
   },
   {
+    "type": "question",
     "id": 55,
     "question": "Which of the following best defines a 'constituent' in constituency grammar?",
     "options": {
@@ -605,8 +660,9 @@
     "answer": "1"
   },
   {
+    "type": "question",
     "id": 56,
-    "question": "In the phrase structure rule, S → NP VP, what do NP and VP stand for?",
+    "question": "In the phrase structure rule, S \u2192 NP VP, what do NP and VP stand for?",
     "options": {
       "1": "Noun Phrase and Verb Phrase",
       "2": "Noun Phrase and Adjective Phrase",
@@ -616,6 +672,7 @@
     "answer": "1"
   },
   {
+    "type": "question",
     "id": 57,
     "question": "Which of the following is not a possible component of a verb phrase (VP) according to the rules provided?",
     "options": {
@@ -627,6 +684,7 @@
     "answer": "3"
   },
   {
+    "type": "question",
     "id": 58,
     "question": "What is the first step in text processing for natural language analysis?",
     "options": {
@@ -638,6 +696,7 @@
     "answer": "4"
   },
   {
+    "type": "question",
     "id": 59,
     "question": "Which of the following is not a typical step in text preprocessing?",
     "options": {
@@ -649,6 +708,7 @@
     "answer": "3"
   },
   {
+    "type": "question",
     "id": 60,
     "question": "HTML tags in text data are usually considered:",
     "options": {
@@ -660,6 +720,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 61,
     "question": "What Python library is commonly used to remove HTML tags from text data?",
     "options": {
@@ -671,6 +732,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 62,
     "question": "Tokenization is the process of:",
     "options": {
@@ -682,6 +744,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 63,
     "question": "Which technique is used to break down a sentence into its constituent words?",
     "options": {
@@ -693,6 +756,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 64,
     "question": "What does stemming do?",
     "options": {
@@ -704,6 +768,7 @@
     "answer": "1"
   },
   {
+    "type": "question",
     "id": 65,
     "question": "What is the main difference between stemming and lemmatization?",
     "options": {
@@ -715,6 +780,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 66,
     "question": "What does the strip_html_tags function in Python typically do?",
     "options": {
@@ -726,6 +792,7 @@
     "answer": "1"
   },
   {
+    "type": "question",
     "id": 67,
     "question": "Which tokenizer is commonly used for tokenizing text based on regular expressions?",
     "options": {
@@ -737,6 +804,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 68,
     "question": "What Python library can be used to convert accented characters into standard ASCII characters?",
     "options": {
@@ -748,6 +816,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 69,
     "question": "The process of expanding words like 'can't' into 'cannot' is called:",
     "options": {
@@ -759,6 +828,7 @@
     "answer": "3"
   },
   {
+    "type": "question",
     "id": 70,
     "question": "Which of the following functions is used to remove special characters from text?",
     "options": {
@@ -770,6 +840,7 @@
     "answer": "1"
   },
   {
+    "type": "question",
     "id": 71,
     "question": "The purpose of case conversion in text preprocessing is to:",
     "options": {
@@ -781,6 +852,7 @@
     "answer": "1"
   },
   {
+    "type": "question",
     "id": 72,
     "question": "What is the main function of a stemmer in text processing?",
     "options": {
@@ -792,6 +864,7 @@
     "answer": "3"
   },
   {
+    "type": "question",
     "id": 73,
     "question": "What is a disadvantage of stemming compared to lemmatization?",
     "options": {
@@ -803,6 +876,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 74,
     "question": "What is the output of ps.stem('lying') where ps is a PorterStemmer object?",
     "options": {
@@ -814,6 +888,7 @@
     "answer": "1"
   },
   {
+    "type": "question",
     "id": 75,
     "question": "What are stopwords?",
     "options": {
@@ -825,6 +900,7 @@
     "answer": "2"
   },
   {
+    "type": "question",
     "id": 76,
     "question": "Why are stopwords removed from text?",
     "options": {
@@ -836,6 +912,7 @@
     "answer": "4"
   },
   {
+    "type": "question",
     "id": 77,
     "question": "Which of the following is a common stopword?",
     "options": {

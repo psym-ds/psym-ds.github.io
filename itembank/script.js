@@ -4,13 +4,14 @@ import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebase
 
 // Your Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCXAb_OA1bZAVpAZbborRq5cFTOaCj-RCA",
-  authDomain: "itembank-bfd86.firebaseapp.com",
-  databaseURL: "https://itembank-bfd86-default-rtdb.firebaseio.com",
-  projectId: "itembank-bfd86",
-  storageBucket: "itembank-bfd86.appspot.com",
-  messagingSenderId: "806451241042",
-  appId: "1:806451241042:web:25974e69cf2322f469ff8b"
+  apiKey: "AIzaSyCoXyCWebIypq2FO8QSt5IDdzfFNZsobFo",
+  authDomain: "itembank-3b85f.firebaseapp.com",
+  databaseURL: "https://itembank-3b85f-default-rtdb.firebaseio.com",
+  projectId: "itembank-3b85f",
+  storageBucket: "itembank-3b85f.appspot.com",
+  messagingSenderId: "137360435017",
+  appId: "1:137360435017:web:b6b501ef9b984780635c98",
+  measurementId: "G-7G0SRY2JE9"
 };
 
 // Initialize Firebase
@@ -23,14 +24,13 @@ let currentQuestions = []; // Keep track of current displayed questions in test 
 let currentEditingQuestionId = null; // Track the ID of the question being edited
 
 // Fetch questions from Firebase Realtime Database
-const questionsRef = ref(database, '/'); // Assuming questions are stored directly in the root
+const dataRef = ref(database, '/'); // Assuming all data is stored at root
 
-onValue(questionsRef, (snapshot) => {
+onValue(dataRef, (snapshot) => {
   const data = snapshot.val();
-  
-  // Ensure the data exists and is an array
-  if (data && Array.isArray(data)) {
-    questions = data; // Assign to global `questions` variable
+
+  if (data && data.question && Array.isArray(data.question)) {
+    questions = data.question; // Fetch only the 'question' type data
     populateQuestionList(questions, 'view-mode'); // Populate the sidebar with questions for view mode
     populateQuestionList(questions, 'manage-mode'); // Populate the sidebar with questions for manage mode
     displayQuestions(questions, 'view-mode'); // Display all questions initially in view mode
@@ -179,7 +179,11 @@ function removeQuestion(questionId) {
   const questionIndex = questions.findIndex(q => q.id === questionId);
   if (questionIndex > -1) {
     questions.splice(questionIndex, 1);
-    set(ref(database, '/'), questions); // Update Firebase after deletion
+    
+    // Only update the 'question' part of the database
+    set(ref(database, '/question'), questions) // Notice the path is now '/question'
+      .then(() => console.log('Question removed successfully'))
+      .catch((error) => console.error('Error updating Firebase:', error));
   }
 }
 
@@ -261,8 +265,10 @@ function replaceQuestion(newId, newText, newAnswer) {
   // Add the new or updated question to the list
   questions.push(updatedQuestion);
 
-  // Update Firebase
-  set(ref(database, '/'), questions);
+  // Update only the 'question' section in Firebase
+  set(ref(database, '/question'), questions) // Only updating the '/question' path
+    .then(() => console.log('Question replaced successfully'))
+    .catch((error) => console.error('Error updating Firebase:', error));
 
   // Clear input fields after saving
   document.getElementById('new-question-id').value = '';
@@ -289,7 +295,11 @@ function addNewQuestion(newId, newText, newAnswer) {
 
   // Add the new question
   questions.push(newQuestion);
-  set(ref(database, '/'), questions); // Update Firebase with the new question
+  
+  // Update only the 'question' section in Firebase
+  set(ref(database, '/question'), questions) // Only updating the '/question' path
+    .then(() => console.log('Question added successfully'))
+    .catch((error) => console.error('Error updating Firebase:', error));
 
   // Clear input fields after adding
   document.getElementById('new-question-id').value = '';
@@ -547,3 +557,4 @@ function makeMovable(element) {
     document.removeEventListener('mouseup', onMouseUp);
   }
 }
+
