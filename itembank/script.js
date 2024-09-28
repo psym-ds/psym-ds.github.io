@@ -82,7 +82,7 @@ function displayQuestions(questions, containerId) {
 
       // Add remove (delete) button with FontAwesome icon for each question in manage mode
       const deleteButton = document.createElement('i');
-      deleteButton.classList.add('fa-solid', 'fa-trash-can', 'red-cross'); // Using FontAwesome xmark icon
+      deleteButton.classList.add('fa-solid', 'fa-trash-can', 'delete-button'); // Using FontAwesome xmark icon
       deleteButton.addEventListener('click', () => confirmDelete(question.id));
       questionCard.appendChild(deleteButton);
     }
@@ -258,37 +258,6 @@ document.getElementById('save-question-button').addEventListener('click', () => 
 function closeModifyPanel() {
   const addPanel = document.getElementById('modify-panel');
   addPanel.style.display = 'none';
-}
-
-// Replace the existing question in Firebase
-function replaceQuestion(newId, newText, newAnswer) {
-  const updatedQuestion = {
-    id: newId,
-    question: newText,
-    options: {},
-    answer: newAnswer
-  };
-
-  // Get options from the inputs
-  document.querySelectorAll('.option-input').forEach((input, index) => {
-    if (input.value.trim()) {
-      updatedQuestion.options[index + 1] = input.value.trim();
-    }
-  });
-
-  // Add the new or updated question to the list
-  questions.push(updatedQuestion);
-
-  // Update only the 'question' section in Firebase
-  set(ref(database, '/question'), questions) // Only updating the '/question' path
-    .then(() => console.log('Question replaced successfully'))
-    .catch((error) => console.error('Error updating Firebase:', error));
-
-  // Clear input fields after saving
-  document.getElementById('new-question-id').value = '';
-  document.getElementById('new-question-text').value = '';
-  document.getElementById('new-question-answer').value = '';
-  resetAdditionalOptions();
 }
 
 // Add new question to Firebase
@@ -572,3 +541,164 @@ function makeMovable(element) {
   }
 }
 
+// Add event listener for the Export button
+document.getElementById('export-button').addEventListener('click', () => {
+  exportQuestionsAsJSON();
+});
+
+// Function to export questions as a JSON file in the specified format
+function exportQuestionsAsJSON() {
+  // Wrap the questions array inside an object with a "question" key and set the type of each question
+  const formattedData = {
+    question: questions.map(q => ({
+      id: q.id,
+      question: q.question,
+      options: Object.keys(q.options).reduce((acc, key) => {
+        acc[key] = q.options[key]; // Copy options as key-value pairs
+        return acc;
+      }, {}),
+      answer: q.answer
+    }))
+  };
+
+  // Create a blob with the formatted data as a JSON string
+  const jsonData = JSON.stringify(formattedData, null, 2); // Convert the formatted data to JSON
+  const blob = new Blob([jsonData], { type: 'application/json' });
+
+  // Create a temporary download link element
+  const url = URL.createObjectURL(blob);
+  const downloadLink = document.createElement('a');
+  downloadLink.href = url;
+  downloadLink.download = 'questions.json'; // File name for the exported file
+
+  // Trigger the download by clicking the link programmatically
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+
+  // Clean up the URL and remove the temporary link element
+  URL.revokeObjectURL(url);
+  document.body.removeChild(downloadLink);
+}
+
+// Show the import panel when the import button is clicked
+document.getElementById('import-button').addEventListener('click', () => {
+  document.getElementById('import-panel').style.display = 'block';
+});
+
+// Close the import panel when the close button is clicked
+document.getElementById('close-import-panel').addEventListener('click', () => {
+  document.getElementById('import-panel').style.display = 'none';
+});
+
+// Handle file upload via click or drag/drop
+document.getElementById('file-drop-area').addEventListener('click', () => {
+  // Create a hidden input element of type 'file' for the click functionality
+  const tempFileInput = document.createElement('input');
+  tempFileInput.type = 'file';
+  tempFileInput.accept = '.json'; // Accept only JSON files
+  tempFileInput.style.display = 'none'; // Hide it from the view
+
+  // Append it to the body so it can be triggered
+  document.body.appendChild(tempFileInput);
+
+  // Trigger the file browser
+  tempFileInput.click();
+
+  // Handle the file selection
+  tempFileInput.addEventListener('change', (event) => {
+    handleFileUpload({ target: event.target });
+    document.body.removeChild(tempFileInput); // Clean up the temporary input element
+  });
+});
+
+// Handle file upload via drag/drop
+document.getElementById('file-drop-area').addEventListener('drop', (event) => {
+  event.preventDefault();
+  const file = event.dataTransfer.files[0];
+  handleFileUpload({ target: { files: [file] } }); // Trigger upload function
+});
+
+// Ensure proper dragging over the drop area
+document.getElementById('file-drop-area').addEventListener('dragover', (event) => {
+  event.preventDefault();
+});
+
+// Function to handle file upload
+function handleFileUpload(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const jsonData = JSON.parse(e.target.result); // Parse JSON file
+        if (jsonData && jsonData.question && Array.isArray(jsonData.question)) {
+          // Process JSON data and check for conflicts
+          checkForConflicts(jsonData.question);
+        } else {
+          showNotification('Invalid JSON format. Please provide a valid question set.', 'OK');
+        }
+      } catch (error) {
+        showNotification('Failed to parse JSON. Please check the file format.', 'OK');
+      }
+    };
+    reader.readAsText(file);
+  }
+}
+
+// Check if there are any existing questions with the same ID
+function checkForConflicts(newQuestions) {
+  const conflictingQuestions = newQuestions.filter(newQ => questions.some(existing => existing.id === newQ.id));
+
+  if (conflictingQuestions.length > 0) {
+    showOverwriteNotification(conflictingQuestions, newQuestions);
+  } else {
+    addQuestions(newQuestions); // Proceed if no conflicts
+  }
+}
+
+// Function to show overwrite notification for conflicting questions
+function showOverwriteNotification(conflictingQuestions, newQuestions) {
+  const conflictIds = conflictingQuestions.map(q => q.id).join(', ');
+  showNotification(
+    `Some questions with IDs (${conflictIds}) already exist. Do you want to overwrite them?`,
+    'Overwrite',
+    'Cancel',
+    () => {
+      overwriteQuestions(conflictingQuestions, newQuestions);  // Proceed with overwrite
+    }
+  );
+}
+
+// Overwrite the conflicting questions
+function overwriteQuestions(conflictingQuestions, newQuestions) {
+  // Remove the conflicting questions and add the new ones
+  conflictingQuestions.forEach(conflict => removeQuestion(conflict.id));
+  addQuestions(newQuestions);
+}
+
+// Add new questions to Firebase and update the local list
+function addQuestions(newQuestions) {
+  newQuestions.forEach(newQ => {
+    const formattedQuestion = {
+      id: newQ.id,
+      question: newQ.question,
+      options: newQ.options || {}, // Ensure options exist
+      answer: newQ.answer
+    };
+    questions.push(formattedQuestion); // Add to local array
+  });
+
+  // Update only the 'question' section in Firebase
+  set(ref(database, '/question'), questions)
+    .then(() => {
+      console.log('Questions imported successfully');
+      populateQuestionList(questions, 'view-mode');  // Update the view-mode list
+      populateQuestionList(questions, 'manage-mode'); // Update the manage-mode list
+      displayQuestions(questions, 'view-mode');  // Display questions in view mode
+      displayQuestions(questions, 'manage-mode'); // Display questions in manage mode
+    })
+    .catch((error) => console.error('Error updating Firebase:', error));
+
+  // Close the import panel after success
+  document.getElementById('import-panel').style.display = 'none';
+}

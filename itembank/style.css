@@ -154,18 +154,8 @@ button:hover {
   background-color: #c00000;
 }
 
-/* Style for the question card */
-.question-card {
-  background-color: #fff;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  position: relative; /* Position relative for absolute positioning of buttons */
-}
-
 /* Common styles for the edit and delete icons */
-.edit-button, .red-cross {
+.edit-button, .delete-button {
   font-size: 18px;
   cursor: pointer;
   position: absolute;
@@ -174,7 +164,7 @@ button:hover {
   height: 18px;
 }
 
-.red-cross {
+.delete-button {
   color: red;
   right: 10px; /* Positioned at the top-right corner */
 }
@@ -211,15 +201,6 @@ button:hover {
   cursor: move;
 }
 
-/* Position the red cross at the top-right corner */
-.modify-panel .red-cross {
-  color: #7c7c7c;
-  font-size: 18px;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  cursor: pointer;
-}
 
 .modify-panel h2 {
   margin-bottom: 10px;
@@ -334,4 +315,101 @@ button:hover {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
+}
+
+.control-buttons .modern-button {
+  flex-grow: 1; /* Each button takes up equal space */
+  text-align: center; /* Center the button text */
+  padding: 10px; /* Ensure padding for better visuals */
+}
+
+/* For question cards in manage mode */
+.question-card {
+  background-color: #fff;
+  padding: 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.question-card:hover {
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.close-button {
+  color: #7c7c7c;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Floating panel for importing */
+.floating-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  width: 65%;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.import-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch; /* Stretch both sections to have equal height */
+  padding: 10px;
+  gap: 20px;
+}
+
+.left-half, .right-half {
+  width: 48%;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: auto;
+}
+
+#file-drop-area {
+  border: 2px dashed #ccc;
+  padding: 25px;
+  text-align: center;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  background-color: #f9f9f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  height: 250px; /* Set the same height as the JSON box */
+  box-sizing: border-box;
+  padding-right: 20px;
+}
+
+#file-drop-area:hover {
+  background-color: #e9e9e9;
+}
+
+pre {
+  background-color: #f4f4f4;
+  padding: 15px;
+  border-radius: 10px;
+  overflow-x: auto;
+  font-size: 14px;
+  line-height: 1.5;
+  width: 100%;
+  box-sizing: border-box;
+  height: 250px; /* Set the same height as the file drop area */
 }

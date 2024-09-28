@@ -44,9 +44,8 @@
       <div class="control-buttons">
         <!-- Buttons for adding, editing, selecting, and importing -->
         <button id="toggle-modify-panel" class="modern-button">Add</button>
-        <button id="delete-button" class="modern-button">Delete</button>
-        <button id="select-button" class="modern-button">Select</button>
         <button id="import-button" class="modern-button">Import</button>
+        <button id="export-button" class="modern-button">Export</button>
       </div>
 
       <div id="question-container">
@@ -87,7 +86,7 @@
   </div> 
 
   <div class="modify-panel" id="modify-panel" style="display: none;">
-    <span class="red-cross" id="close-modify-panel">×</span> <!-- Red cross to close the panel -->
+    <span class="close-button" id="close-modify-panel">×</span> <!-- Red cross to close the panel -->
     <label for="new-question-id">ID:</label>
     <input type="text" id="new-question-id" class="modern-input" placeholder="Enter question ID" />
     
@@ -106,8 +105,55 @@
     <input type="text" id="new-question-answer" class="modern-input" placeholder="Enter answer" />
     
     <button id="save-question-button" class="modern-button full-width-button">Save</button> <!-- Button renamed from 'add-question-button' to 'save-question-button' -->
-  </div>  
+  </div>
 
+  <!-- Import panel (initially hidden) -->
+<div id="import-panel" class="floating-panel" style="display: none;">
+  <span class="close-button" id="close-import-panel">×</span> <!-- Close button -->
+  
+  <div class="import-content">
+    <div class="left-half">
+      <h3>Sample JSON Structure</h3>
+      <pre>
+    {
+      "question": [
+          {
+              "id": 1,
+              "question": "Sample question 1",
+              "options": {
+                  "1": "Option A",
+                  "2": "Option B",
+                  "3": "Option C",
+                  "4": "Option D"
+              },
+              "answer": "2"
+          },
+          {
+              "id": 2,
+              "question": "Sample question 2",
+              "options": {
+                  "1": "Option A",
+                  "2": "Option B",
+                  "4": "Option C",
+                  "8": "Option D"
+              },
+              "answer": "13"
+          },
+      ]
+    }</pre>
+    </div>
+    <div class="right-half">
+      <h3>Upload or Drag File</h3>
+      <div class="file-drop-area" id="file-drop-area">
+        <i class="fas fa-upload"></i>
+        <p>Drag and drop your file here or click to upload</p>
+      </div>
+    </div>    
+  </div>
+</div>
+
+
+  
   <script type="module" src="script.js"></script>
 </body>
 </html>
