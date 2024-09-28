@@ -63,6 +63,10 @@ function displayQuestions(questions, containerId) {
 
   if (containerId === 'test-mode') {
     currentQuestions = [...questions]; // Update currentQuestions for test mode to store the current displayed questions
+
+    // Update the "Displayed Question IDs" field with the IDs of the currently displayed questions
+    const displayedIds = questions.length > 0 ? questions.map(q => q.id).join(', ') : 'None';
+    document.getElementById('displayed-ids').textContent = displayedIds;
   }
 
   questions.forEach((question) => {
