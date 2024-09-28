@@ -216,12 +216,18 @@ document.getElementById('save-question-button').addEventListener('click', () => 
           removeQuestion(currentEditingQuestionId); // Remove the original question being edited
           removeQuestion(newId); // Remove the existing question with the conflicting ID
           addNewQuestion(newId, newText, newAnswer); // Create the new question with input details
+          
+          // Close the modify panel after editing
+          closeModifyPanel();
         }
       );
     } else {
       // No ID conflict, just delete the original and create a new one
       removeQuestion(currentEditingQuestionId); // Remove the original question
       addNewQuestion(newId, newText, newAnswer); // Create the new question with input details
+      
+      // Close the modify panel after editing
+      closeModifyPanel();
     }
 
     return;
@@ -244,7 +250,15 @@ document.getElementById('save-question-button').addEventListener('click', () => 
 
   // If no conflict, just add the new question
   addNewQuestion(newId, newText, newAnswer);
+
+  // Leave the panel open for add action (no closing here)
 });
+
+// Helper function to close the modify panel
+function closeModifyPanel() {
+  const addPanel = document.getElementById('modify-panel');
+  addPanel.style.display = 'none';
+}
 
 // Replace the existing question in Firebase
 function replaceQuestion(newId, newText, newAnswer) {
