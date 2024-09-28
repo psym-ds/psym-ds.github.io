@@ -20,6 +20,7 @@ const database = getDatabase(app);
 let questions = [];
 let showAnswers = true;
 let currentQuestions = []; // Keep track of current displayed questions in test mode
+let currentEditingQuestionId = null; // Track the ID of the question being edited
 
 // Fetch questions from Firebase Realtime Database
 const questionsRef = ref(database, '/'); // Assuming questions are stored directly in the root
@@ -41,12 +42,13 @@ onValue(questionsRef, (snapshot) => {
   console.error('Error fetching questions from Firebase:', error);
 });
 
-// Populate the list of questions in the sidebar for both view and manage modes
+// Populate the list of questions in the sidebar for both view and manage modes, sorting by ID
 function populateQuestionList(questions, mode) {
   const questionList = document.getElementById(mode === 'view-mode' ? 'question-list' : 'manage-question-list');
   questionList.innerHTML = ''; // Clear previous list
 
-  questions.forEach((question) => {
+  // Sort questions by ID before displaying
+  questions.sort((a, b) => a.id - b.id).forEach((question) => {
     const listItem = document.createElement('li');
     listItem.textContent = `${question.id}: ${question.question.substring(0, 30)}...`;
     listItem.addEventListener('click', () => displayQuestions([question], mode));
@@ -64,10 +66,15 @@ function displayQuestions(questions, containerId) {
     questionCard.classList.add('question-card');
 
     if (containerId === 'manage-mode') {
-      // Add remove (delete) button for each question in manage mode
-      const deleteButton = document.createElement('span');
-      deleteButton.classList.add('red-cross');
-      deleteButton.textContent = '×';
+      // Add edit button for each question in manage mode
+      const editButton = document.createElement('i');
+      editButton.classList.add('fa-solid', 'fa-pen-to-square', 'edit-button');
+      editButton.addEventListener('click', () => openModifyPanel(question));
+      questionCard.appendChild(editButton);
+
+      // Add remove (delete) button with FontAwesome icon for each question in manage mode
+      const deleteButton = document.createElement('i');
+      deleteButton.classList.add('fa-solid', 'fa-trash-can', 'red-cross'); // Using FontAwesome xmark icon
       deleteButton.addEventListener('click', () => confirmDelete(question.id));
       questionCard.appendChild(deleteButton);
     }
@@ -102,16 +109,53 @@ function displayQuestions(questions, containerId) {
   });
 }
 
-// Handle Add Panel toggle and make it draggable
-document.getElementById('toggle-add-panel').addEventListener('click', () => {
-  const addPanel = document.getElementById('add-panel');
-  addPanel.style.display = 'block'; // Display the pop-up box
-  makeMovable(addPanel); // Make the panel movable
+// Handle Add/Modify Panel toggle and make it draggable
+document.getElementById('toggle-modify-panel').addEventListener('click', () => {
+  openModifyPanel(); // Open panel for adding a new question
 });
 
+// Function to open modify panel with prefilled data for editing, or blank for adding
+function openModifyPanel(question = null) {
+  const addPanel = document.getElementById('modify-panel');
+  addPanel.style.display = 'block'; // Display the modify panel
+
+  if (question) {
+    // Prefill data for editing
+    document.getElementById('new-question-id').value = question.id;
+    document.getElementById('new-question-text').value = question.question;
+    document.getElementById('new-question-answer').value = question.answer;
+
+    // Fill options
+    resetAdditionalOptions(); // Reset the options first
+    if (question.options) {
+      Object.keys(question.options).forEach((key, index) => {
+        if (index === 0) {
+          // Fill first option
+          document.querySelector('.option-input').value = question.options[key];
+        } else {
+          // Add other options
+          addOptionInput();
+          document.querySelectorAll('.option-input')[index].value = question.options[key];
+        }
+      });
+    }
+
+    currentEditingQuestionId = question.id; // Store the ID of the question being edited
+  } else {
+    // Clear inputs for adding a new question
+    document.getElementById('new-question-id').value = '';
+    document.getElementById('new-question-text').value = '';
+    document.getElementById('new-question-answer').value = '';
+    resetAdditionalOptions();
+    currentEditingQuestionId = null; // No question being edited
+  }
+
+  makeMovable(addPanel); // Make the panel movable
+}
+
 // Close the Add Panel when the red cross is clicked
-document.getElementById('close-add-panel').addEventListener('click', () => {
-  const addPanel = document.getElementById('add-panel');
+document.getElementById('close-modify-panel').addEventListener('click', () => {
+  const addPanel = document.getElementById('modify-panel');
   addPanel.style.display = 'none'; // Hide the pop-up box
 });
 
@@ -131,9 +175,9 @@ function removeQuestion(questionId) {
   }
 }
 
-// Handle Add Question functionality
-document.getElementById('add-question-button').addEventListener('click', () => {
-  const newId = Number(document.getElementById('new-question-id').value.trim());  // Ensure ID is a number
+// Handle Save Question functionality (both Add and Modify)
+document.getElementById('save-question-button').addEventListener('click', () => {
+  const newId = Number(document.getElementById('new-question-id').value.trim()); // Ensure ID is a number
   const newText = document.getElementById('new-question-text').value.trim();
   const newAnswer = document.getElementById('new-question-answer').value.trim();
 
@@ -143,22 +187,50 @@ document.getElementById('add-question-button').addEventListener('click', () => {
     return;
   }
 
-  // Check if the question ID already exists
-  const existingQuestion = questions.find(question => Number(question.id) === newId);  // Compare IDs as numbers
+  const existingQuestion = questions.find(question => Number(question.id) === newId);  // Check if the new ID already exists
+
+  if (currentEditingQuestionId !== null) {
+    // Editing an existing question
+
+    if (existingQuestion && newId !== currentEditingQuestionId) {
+      // A question with this ID already exists and the ID is changing
+      // Prompt user to confirm replacement
+      showNotification(
+        'A question with this ID already exists. Do you want to replace it?',
+        'Replace',
+        'Cancel',
+        () => {
+          // Remove both the current editing question and the conflicting existing one
+          removeQuestion(currentEditingQuestionId); // Remove the original question being edited
+          removeQuestion(newId); // Remove the existing question with the conflicting ID
+          addNewQuestion(newId, newText, newAnswer); // Create the new question with input details
+        }
+      );
+    } else {
+      // No ID conflict, just delete the original and create a new one
+      removeQuestion(currentEditingQuestionId); // Remove the original question
+      addNewQuestion(newId, newText, newAnswer); // Create the new question with input details
+    }
+
+    return;
+  }
+
+  // If adding a new question (not editing), check for ID conflict
   if (existingQuestion) {
-    // Ask the user whether to replace the existing question
+    // Ask the user to confirm replacement
     showNotification(
       'A question with this ID already exists. Do you want to replace it?',
       'Replace',
       'Cancel',
       () => {
-        replaceQuestion(newId, newText, newAnswer); // Replace the question if confirmed
+        removeQuestion(newId); // Delete the existing question with the conflicting ID
+        addNewQuestion(newId, newText, newAnswer); // Add the new question
       }
     );
     return;
   }
 
-  // Proceed to add the new question if no conflict
+  // If no conflict, just add the new question
   addNewQuestion(newId, newText, newAnswer);
 });
 
@@ -178,14 +250,13 @@ function replaceQuestion(newId, newText, newAnswer) {
     }
   });
 
-  // Find the existing question and replace it
-  const questionIndex = questions.findIndex(q => Number(q.id) === newId);
-  questions[questionIndex] = updatedQuestion;
+  // Add the new or updated question to the list
+  questions.push(updatedQuestion);
 
   // Update Firebase
   set(ref(database, '/'), questions);
 
-  // Clear input fields after adding
+  // Clear input fields after saving
   document.getElementById('new-question-id').value = '';
   document.getElementById('new-question-text').value = '';
   document.getElementById('new-question-answer').value = '';
@@ -222,21 +293,48 @@ function addNewQuestion(newId, newText, newAnswer) {
 // Function to reset additional options and clear the first option input
 function resetAdditionalOptions() {
   const optionContainer = document.getElementById('new-options-container');
-  optionContainer.querySelectorAll('.option-wrapper').forEach((wrapper, index) => {
-    if (index === 0) {
-      // Clear the first option input
-      wrapper.querySelector('.option-input').value = '';
-    } else {
-      // Remove only the extra option inputs
-      wrapper.remove();
-    }
+  optionContainer.innerHTML = ''; // Clear all options first
+
+  // Add the first option with its delete button
+  const firstOptionWrapper = document.createElement('div');
+  firstOptionWrapper.classList.add('option-wrapper');
+
+  const firstOptionInput = document.createElement('input');
+  firstOptionInput.type = 'text';
+  firstOptionInput.classList.add('modern-input', 'option-input');
+  firstOptionInput.placeholder = 'Enter option 1';
+  firstOptionWrapper.appendChild(firstOptionInput);
+
+  const firstDeleteButton = document.createElement('button');
+  firstDeleteButton.classList.add('modern-button', 'delete-option-button', 'red-button');
+  firstDeleteButton.innerHTML = '<i class="fa-solid fa-trash-can"></i>'; // FontAwesome trash icon
+  firstDeleteButton.addEventListener('click', () => {
+    firstOptionWrapper.remove();
+    renumberOptions();
   });
+  firstOptionWrapper.appendChild(firstDeleteButton);
+
+  optionContainer.appendChild(firstOptionWrapper);
+
+  // Add button for adding more options, aligned directly below delete button
+  const addButtonWrapper = document.createElement('div');
+  addButtonWrapper.classList.add('add-button-wrapper');
+
+  const addButton = document.createElement('button');
+  addButton.id = 'add-option-button';
+  addButton.classList.add('modern-button', 'add-option-button');
+  addButton.innerHTML = '<i class="fa-solid fa-plus"></i>'; // FontAwesome plus icon
+  addButton.addEventListener('click', addOptionInput); // Reuse the addOptionInput function
+  addButtonWrapper.appendChild(addButton);
+
+  optionContainer.appendChild(addButtonWrapper);
 }
 
 // Function to add option input box with delete button
 function addOptionInput() {
   const optionContainer = document.getElementById('new-options-container');
-  
+  const addButtonWrapper = document.querySelector('.add-button-wrapper');
+
   // Create a new option input
   const optionWrapper = document.createElement('div');
   optionWrapper.classList.add('option-wrapper');
@@ -249,15 +347,16 @@ function addOptionInput() {
 
   // Add delete button for the new option input
   const deleteButton = document.createElement('button');
-  deleteButton.textContent = 'Delete';
-  deleteButton.classList.add('delete-option-button');
+  deleteButton.classList.add('modern-button', 'delete-option-button', 'red-button');
+  deleteButton.innerHTML = '<i class="fa-solid fa-trash-can"></i>'; // FontAwesome trash icon
   deleteButton.addEventListener('click', () => {
     optionWrapper.remove(); // Remove the option
     renumberOptions(); // Renumber remaining options
   });
   optionWrapper.appendChild(deleteButton);
 
-  optionContainer.appendChild(optionWrapper);
+  // Insert the new option before the add button
+  optionContainer.insertBefore(optionWrapper, addButtonWrapper);
 }
 
 // Function to renumber options after deletion
@@ -280,14 +379,14 @@ function showNotification(message, confirmText, cancelText = null, confirmCallba
   notificationBox.innerHTML = `
     <p>${message}</p>
     <div class="button-container">
-      <button class="confirm-button confirm-replace">${confirmText}</button>
-      ${cancelText ? `<button class="confirm-button confirm-cancel">${cancelText}</button>` : ''}
+      <button class="confirm-button ${confirmText.toLowerCase() === 'delete' || confirmText.toLowerCase() === 'replace' ? 'red-button' : 'grey-button'}">${confirmText}</button>
+      ${cancelText ? `<button class="confirm-button grey-button">${cancelText}</button>` : ''}
     </div>
   `;
   document.body.appendChild(notificationBox);
 
   // Handle confirm action
-  notificationBox.querySelector('.confirm-replace').addEventListener('click', () => {
+  notificationBox.querySelector('.confirm-button').addEventListener('click', () => {
     document.body.removeChild(notificationBox);
     if (confirmCallback) {
       confirmCallback();
@@ -296,7 +395,7 @@ function showNotification(message, confirmText, cancelText = null, confirmCallba
 
   // Handle cancel action if provided
   if (cancelText) {
-    notificationBox.querySelector('.confirm-cancel').addEventListener('click', () => {
+    notificationBox.querySelector('.grey-button').addEventListener('click', () => {
       document.body.removeChild(notificationBox);
     });
   }

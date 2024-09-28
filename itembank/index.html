@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Item Bank</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
   <div class="tabs">
@@ -42,7 +43,7 @@
     <div class="content">
       <div class="control-buttons">
         <!-- Buttons for adding, editing, selecting, and importing -->
-        <button id="toggle-add-panel" class="modern-button">Add</button>
+        <button id="toggle-modify-panel" class="modern-button">Add</button>
         <button id="delete-button" class="modern-button">Delete</button>
         <button id="select-button" class="modern-button">Select</button>
         <button id="import-button" class="modern-button">Import</button>
@@ -71,7 +72,7 @@
         <input type="number" id="question-count" class="modern-input" value="1" min="1" placeholder="Number of questions" style="display: none;" />
         
         <!-- Pick button for Random mode -->
-        <button id="random-question-button" class="modern-button" style="display: none;">Pick Questions</button>
+        <button id="random-question-button" class="modern-button" style="display: none;">Pick</button>
       </div>
 
       <div class="toggle-controls">
@@ -84,8 +85,9 @@
       </div>
     </div>
   </div> 
-  <div class="add-panel" id="add-panel" style="display: none;">
-    <span class="red-cross" id="close-add-panel">×</span> <!-- Red cross to close the panel -->
+
+  <div class="modify-panel" id="modify-panel" style="display: none;">
+    <span class="red-cross" id="close-modify-panel">×</span> <!-- Red cross to close the panel -->
     <label for="new-question-id">ID:</label>
     <input type="text" id="new-question-id" class="modern-input" placeholder="Enter question ID" />
     
@@ -103,8 +105,9 @@
     <label for="new-question-answer">Answer:</label>
     <input type="text" id="new-question-answer" class="modern-input" placeholder="Enter answer" />
     
-    <button id="add-question-button" class="modern-button full-width-button">Add</button>
+    <button id="save-question-button" class="modern-button full-width-button">Save</button> <!-- Button renamed from 'add-question-button' to 'save-question-button' -->
   </div>  
+
   <script type="module" src="script.js"></script>
 </body>
 </html>

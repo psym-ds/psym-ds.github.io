@@ -112,7 +112,7 @@ body {
   background-color: #fff;
 }
 
-.modern-button, .add-option-button, .delete-option-button {
+.modern-button {
   height: 100%; /* Match the height of input boxes */
   padding: 10px 15px;
   background-color: #7c7c7c;
@@ -124,8 +124,12 @@ body {
   width: 100px;  /* Fixed width for both Add and Delete buttons */
 }
 
-.modern-button:hover, .add-option-button:hover, .delete-option-button:hover {
+.modern-button:hover, .add-option-button:hover {
   background-color: #5c5c5c;
+}
+
+.delete-option-button:hover {
+  background-color: #c00000;
 }
 
 #question-count {
@@ -146,12 +150,38 @@ button:hover {
   background-color: #5c5c5c;
 }
 
+.red-button:hover {
+  background-color: #c00000;
+}
+
+/* Style for the question card */
 .question-card {
   background-color: #fff;
   padding: 20px;
   margin-bottom: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
+  position: relative; /* Position relative for absolute positioning of buttons */
+}
+
+/* Common styles for the edit and delete icons */
+.edit-button, .red-cross {
+  font-size: 18px;
+  cursor: pointer;
+  position: absolute;
+  top: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.red-cross {
+  color: red;
+  right: 10px; /* Positioned at the top-right corner */
+}
+
+.edit-button {
+  color: #5c5c5c;
+  right: 40px; /* Adjusted to align next to the red cross */
 }
 
 .toggle-controls {
@@ -165,7 +195,7 @@ button:hover {
   font-weight: bold;
 }
 
-.add-panel {
+.modify-panel {
   background-color: #f9f9f9;
   padding: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -182,7 +212,7 @@ button:hover {
 }
 
 /* Position the red cross at the top-right corner */
-.add-panel .red-cross {
+.modify-panel .red-cross {
   color: #7c7c7c;
   font-size: 18px;
   position: absolute;
@@ -191,31 +221,52 @@ button:hover {
   cursor: pointer;
 }
 
-.add-panel h2 {
+.modify-panel h2 {
   margin-bottom: 10px;
 }
 
-.add-panel label {
+.modify-panel label {
   display: block;
   margin: 10px 0 5px;
 }
 
+/* Ensure both Delete and Add buttons are the same size */
+.delete-option-button, .add-option-button {
+  min-width: 60px; /* Ensure minimum width is the same */
+  max-width: 60px; /* Ensure maximum width is the same */
+  height: 38px; /* Ensure consistent height for both buttons */
+  background-color: red; /* Red for Delete button */
+  color: white;
+  border: none;
+  padding: 0;
+  text-align: center;
+  line-height: 38px; /* Align text vertically */
+  font-size: 14px;
+  border-radius: 5px; /* Rounded corners */
+}
+
+.add-option-button {
+  background-color: #7c7c7c; /* Gray background color for Add button */
+  color: white;
+}
+
+/* Option input layout */
 .option-wrapper {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
 }
 
-.add-option-button, .delete-option-button {
-  margin-left: 10px;
-  width: 100px; /* Ensure both Add and Delete buttons have the same width */
+.option-wrapper .option-input {
+  flex-grow: 1;
+  margin-right: 10px;
 }
 
-.red-cross {
-  color: red;
-  font-size: 18px;
-  float: right;
-  cursor: pointer;
+/* Wrapper for the Add button to align it below the last Delete button */
+.add-button-wrapper {
+  display: flex;
+  justify-content: flex-end; /* Align Add button to the right */
+  margin-top: 10px;
 }
 
 .confirm-box {
@@ -244,13 +295,15 @@ button:hover {
   font-size: 16px;
 }
 
-.confirm-replace {
-  background-color: red;
+/* Grey buttons for OK and Cancel */
+.grey-button {
+  background-color: grey;
   color: white;
 }
 
-.confirm-cancel {
-  background-color: grey;
+/* Red buttons for Delete and Replace */
+.red-button {
+  background-color: red;
   color: white;
 }
 
@@ -273,7 +326,7 @@ button:hover {
 }
 
 /* Movable element CSS */
-.add-panel {
+.modify-panel {
   cursor: move;
 }
 
