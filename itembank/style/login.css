@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    background-color: #f7f7f7;
     margin: 0;
     padding: 0;
     height: 100vh;
@@ -36,7 +36,7 @@ body {
   .modern-button {
     width: 100%;
     padding: 10px;
-    background-color: #7c7c7c;
+    background-color: #5296D5;
     color: white;
     border: none;
     border-radius: 5px;
@@ -45,7 +45,7 @@ body {
   }
   
   .modern-button:hover {
-    background-color: #5c5c5c;
+    background-color: #437EB4;
   }
   
   .error-message {

@@ -1,17 +1,37 @@
+/* General Styles */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background-color: #f7f7f7;
   margin: 0;
   padding: 0;
   height: 100vh; /* Full height of the screen */
   display: flex;
   flex-direction: column;
+  color: #333;
+}
+
+.inactive-input {
+  background-color: #e0e0e0;
+  color: #666;
+}
+
+.inactive-button {
+  background-color: #e0e0e0;
+  color: #666;
+}
+
+.full-width-input {
+  width: 100%;
+}
+
+.small-input {
+  width: 60px; /* Adjusted width to fit 3-4 characters */
 }
 
 .tabs {
   display: flex;
   justify-content: space-around;
-  background-color: #333;
+  background-color: #2c3e50;
   padding: 10px 0; /* Added padding to make it visually distinct */
 }
 
@@ -20,14 +40,16 @@ body {
   padding: 15px;
   cursor: pointer;
   color: white;
-  background-color: #333;
+  background-color: #2c3e50;
   border: none;
   outline: none;
   text-align: center;
+  font-size: 16px;
+  font-weight: bold;
 }
 
 .tab-link.active {
-  background-color: #444;
+  background-color: #34495e;
 }
 
 .container {
@@ -39,13 +61,14 @@ body {
 
 .sidebar {
   width: 22vw;
-  min-width: 120px;
-  background-color: #333;
-  color: white;
+  min-width: 200px;
+  background-color: #ecf0f1;
+  color: #2c3e50;
   height: 100%;
   padding: 20px;
   box-sizing: border-box;
   position: relative;
+  border-right: 1px solid #bdc3c7;
 }
 
 .sidebar h2 {
@@ -53,109 +76,208 @@ body {
   margin-bottom: 10px;
 }
 
-#search-bar, #manage-search-bar {
+#search-bar, #manage-search-bar, #id-list-view, #id-list-manage, #selected-id-list {
   width: 100%;
   padding: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   box-sizing: border-box;
+  border: 1px solid #bdc3c7;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.random-controls {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.random-controls input {
+  width: 35%;
+  margin-right: 10px;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid #bdc3c7;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.random-controls button {
+  width: 65%;
+  box-sizing: border-box;
+  padding: 10px;
+  font-size: 14px;
 }
 
 #question-list, #manage-question-list {
   list-style-type: none;
   padding: 0;
   margin: 0;
-  height: calc(100% - 80px); /* 100% minus search bar and padding */
+  height: calc(100% - 220px); /* Adjusted height to account for input boxes and random controls */
   overflow-y: auto; /* Scrollable */
+}
+
+.sidebar ul {
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
 
 .sidebar li {
   margin-bottom: 10px;
   cursor: pointer;
-}
-
-.sidebar li:hover {
-  background-color: #444;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   padding: 5px;
   border-radius: 5px;
 }
 
+.sidebar li:hover {
+  background-color: #bdc3c7;
+}
+
 .content {
   flex-grow: 1;
+  padding: 0;
+  box-sizing: border-box;
+  display: flex;
+  position: relative;
+}
+
+.selection-panel, .preview-panel {
+  width: 50%;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+}
+
+.selection-panel {
+  border-right: 1px solid #bdc3c7;
+}
+
+.selection-controls, .control-buttons {
+  display: flex;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  padding: 10px 15px; /* Added left and right padding */
+  gap: 10px;
+  background-color: #ecf0f1;
+  box-sizing: border-box;
+  height: 60px; /* Fixed height */
+}
+
+.selection-controls .modern-button {
+  flex: 1;
+  margin: 0;
+  height: 40px;
+  border-radius: 5px;
+}
+
+.control-buttons .modern-button {
+  flex: 1;
+  margin: 0;
+  height: 40px;
+  border-radius: 5px;
+}
+
+.selection-question-container {
+  position: absolute;
+  top: 60px; /* Adjust based on controls height */
+  bottom: 0;
+  width: 100%;
+  overflow-y: auto;
   padding: 20px;
   box-sizing: border-box;
-  overflow-y: auto; /* Allows scrolling for content */
 }
 
-.controls {
+.preview-controls {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
   align-items: center;
+  justify-content: center; /* Center horizontally */
+  padding: 10px 15px; /* Added left and right padding */
+  position: absolute;
+  top: 0;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #ecf0f1;
+  z-index: 1;
+  gap: 10px;
+  height: 60px; /* Fixed height */
 }
 
-.dropdown {
-  padding: 8px;
+#selected-id-list {
+  flex: 0 0 70%; /* Fixed width for input */
+  max-width: 70%;
+  border: 1px solid #bdc3c7;
   border-radius: 5px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-  background-color: #fff;
-  cursor: pointer;
+  padding: 10px;
+  font-size: 14px;
+  margin-bottom: 0px;
+}
+
+.toggle-container {
+  flex: 0 0 auto;
+  width: 60px;
+  height: 34px;
+}
+
+.preview-question-container {
+  position: absolute;
+  top: 60px; /* Adjust based on controls height */
+  bottom: 0;
+  width: 100%;
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .modern-input {
   padding: 10px;
   border-radius: 5px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-  width: 100%;
+  border: 1px solid #bdc3c7;
+  font-size: 14px;
   box-sizing: border-box;
   background-color: #fff;
 }
 
 .modern-button {
-  height: 100%; /* Match the height of input boxes */
+  height: 40px; /* Match the height of input boxes */
   padding: 10px 15px;
-  background-color: #7c7c7c;
+  background-color: #3498db;
   color: white;
   border: none;
   border-radius: 5px;
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
-  width: 100px;  /* Fixed width for both Add and Delete buttons */
 }
 
 .modern-button:hover, .add-option-button:hover {
-  background-color: #5c5c5c;
+  background-color: #2980b9;
 }
 
 .delete-option-button:hover {
-  background-color: #c00000;
-}
-
-#question-count {
-  width: 60px;
-  padding: 8px;
+  background-color: #c0392b;
 }
 
 button {
   padding: 10px;
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
-  background-color: #7c7c7c;
+  background-color: #3498db;
   color: white;
   border: none;
 }
 
 button:hover {
-  background-color: #5c5c5c;
+  background-color: #2980b9;
 }
 
 .red-button:hover {
-  background-color: #c00000;
+  background-color: #c0392b;
 }
 
-/* Common styles for the edit and delete icons */
-.edit-button, .delete-button {
+.edit-button, .delete-button, .select-checkbox {
   font-size: 18px;
   cursor: pointer;
   position: absolute;
@@ -165,28 +287,22 @@ button:hover {
 }
 
 .delete-button {
-  color: red;
+  color: #e74c3c;
   right: 10px; /* Positioned at the top-right corner */
 }
 
 .edit-button {
-  color: #5c5c5c;
+  color: #3498db;
   right: 40px; /* Adjusted to align next to the red cross */
 }
 
-.toggle-controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-#displayed-ids {
-  font-weight: bold;
+.select-checkbox {
+  right: 10px;
+  color: #3498db;
 }
 
 .modify-panel {
-  background-color: #f9f9f9;
+  background-color: #ecf0f1;
   padding: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
@@ -201,7 +317,6 @@ button:hover {
   cursor: move;
 }
 
-
 .modify-panel h2 {
   margin-bottom: 10px;
 }
@@ -211,27 +326,27 @@ button:hover {
   margin: 10px 0 5px;
 }
 
-/* Ensure both Delete and Add buttons are the same size */
 .delete-option-button, .add-option-button {
-  min-width: 60px; /* Ensure minimum width is the same */
-  max-width: 60px; /* Ensure maximum width is the same */
-  height: 38px; /* Ensure consistent height for both buttons */
-  background-color: red; /* Red for Delete button */
+  min-width: 60px;
+  max-width: 60px;
+  height: 38px;
   color: white;
   border: none;
   padding: 0;
   text-align: center;
-  line-height: 38px; /* Align text vertically */
+  line-height: 38px;
   font-size: 14px;
-  border-radius: 5px; /* Rounded corners */
+  border-radius: 5px;
+}
+
+.delete-option-button {
+  background-color: #e74c3c;
 }
 
 .add-option-button {
-  background-color: #7c7c7c; /* Gray background color for Add button */
-  color: white;
+  background-color: #3498db;
 }
 
-/* Option input layout */
 .option-wrapper {
   display: flex;
   align-items: center;
@@ -243,10 +358,9 @@ button:hover {
   margin-right: 10px;
 }
 
-/* Wrapper for the Add button to align it below the last Delete button */
 .add-button-wrapper {
   display: flex;
-  justify-content: flex-end; /* Align Add button to the right */
+  justify-content: flex-end;
   margin-top: 10px;
 }
 
@@ -260,7 +374,7 @@ button:hover {
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   z-index: 1000;
-  max-width: 400px; /* Set a max width for better presentation */
+  max-width: 400px;
   text-align: center;
 }
 
@@ -270,29 +384,27 @@ button:hover {
 
 .confirm-button {
   padding: 10px 20px;
-  margin: 0 10px; /* Add space between the buttons */
+  margin: 0 10px;
   cursor: pointer;
   border: none;
-  font-size: 16px;
+  font-size: 14px;
+  border-radius: 5px;
 }
 
-/* Grey buttons for OK and Cancel */
 .grey-button {
-  background-color: grey;
+  background-color: #95a5a6;
   color: white;
 }
 
-/* Red buttons for Delete and Replace */
 .red-button {
-  background-color: red;
+  background-color: #e74c3c;
   color: white;
 }
 
-/* Flexbox container for centering buttons */
 .confirm-box .button-container {
   display: flex;
   justify-content: center;
-  gap: 20px; /* Add space between buttons */
+  gap: 20px;
   margin-top: 10px;
 }
 
@@ -302,28 +414,37 @@ button:hover {
 
 .full-width-button {
   width: 100%;
-  height: auto;
-  margin: 10px 0;
+  margin: 0;
+  border-radius: 5px;
 }
 
-/* Movable element CSS */
-.modify-panel {
-  cursor: move;
+.half-width-button {
+  width: calc(50% - 5px);
+  margin: 0;
+  border-radius: 5px;
 }
 
-.control-buttons {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+.one-third-width-button {
+  width: calc(33.33% - 7px);
+  margin: 0;
+  border-radius: 5px;
 }
 
-.control-buttons .modern-button {
-  flex-grow: 1; /* Each button takes up equal space */
-  text-align: center; /* Center the button text */
-  padding: 10px; /* Ensure padding for better visuals */
+.selection-controls .half-width-button:not(:last-child),
+.control-buttons .one-third-width-button:not(:last-child) {
+  margin-right: 10px;
 }
 
-/* For question cards in manage mode */
+.manage-question-container {
+  position: absolute;
+  top: 60px; /* Adjust based on controls height */
+  bottom: 0;
+  width: 100%;
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
 .question-card {
   background-color: #fff;
   padding: 20px;
@@ -347,7 +468,6 @@ button:hover {
   cursor: pointer;
 }
 
-/* Floating panel for importing */
 .floating-panel {
   position: fixed;
   top: 50%;
@@ -366,7 +486,7 @@ button:hover {
 .import-content {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start; /* Align both sections to the top */
+  align-items: flex-start;
   padding: 10px;
   gap: 20px;
 }
@@ -376,38 +496,38 @@ button:hover {
   padding: 15px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* Align content at the start */
+  justify-content: flex-start;
   height: auto;
 }
 
 .left-half h3, .right-half h3 {
-  margin-top: 0; /* Ensure there's no extra top margin */
+  margin-top: 0;
   height: 45px;
 }
 
 #file-drop-area {
-  border: 2px dashed #ccc;
+  border: 2px dashed #bdc3c7;
   padding: 25px;
   text-align: center;
   border-radius: 10px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  background-color: #f9f9f9;
+  background-color: #ecf0f1;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
   width: 100%;
-  height: 250px; /* Set the same height as the JSON box */
+  height: 250px;
   box-sizing: border-box;
 }
 
 #file-drop-area:hover {
-  background-color: #e9e9e9;
+  background-color: #bdc3c7;
 }
 
 pre {
-  background-color: #f4f4f4;
+  background-color: #ecf0f1;
   padding: 10px;
   border-radius: 10px;
   overflow-x: auto;
@@ -415,6 +535,61 @@ pre {
   line-height: 1.5;
   width: 100%;
   box-sizing: border-box;
-  height: 250px; /* Set the same height as the file drop area */
+  height: 250px;
   margin: 0em 0px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background-color: #bdc3c7;
+  transition: .4s;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #3498db;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #3498db;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
 }

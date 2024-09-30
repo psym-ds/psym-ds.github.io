@@ -20,8 +20,9 @@ const database = getDatabase(app);
 
 let questions = [];
 let showAnswers = true;
-let currentQuestions = []; // Keep track of current displayed questions in test mode
+let currentQuestions = []; // Keep track of current displayed questions in push mode
 let currentEditingQuestionId = null; // Track the ID of the question being edited
+let selectedQuestionIds = []; // Array to keep track of selected question IDs in push mode
 
 // Fetch questions from Firebase Realtime Database
 const dataRef = ref(database, '/'); // Assuming all data is stored at root
@@ -31,10 +32,10 @@ onValue(dataRef, (snapshot) => {
 
   if (data && data.question && Array.isArray(data.question)) {
     questions = data.question; // Fetch only the 'question' type data
-    populateQuestionList(questions, 'view-mode'); // Populate the sidebar with questions for view mode
+    populateQuestionList(questions, 'push-mode'); // Populate the sidebar with questions for push mode
     populateQuestionList(questions, 'manage-mode'); // Populate the sidebar with questions for manage mode
-    displayQuestions(questions, 'view-mode'); // Display all questions initially in view mode
-    displayQuestions(questions, 'manage-mode'); // Display all questions initially in manage mode
+    displayQuestions(questions, 'push-mode');
+    displayQuestions(questions, 'manage-mode');
   } else {
     console.error('No questions found or data is not in the expected format');
   }
@@ -42,49 +43,67 @@ onValue(dataRef, (snapshot) => {
   console.error('Error fetching questions from Firebase:', error);
 });
 
-// Populate the list of questions in the sidebar for both view and manage modes, sorting by ID
+// Populate the list of questions in the sidebar for both push and manage modes, sorting by ID
 function populateQuestionList(questions, mode) {
-  const questionList = document.getElementById(mode === 'view-mode' ? 'question-list' : 'manage-question-list');
+  const questionList = document.getElementById(mode === 'push-mode' ? 'question-list' : 'manage-question-list');
   questionList.innerHTML = ''; // Clear previous list
 
   // Sort questions by ID before displaying
   questions.sort((a, b) => a.id - b.id).forEach((question) => {
     const listItem = document.createElement('li');
-    listItem.textContent = `${question.id}: ${question.question.substring(0, 30)}...`;
-    listItem.addEventListener('click', () => displayQuestions([question], mode));
+    listItem.textContent = `${question.id}: ${question.question}`;
+    listItem.addEventListener('click', () => {
+      displayQuestions([question], mode);
+      // Reset selection methods
+      if (mode === 'push-mode') {
+        resetSelectionMethods();
+      } else {
+        resetManageSelectionMethods();
+      }
+    });
     questionList.appendChild(listItem);
   });
 }
 
-// Display a question and its answer in the specified container (either view-mode or manage-mode)
-function displayQuestions(questions, containerId) {
+// Display questions in the specified container (either push-mode or manage-mode)
+function displayQuestions(questionsToDisplay, containerId) {
   const questionContainer = document.querySelector(`#${containerId} #question-container`);
   questionContainer.innerHTML = ''; // Clear previous content
 
-  if (containerId === 'test-mode') {
-    currentQuestions = [...questions]; // Update currentQuestions for test mode to store the current displayed questions
-
-    // Update the "Displayed Question IDs" field with the IDs of the currently displayed questions
-    const displayedIds = questions.length > 0 ? questions.map(q => q.id).join(', ') : 'None';
-    document.getElementById('displayed-ids').textContent = displayedIds;
+  if (containerId === 'push-mode') {
+    currentQuestions = [...questionsToDisplay]; // Update currentQuestions for push mode
   }
 
-  questions.forEach((question) => {
+  questionsToDisplay.forEach((question) => {
     const questionCard = document.createElement('div');
     questionCard.classList.add('question-card');
 
     if (containerId === 'manage-mode') {
-      // Add edit button for each question in manage mode
+      // Add edit and delete buttons for manage mode
       const editButton = document.createElement('i');
       editButton.classList.add('fa-solid', 'fa-pen-to-square', 'edit-button');
       editButton.addEventListener('click', () => openModifyPanel(question));
       questionCard.appendChild(editButton);
 
-      // Add remove (delete) button with FontAwesome icon for each question in manage mode
       const deleteButton = document.createElement('i');
-      deleteButton.classList.add('fa-solid', 'fa-trash-can', 'delete-button'); // Using FontAwesome xmark icon
+      deleteButton.classList.add('fa-solid', 'fa-trash-can', 'delete-button');
       deleteButton.addEventListener('click', () => confirmDelete(question.id));
       questionCard.appendChild(deleteButton);
+    }
+
+    if (containerId === 'push-mode') {
+      // Add checkbox for selection in push mode
+      const selectCheckbox = document.createElement('i');
+      selectCheckbox.classList.add('select-checkbox');
+      selectCheckbox.classList.add('fa-regular'); // Regular style
+      // Set checkbox status based on selection
+      if (selectedQuestionIds.includes(question.id)) {
+        selectCheckbox.classList.add('fa-square-check'); // Checked
+      } else {
+        selectCheckbox.classList.add('fa-square'); // Unchecked
+      }
+      selectCheckbox.addEventListener('click', () => toggleSelection(question.id));
+      questionCard.appendChild(selectCheckbox);
     }
 
     const questionIdElement = document.createElement('p');
@@ -106,14 +125,100 @@ function displayQuestions(questions, containerId) {
       questionCard.appendChild(ul);
     }
 
-    // Display the answer if allowed
-    if (showAnswers) {
+    // Display the answer in manage mode and selection panel
+    if (containerId === 'manage-mode' || containerId === 'push-mode') {
       const answerElement = document.createElement('p');
       answerElement.innerHTML = `<strong>Answer:</strong> ${question.answer}`;
       questionCard.appendChild(answerElement);
     }
 
     questionContainer.appendChild(questionCard);
+  });
+
+  // Update the selection statuses if in push mode
+  if (containerId === 'push-mode') {
+    updateSelectionCheckboxes();
+  }
+}
+
+// Function to toggle selection of a question
+function toggleSelection(questionId) {
+  if (selectedQuestionIds.includes(questionId)) {
+    // Remove from selected
+    selectedQuestionIds = selectedQuestionIds.filter(id => id !== questionId);
+  } else {
+    // Add to selected
+    selectedQuestionIds.push(questionId);
+  }
+
+  // Update the ID list input
+  document.getElementById('selected-id-list').value = selectedQuestionIds.join(', ');
+
+  // Update the selection checkboxes
+  updateSelectionCheckboxes();
+
+  // Update the preview panel
+  updatePreviewPanel();
+}
+
+// Function to update the selection checkboxes based on selectedQuestionIds
+function updateSelectionCheckboxes() {
+  const checkboxes = document.querySelectorAll('#push-mode .select-checkbox');
+
+  checkboxes.forEach(checkbox => {
+    const questionId = parseInt(checkbox.parentElement.querySelector('p strong').nextSibling.textContent.trim());
+    if (selectedQuestionIds.includes(questionId)) {
+      checkbox.classList.remove('fa-square');
+      checkbox.classList.add('fa-square-check');
+    } else {
+      checkbox.classList.remove('fa-square-check');
+      checkbox.classList.add('fa-square');
+    }
+  });
+}
+
+// Function to update the preview panel based on selectedQuestionIds
+function updatePreviewPanel() {
+  const previewContainer = document.querySelector('#push-mode #preview-container');
+  previewContainer.innerHTML = ''; // Clear previous content
+
+  // Get the selected questions in the order of selectedQuestionIds
+  const selectedQuestions = selectedQuestionIds.map(id => questions.find(q => q.id === id)).filter(q => q !== undefined);
+
+  selectedQuestions.forEach((question) => {
+    const questionCard = document.createElement('div');
+    questionCard.classList.add('question-card');
+
+    // Display the ID if showAnswers is true
+    if (showAnswers) {
+      const questionIdElement = document.createElement('p');
+      questionIdElement.innerHTML = `<strong>Question ID:</strong> ${question.id}`;
+      questionCard.appendChild(questionIdElement);
+    }
+
+    const questionTextElement = document.createElement('p');
+    questionTextElement.innerHTML = question.question;
+    questionCard.appendChild(questionTextElement);
+
+    // If options exist, display them
+    if (question.options) {
+      const ul = document.createElement('ul');
+      for (let key in question.options) {
+        const li = document.createElement('li');
+        li.textContent = `${key}. ${question.options[key]}`;
+        ul.appendChild(li);
+      }
+      questionCard.appendChild(ul);
+    }
+
+    // Display the answer if showAnswers is true
+    if (showAnswers) {
+      const answerElement = document.createElement('p');
+      answerElement.innerHTML = `<strong>Answer:</strong> ${question.answer}`;
+      questionCard.appendChild(answerElement);
+    }
+
+    previewContainer.appendChild(questionCard);
   });
 }
 
@@ -138,7 +243,7 @@ function openModifyPanel(question = null) {
     if (question.options) {
       // Find the highest option number to account for missing or blank options
       const maxOptionKey = Math.max(...Object.keys(question.options).map(Number));
-      
+
       for (let i = 1; i <= maxOptionKey; i++) {
         if (i === 1) {
           // Fill first option
@@ -173,7 +278,7 @@ document.getElementById('close-modify-panel').addEventListener('click', () => {
 // Confirm delete function
 function confirmDelete(questionId) {
   showNotification('Are you sure you want to delete this question?', 'Delete', 'Cancel', () => {
-    removeQuestion(Number(questionId));  // Ensure ID is treated as a number
+    removeQuestion(Number(questionId)); // Ensure ID is treated as a number
   });
 }
 
@@ -182,10 +287,17 @@ function removeQuestion(questionId) {
   const questionIndex = questions.findIndex(q => q.id === questionId);
   if (questionIndex > -1) {
     questions.splice(questionIndex, 1);
-    
+
     // Only update the 'question' part of the database
     set(ref(database, '/question'), questions) // Notice the path is now '/question'
-      .then(() => console.log('Question removed successfully'))
+      .then(() => {
+        console.log('Question removed successfully');
+        // After removing, refresh the question lists and displays
+        populateQuestionList(questions, 'push-mode');
+        populateQuestionList(questions, 'manage-mode');
+        displayQuestions(questions, 'push-mode');
+        displayQuestions(questions, 'manage-mode');
+      })
       .catch((error) => console.error('Error updating Firebase:', error));
   }
 }
@@ -202,7 +314,7 @@ document.getElementById('save-question-button').addEventListener('click', () => 
     return;
   }
 
-  const existingQuestion = questions.find(question => Number(question.id) === newId);  // Check if the new ID already exists
+  const existingQuestion = questions.find(question => Number(question.id) === newId); // Check if the new ID already exists
 
   if (currentEditingQuestionId !== null) {
     // Editing an existing question
@@ -219,7 +331,7 @@ document.getElementById('save-question-button').addEventListener('click', () => 
           removeQuestion(currentEditingQuestionId); // Remove the original question being edited
           removeQuestion(newId); // Remove the existing question with the conflicting ID
           addNewQuestion(newId, newText, newAnswer); // Create the new question with input details
-          
+
           // Close the modify panel after editing
           closeModifyPanel();
         }
@@ -228,7 +340,7 @@ document.getElementById('save-question-button').addEventListener('click', () => 
       // No ID conflict, just delete the original and create a new one
       removeQuestion(currentEditingQuestionId); // Remove the original question
       addNewQuestion(newId, newText, newAnswer); // Create the new question with input details
-      
+
       // Close the modify panel after editing
       closeModifyPanel();
     }
@@ -281,10 +393,17 @@ function addNewQuestion(newId, newText, newAnswer) {
 
   // Add the new question
   questions.push(newQuestion);
-  
+
   // Update only the 'question' section in Firebase
   set(ref(database, '/question'), questions) // Only updating the '/question' path
-    .then(() => console.log('Question added successfully'))
+    .then(() => {
+      console.log('Question added successfully');
+      // After adding, refresh the question lists and displays
+      populateQuestionList(questions, 'push-mode');
+      populateQuestionList(questions, 'manage-mode');
+      displayQuestions(questions, 'push-mode');
+      displayQuestions(questions, 'manage-mode');
+    })
     .catch((error) => console.error('Error updating Firebase:', error));
 
   // Clear input fields after adding
@@ -371,11 +490,6 @@ function renumberOptions() {
   });
 }
 
-// Handle adding new options
-document.getElementById('add-option-button').addEventListener('click', () => {
-  addOptionInput(); // Add an empty option input box
-});
-
 // Custom notification box for errors, warnings, and confirmation
 function showNotification(message, confirmText, cancelText = null, confirmCallback = null) {
   const notificationBox = document.createElement('div');
@@ -383,7 +497,7 @@ function showNotification(message, confirmText, cancelText = null, confirmCallba
   notificationBox.innerHTML = `
     <p>${message}</p>
     <div class="button-container">
-      <button class="confirm-button ${confirmText.toLowerCase() === 'delete' || confirmText.toLowerCase() === 'replace' ? 'red-button' : 'grey-button'}">${confirmText}</button>
+      <button class="confirm-button ${confirmText.toLowerCase() === 'delete' || confirmText.toLowerCase() === 'replace' || confirmText.toLowerCase() === 'overwrite' ? 'red-button' : 'grey-button'}">${confirmText}</button>
       ${cancelText ? `<button class="confirm-button grey-button">${cancelText}</button>` : ''}
     </div>
   `;
@@ -405,75 +519,190 @@ function showNotification(message, confirmText, cancelText = null, confirmCallba
   }
 }
 
-// Handle search bar input in view mode
-document.getElementById('search-bar').addEventListener('input', (event) => {
-  const query = event.target.value.toLowerCase();
+// Handle mutual exclusivity of selection methods in push mode
+const searchBarPush = document.getElementById('search-bar');
+const idListPush = document.getElementById('id-list-view');
+const randomQuestionButtonPush = document.getElementById('random-question-button');
+const questionCountPush = document.getElementById('question-count');
 
-  const filteredQuestions = questions.filter(question => {
-    const questionMatches = question.question.toLowerCase().includes(query);
-    let optionMatches = false;
-    if (question.options) {
-      optionMatches = Object.values(question.options).some(option =>
-        option.toLowerCase().includes(query)
-      );
+// By default, search bar is active, others are inactive
+idListPush.classList.add('inactive-input');
+questionCountPush.classList.add('inactive-input');
+randomQuestionButtonPush.classList.add('inactive-button');
+
+// Function to reset selection methods in push mode
+function resetSelectionMethods() {
+  // Activate all methods
+  searchBarPush.classList.add('inactive-input');
+  idListPush.classList.add('inactive-input');
+  questionCountPush.classList.add('inactive-input');
+  randomQuestionButtonPush.classList.add('inactive-button');
+}
+
+// When search bar is focused, make it active and others inactive
+searchBarPush.addEventListener('focus', () => {
+  searchBarPush.classList.remove('inactive-input');
+  idListPush.classList.add('inactive-input');
+  questionCountPush.classList.add('inactive-input');
+  randomQuestionButtonPush.classList.add('inactive-button');
+  updatePushModeQuestions(); // Update immediately
+});
+
+// When ID list is focused, make it active and others inactive
+idListPush.addEventListener('focus', () => {
+  idListPush.classList.remove('inactive-input');
+  searchBarPush.classList.add('inactive-input');
+  questionCountPush.classList.add('inactive-input');
+  randomQuestionButtonPush.classList.add('inactive-button');
+  updatePushModeQuestions(); // Update immediately
+});
+
+// When question count is focused, make it active and others inactive
+questionCountPush.addEventListener('focus', () => {
+  questionCountPush.classList.remove('inactive-input');
+  randomQuestionButtonPush.classList.remove('inactive-button');
+  searchBarPush.classList.add('inactive-input');
+  idListPush.classList.add('inactive-input');
+});
+
+// Handle search bar input in push mode
+searchBarPush.addEventListener('input', updatePushModeQuestions);
+
+// Handle ID list input in push mode
+idListPush.addEventListener('input', updatePushModeQuestions);
+
+// Function to update questions in push mode based on search and ID input
+function updatePushModeQuestions() {
+  let filteredQuestions = questions;
+
+  if (!searchBarPush.classList.contains('inactive-input')) {
+    const query = searchBarPush.value.toLowerCase();
+    if (query) {
+      filteredQuestions = questions.filter(question => {
+        const questionMatches = question.question.toLowerCase().includes(query);
+        let optionMatches = false;
+        if (question.options) {
+          optionMatches = Object.values(question.options).some(option =>
+            option.toLowerCase().includes(query)
+          );
+        }
+        return questionMatches || optionMatches || question.id.toString().includes(query);
+      });
     }
-    return questionMatches || optionMatches || question.id.toString().includes(query);
-  });
+  } else if (!idListPush.classList.contains('inactive-input')) {
+    const idListInput = idListPush.value.trim();
+    if (idListInput) {
+      const idList = idListInput.split(',').map(id => Number(id.trim()));
+      filteredQuestions = idList
+        .map(id => questions.find(q => Number(q.id) === id))
+        .filter(q => q !== undefined);
+    }
+  }
 
-  displayQuestions(filteredQuestions, 'view-mode');
+  displayQuestions(filteredQuestions, 'push-mode');
+}
+
+// Handle mutual exclusivity of selection methods in manage mode
+const searchBarManage = document.getElementById('manage-search-bar');
+const idListManage = document.getElementById('id-list-manage');
+const randomQuestionButtonManage = document.getElementById('manage-random-question-button');
+const questionCountManage = document.getElementById('manage-question-count');
+
+// By default, search bar is active, others are inactive
+idListManage.classList.add('inactive-input');
+questionCountManage.classList.add('inactive-input');
+randomQuestionButtonManage.classList.add('inactive-button');
+
+// Function to reset selection methods in manage mode
+function resetManageSelectionMethods() {
+  // Deactivate all methods
+  searchBarManage.classList.add('inactive-input');
+  idListManage.classList.add('inactive-input');
+  questionCountManage.classList.add('inactive-input');
+  randomQuestionButtonManage.classList.add('inactive-button');
+}
+
+// When search bar is focused, make it active and others inactive
+searchBarManage.addEventListener('focus', () => {
+  searchBarManage.classList.remove('inactive-input');
+  idListManage.classList.add('inactive-input');
+  questionCountManage.classList.add('inactive-input');
+  randomQuestionButtonManage.classList.add('inactive-button');
+  updateManageModeQuestions(); // Update immediately
+});
+
+// When ID list is focused, make it active and others inactive
+idListManage.addEventListener('focus', () => {
+  idListManage.classList.remove('inactive-input');
+  searchBarManage.classList.add('inactive-input');
+  questionCountManage.classList.add('inactive-input');
+  randomQuestionButtonManage.classList.add('inactive-button');
+  updateManageModeQuestions(); // Update immediately
+});
+
+// When question count is focused, make it active and others inactive
+questionCountManage.addEventListener('focus', () => {
+  questionCountManage.classList.remove('inactive-input');
+  randomQuestionButtonManage.classList.remove('inactive-button');
+  searchBarManage.classList.add('inactive-input');
+  idListManage.classList.add('inactive-input');
 });
 
 // Handle search bar input in manage mode
-document.getElementById('manage-search-bar').addEventListener('input', (event) => {
-  const query = event.target.value.toLowerCase();
+searchBarManage.addEventListener('input', updateManageModeQuestions);
 
-  const filteredQuestions = questions.filter(question => {
-    const questionMatches = question.question.toLowerCase().includes(query);
-    let optionMatches = false;
-    if (question.options) {
-      optionMatches = Object.values(question.options).some(option =>
-        option.toLowerCase().includes(query)
-      );
+// Handle ID list input in manage mode
+idListManage.addEventListener('input', updateManageModeQuestions);
+
+// Function to update questions in manage mode based on search and ID input
+function updateManageModeQuestions() {
+  let filteredQuestions = questions;
+
+  if (!searchBarManage.classList.contains('inactive-input')) {
+    const query = searchBarManage.value.toLowerCase();
+    if (query) {
+      filteredQuestions = questions.filter(question => {
+        const questionMatches = question.question.toLowerCase().includes(query);
+        let optionMatches = false;
+        if (question.options) {
+          optionMatches = Object.values(question.options).some(option =>
+            option.toLowerCase().includes(query)
+          );
+        }
+        return questionMatches || optionMatches || question.id.toString().includes(query);
+      });
     }
-    return questionMatches || optionMatches || question.id.toString().includes(query);
-  });
+  } else if (!idListManage.classList.contains('inactive-input')) {
+    const idListInput = idListManage.value.trim();
+    if (idListInput) {
+      const idList = idListInput.split(',').map(id => Number(id.trim()));
+      filteredQuestions = idList
+        .map(id => questions.find(q => Number(q.id) === id))
+        .filter(q => q !== undefined);
+    }
+  }
 
   displayQuestions(filteredQuestions, 'manage-mode');
-});
+}
 
-// Handle mode change in Test Mode
-document.getElementById('mode-select').addEventListener('change', () => {
-  const mode = document.getElementById('mode-select').value;
-
-  if (mode === 'random') {
-    document.getElementById('fixed-id-list').style.display = 'none';
-    document.getElementById('question-count').style.display = 'inline';
-    document.getElementById('random-question-button').style.display = 'inline';
-  } else if (mode === 'fixed') {
-    document.getElementById('fixed-id-list').style.display = 'inline';
-    document.getElementById('question-count').style.display = 'none';
-    document.getElementById('random-question-button').style.display = 'none';
-  } else if (mode === 'custom') {
-    document.getElementById('fixed-id-list').style.display = 'none';
-    document.getElementById('question-count').style.display = 'none';
-    document.getElementById('random-question-button').style.display = 'none';
-  }
-});
-
-// Handle fixed ID input for Fixed mode and display in specified order
-document.getElementById('fixed-id-list').addEventListener('input', () => {
-  const idList = document.getElementById('fixed-id-list').value.split(',').map(id => Number(id.trim())); // Ensure IDs are treated as numbers
-  const orderedQuestions = idList
-    .map(id => questions.find(q => Number(q.id) === id))  // Compare IDs as numbers
-    .filter(q => q !== undefined); // Filter out invalid IDs
-  displayQuestions(orderedQuestions, 'test-mode');
-});
-
-// Handle picking random questions in Random mode
+// Handle picking random questions in Push mode
 document.getElementById('random-question-button').addEventListener('click', () => {
   const questionCount = parseInt(document.getElementById('question-count').value, 10) || 1;
   const randomQuestions = getRandomQuestions(questions, questionCount);
-  displayQuestions(randomQuestions, 'test-mode');
+  displayQuestions(randomQuestions, 'push-mode');
+  // Deactivate other methods
+  searchBarPush.classList.add('inactive-input');
+  idListPush.classList.add('inactive-input');
+});
+
+// Handle picking random questions in Manage mode
+document.getElementById('manage-random-question-button').addEventListener('click', () => {
+  const questionCount = parseInt(document.getElementById('manage-question-count').value, 10) || 1;
+  const randomQuestions = getRandomQuestions(questions, questionCount);
+  displayQuestions(randomQuestions, 'manage-mode');
+  // Deactivate other methods
+  searchBarManage.classList.add('inactive-input');
+  idListManage.classList.add('inactive-input');
 });
 
 // Function to select a random set of questions
@@ -482,14 +711,12 @@ function getRandomQuestions(questionArray, num) {
   return shuffled.slice(0, num);
 }
 
-// Toggle showing/hiding answers without regenerating questions
-document.getElementById('toggle-answers-button').addEventListener('click', () => {
-  showAnswers = !showAnswers;
-  const buttonText = showAnswers ? 'Hide Answers' : 'Show Answers';
-  document.getElementById('toggle-answers-button').textContent = buttonText;
+// Toggle showing/hiding answers in Preview panel only
+document.getElementById('toggle-answers').addEventListener('change', () => {
+  showAnswers = document.getElementById('toggle-answers').checked;
 
-  // Redisplay the current set of questions without regenerating them
-  displayQuestions(currentQuestions, 'test-mode');
+  // Update the preview panel only
+  updatePreviewPanel();
 });
 
 // Tab switching functionality
@@ -510,9 +737,11 @@ document.querySelectorAll('.tab-link').forEach(button => {
     const mode = button.getAttribute('data-mode');
     document.getElementById(`${mode}-mode`).style.display = 'flex';
 
-    // For test mode, start with no questions displayed
-    if (mode === 'test') {
-      displayQuestions([], 'test-mode');
+    // For push mode, display all questions initially
+    if (mode === 'push') {
+      displayQuestions(questions, 'push-mode');
+    } else {
+      displayQuestions(questions, 'manage-mode');
     }
   });
 });
@@ -523,6 +752,7 @@ function makeMovable(element) {
   let offsetX, offsetY;
 
   element.addEventListener('mousedown', (e) => {
+    if (e.target !== element) return; // Only move when clicking on the panel background
     isDragging = true;
     offsetX = e.clientX - element.offsetLeft;
     offsetY = e.clientY - element.offsetTop;
@@ -551,15 +781,12 @@ document.getElementById('export-button').addEventListener('click', () => {
 
 // Function to export questions as a JSON file in the specified format
 function exportQuestionsAsJSON() {
-  // Wrap the questions array inside an object with a "question" key and set the type of each question
+  // Wrap the questions array inside an object with a "question" key
   const formattedData = {
     question: questions.map(q => ({
       id: q.id,
       question: q.question,
-      options: Object.keys(q.options).reduce((acc, key) => {
-        acc[key] = q.options[key]; // Copy options as key-value pairs
-        return acc;
-      }, {}),
+      options: q.options || {},
       answer: q.answer
     }))
   };
@@ -667,7 +894,7 @@ function showOverwriteNotification(conflictingQuestions, newQuestions) {
     'Overwrite',
     'Cancel',
     () => {
-      overwriteQuestions(conflictingQuestions, newQuestions);  // Proceed with overwrite
+      overwriteQuestions(conflictingQuestions, newQuestions); // Proceed with overwrite
     }
   );
 }
@@ -695,9 +922,9 @@ function addQuestions(newQuestions) {
   set(ref(database, '/question'), questions)
     .then(() => {
       console.log('Questions imported successfully');
-      populateQuestionList(questions, 'view-mode');  // Update the view-mode list
+      populateQuestionList(questions, 'push-mode'); // Update the push-mode list
       populateQuestionList(questions, 'manage-mode'); // Update the manage-mode list
-      displayQuestions(questions, 'view-mode');  // Display questions in view mode
+      displayQuestions(questions, 'push-mode'); // Display questions in push mode
       displayQuestions(questions, 'manage-mode'); // Display questions in manage mode
     })
     .catch((error) => console.error('Error updating Firebase:', error));
@@ -705,3 +932,44 @@ function addQuestions(newQuestions) {
   // Close the import panel after success
   document.getElementById('import-panel').style.display = 'none';
 }
+
+// Handle Select All and Unselect All buttons in push mode
+document.getElementById('select-all-button').addEventListener('click', () => {
+  // Add all currently displayed questions to selectedQuestionIds
+  currentQuestions.forEach(question => {
+    if (!selectedQuestionIds.includes(question.id)) {
+      selectedQuestionIds.push(question.id);
+    }
+  });
+  // Update the ID list input
+  document.getElementById('selected-id-list').value = selectedQuestionIds.join(', ');
+  // Update checkboxes and preview panel
+  updateSelectionCheckboxes();
+  updatePreviewPanel();
+});
+
+document.getElementById('unselect-all-button').addEventListener('click', () => {
+  // Remove all currently displayed questions from selectedQuestionIds
+  currentQuestions.forEach(question => {
+    selectedQuestionIds = selectedQuestionIds.filter(id => id !== question.id);
+  });
+  // Update the ID list input
+  document.getElementById('selected-id-list').value = selectedQuestionIds.join(', ');
+  // Update checkboxes and preview panel
+  updateSelectionCheckboxes();
+  updatePreviewPanel();
+});
+
+// Handle changes in the selected ID list input
+document.getElementById('selected-id-list').addEventListener('input', () => {
+  const idListInput = document.getElementById('selected-id-list').value.trim();
+  if (idListInput) {
+    const idList = idListInput.split(',').map(id => Number(id.trim())).filter(id => !isNaN(id));
+    selectedQuestionIds = idList;
+  } else {
+    selectedQuestionIds = [];
+  }
+  // Update checkboxes and preview panel
+  updateSelectionCheckboxes();
+  updatePreviewPanel();
+});

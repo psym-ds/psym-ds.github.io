@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Item Bank</title>
   <link rel="stylesheet" href="style/instructor.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -21,23 +20,54 @@
 </head>
 <body>
   <div class="tabs">
-    <button class="tab-link active" data-mode="view">View</button>
+    <button class="tab-link active" data-mode="push">Push</button>
     <button class="tab-link" data-mode="manage">Manage</button>
-    <button class="tab-link" data-mode="test">Test</button>
   </div>
 
-  <div class="container" id="view-mode">
+  <div class="container" id="push-mode">
     <div class="sidebar">
       <h2>Question List</h2>
       <input type="text" id="search-bar" placeholder="Search for a question..." />
+      <input type="text" id="id-list-view" placeholder="Enter question IDs (comma separated)" />
+      <!-- Adjusted random controls -->
+      <div class="random-controls">
+        <input type="number" id="question-count" class="modern-input" value="1" min="1" placeholder="#" />
+        <button id="random-question-button" class="modern-button">Pick Random</button>
+      </div>
       <ul id="question-list">
         <!-- List of questions will be injected here -->
       </ul>
     </div>
 
     <div class="content">
-      <div id="question-container">
-        <!-- Questions and answers will be injected here in card format -->
+      <div class="selection-panel">
+        <div class="selection-controls">
+          <!-- Adjusted buttons with space in between -->
+          <button id="select-all-button" class="modern-button half-width-button">Select All</button>
+          <button id="unselect-all-button" class="modern-button half-width-button">Unselect All</button>
+        </div>
+        <div class="selection-question-container">
+          <div id="question-container">
+            <!-- Questions and answers will be injected here in card format -->
+          </div>
+        </div>
+      </div>
+      <div class="preview-panel">
+        <div class="preview-controls">
+          <input type="text" id="selected-id-list" placeholder="Selected question IDs..." />
+          <!-- Removed 'Ans' label from toggle switch -->
+          <div class="toggle-container">
+            <label class="switch">
+              <input type="checkbox" id="toggle-answers" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </div>
+        <div class="preview-question-container">
+          <div id="preview-container">
+            <!-- Selected questions will be previewed here -->
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -47,6 +77,12 @@
       <!-- Reuse the search bar and question list panel -->
       <h2>Question List</h2>
       <input type="text" id="manage-search-bar" placeholder="Search for a question..." />
+      <input type="text" id="id-list-manage" placeholder="Enter question IDs (comma separated)" />
+      <!-- Adjusted random controls -->
+      <div class="random-controls">
+        <input type="number" id="manage-question-count" class="modern-input" value="1" min="1" placeholder="#" />
+        <button id="manage-random-question-button" class="modern-button">Pick Random</button>
+      </div>
       <ul id="manage-question-list">
         <!-- List of questions will be injected here for managing -->
       </ul>
@@ -54,56 +90,27 @@
 
     <div class="content">
       <div class="control-buttons">
-        <!-- Buttons for adding, editing, selecting, and importing -->
-        <button id="toggle-modify-panel" class="modern-button">Add</button>
-        <button id="import-button" class="modern-button">Import</button>
-        <button id="export-button" class="modern-button">Export</button>
+        <!-- Adjusted control buttons with space in between -->
+        <button id="toggle-modify-panel" class="modern-button one-third-width-button">Add</button>
+        <button id="import-button" class="modern-button one-third-width-button">Import</button>
+        <button id="export-button" class="modern-button one-third-width-button">Export</button>
       </div>
 
-      <div id="question-container">
-        <!-- Questions and answers will be injected here for managing -->
+      <div class="manage-question-container">
+        <div id="question-container">
+          <!-- Questions and answers will be injected here for managing -->
+        </div>
       </div>
     </div>
   </div>  
 
-  <div class="container" id="test-mode" style="display: none;">
-    <div class="content">
-      <div class="controls">
-        <!-- Dropdown to choose mode -->
-        <select id="mode-select" class="dropdown">
-          <option value="fixed" selected>Fixed</option>
-          <option value="random">Random</option>
-          <option value="custom">Custom</option>
-        </select>
-
-        <!-- Input field for Fixed mode -->
-        <input type="text" id="fixed-id-list" class="modern-input" placeholder="Enter question IDs (comma separated)" />
-        
-        <!-- Number input field for Random mode -->
-        <input type="number" id="question-count" class="modern-input" value="1" min="1" placeholder="Number of questions" style="display: none;" />
-        
-        <!-- Pick button for Random mode -->
-        <button id="random-question-button" class="modern-button" style="display: none;">Pick</button>
-      </div>
-
-      <div class="toggle-controls">
-        <p><strong>Displayed Question IDs:</strong> <span id="displayed-ids">None</span></p>
-        <button id="toggle-answers-button">Hide Answers</button>
-      </div>
-
-      <div id="question-container">
-        <!-- Questions will be injected here -->
-      </div>
-    </div>
-  </div> 
-
   <div class="modify-panel" id="modify-panel" style="display: none;">
     <span class="close-button" id="close-modify-panel">×</span> <!-- Red cross to close the panel -->
     <label for="new-question-id">ID:</label>
-    <input type="text" id="new-question-id" class="modern-input" placeholder="Enter question ID" />
+    <input type="text" id="new-question-id" class="modern-input full-width-input" placeholder="Enter question ID" />
     
     <label for="new-question-text">Question:</label>
-    <textarea id="new-question-text" class="modern-input" placeholder="Enter question text"></textarea>
+    <textarea id="new-question-text" class="modern-input full-width-input" placeholder="Enter question text"></textarea>
     
     <label for="new-question-options">Options:</label>
     <div id="new-options-container">
@@ -114,19 +121,19 @@
     </div>
   
     <label for="new-question-answer">Answer:</label>
-    <input type="text" id="new-question-answer" class="modern-input" placeholder="Enter answer" />
+    <input type="text" id="new-question-answer" class="modern-input full-width-input" placeholder="Enter answer" />
     
-    <button id="save-question-button" class="modern-button full-width-button">Save</button> <!-- Button renamed from 'add-question-button' to 'save-question-button' -->
+    <button id="save-question-button" class="modern-button full-width-button">Save</button>
   </div>
 
   <!-- Import panel (initially hidden) -->
-<div id="import-panel" class="floating-panel" style="display: none;">
-  <span class="close-button" id="close-import-panel">×</span> <!-- Close button -->
-  
-  <div class="import-content">
-    <div class="left-half">
-      <h3>Sample JSON Structure</h3>
-      <pre>
+  <div id="import-panel" class="floating-panel" style="display: none;">
+    <span class="close-button" id="close-import-panel">×</span> <!-- Close button -->
+    
+    <div class="import-content">
+      <div class="left-half">
+        <h3>Sample JSON Structure</h3>
+        <pre>
 {
   "question": [
       {
@@ -153,19 +160,17 @@
       },
   ]
 }</pre>
-    </div>
-    <div class="right-half">
-      <h3>Upload File</h3>
-      <div class="file-drop-area" id="file-drop-area">
-        <i class="fas fa-upload"></i>
-        <p>Drag and drop your file here or click to upload</p>
       </div>
-    </div>    
+      <div class="right-half">
+        <h3>Upload File</h3>
+        <div class="file-drop-area" id="file-drop-area">
+          <i class="fas fa-upload"></i>
+          <p>Drag and drop your file here or click to upload</p>
+        </div>
+      </div>    
+    </div>
   </div>
-</div>
-
-
-  
+    
   <script type="module" src="script/instructor.js"></script>
 </body>
 </html>
