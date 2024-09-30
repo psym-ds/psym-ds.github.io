@@ -4,8 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Item Bank</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style/instructor.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script>
+    // Check if the user is logged in and is an instructor
+    window.onload = function() {
+      const loggedIn = sessionStorage.getItem('loggedIn');
+      const role = sessionStorage.getItem('role');
+
+      // If not logged in or not an instructor, redirect to login page
+      if (!loggedIn || role !== 'instructor') {
+        window.location.href = 'login.html';  // Redirect to login page
+      }
+    };
+  </script>
 </head>
 <body>
   <div class="tabs">
@@ -154,6 +166,6 @@
 
 
   
-  <script type="module" src="script.js"></script>
+  <script type="module" src="script/instructor.js"></script>
 </body>
 </html>
