@@ -2,7 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
 import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
 
-// Your Firebase configuration
+// Your Firebase configuration (Replace with your own config)
 const firebaseConfig = {
   apiKey: "AIzaSyCoXyCWebIypq2FO8QSt5IDdzfFNZsobFo",
   authDomain: "itembank-3b85f.firebaseapp.com",
@@ -19,28 +19,48 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
 let questions = [];
+let learners = [];
 let showAnswers = true;
 let currentQuestions = []; // Keep track of current displayed questions in push mode
+let currentLearners = []; // Keep track of current displayed learners in selection panel
 let currentEditingQuestionId = null; // Track the ID of the question being edited
 let selectedQuestionIds = []; // Array to keep track of selected question IDs in push mode
+let selectedLearnerIds = []; // Array to keep track of selected learner IDs
+let previousSelectedLearnerIds = []; // To restore on restore action
+let previousSelectedLearnerIdInput = ''; // To restore the input box content on restore
 
-// Fetch questions from Firebase Realtime Database
+// Fetch data from Firebase Realtime Database
 const dataRef = ref(database, '/'); // Assuming all data is stored at root
 
 onValue(dataRef, (snapshot) => {
   const data = snapshot.val();
 
-  if (data && data.question && Array.isArray(data.question)) {
-    questions = data.question; // Fetch only the 'question' type data
-    populateQuestionList(questions, 'push-mode'); // Populate the sidebar with questions for push mode
-    populateQuestionList(questions, 'manage-mode'); // Populate the sidebar with questions for manage mode
-    displayQuestions(questions, 'push-mode');
-    displayQuestions(questions, 'manage-mode');
+  if (data) {
+    // Fetch questions
+    if (data.question && Array.isArray(data.question)) {
+      questions = data.question;
+      populateQuestionList(questions, 'push-mode'); // Populate the sidebar with questions for push mode
+      populateQuestionList(questions, 'manage-mode'); // Populate the sidebar with questions for manage mode
+      displayQuestions(questions, 'push-mode');
+      displayQuestions(questions, 'manage-mode');
+    } else {
+      console.error('No questions found or data is not in the expected format');
+    }
+
+    // Fetch learners
+    if (data.learner && Array.isArray(data.learner)) {
+      learners = data.learner;
+      // Initialize the learner selection panel with all learners
+      currentLearners = [...learners];
+      populateLearnerList(currentLearners);
+    } else {
+      console.error('No learners found or data is not in the expected format');
+    }
   } else {
-    console.error('No questions found or data is not in the expected format');
+    console.error('No data found or data is not in the expected format');
   }
 }, (error) => {
-  console.error('Error fetching questions from Firebase:', error);
+  console.error('Error fetching data from Firebase:', error);
 });
 
 // Populate the list of questions in the sidebar for both push and manage modes, sorting by ID
@@ -540,7 +560,8 @@ function resetSelectionMethods() {
 }
 
 // When search bar is focused, make it active and others inactive
-searchBarPush.addEventListener('focus', () => {
+searchBarPush.addEventListener('click', () => {
+  console.log("clicked");
   searchBarPush.classList.remove('inactive-input');
   idListPush.classList.add('inactive-input');
   questionCountPush.classList.add('inactive-input');
@@ -693,6 +714,7 @@ document.getElementById('random-question-button').addEventListener('click', () =
   // Deactivate other methods
   searchBarPush.classList.add('inactive-input');
   idListPush.classList.add('inactive-input');
+  questionCountPush.classList.remove('inactive-input');
 });
 
 // Handle picking random questions in Manage mode
@@ -973,3 +995,302 @@ document.getElementById('selected-id-list').addEventListener('input', () => {
   updateSelectionCheckboxes();
   updatePreviewPanel();
 });
+
+/* -------------------------------------- */
+/* Learner Selection Functionality Starts */
+/* -------------------------------------- */
+
+// Open the learner selection panel when the circle button is clicked
+document.getElementById('learner-selection-button').addEventListener('click', () => {
+  const learnerPanel = document.getElementById('learner-selection-panel');
+  learnerPanel.style.display = 'flex';
+  previousSelectedLearnerIds = [...selectedLearnerIds]; // Store previous selection in case of restore
+  previousSelectedLearnerIdInput = document.getElementById('selected-learner-id-list').value; // Store previous input box content
+
+  // Initialize inputs and displays
+  resetLearnerSelectionMethods();
+  updateLearnerDisplay();
+  updateSelectedLearnerDisplay();
+});
+
+// Remove close button functionality since it's no longer present
+
+// Handle learner selection methods (ID+Name group or Group input)
+const learnerIdInput = document.getElementById('learner-id-input');
+const learnerNameInput = document.getElementById('learner-name-input');
+const learnerGroupInput = document.getElementById('learner-group-input');
+
+// Rows for ID+Name and Group
+const idNameRow = document.getElementById('id-name-row');
+const groupRow = document.getElementById('group-row');
+
+// By default, ID+Name group is active
+groupRow.classList.add('inactive-row');
+learnerGroupInput.classList.add('inactive-input');
+
+// Function to reset learner selection methods
+function resetLearnerSelectionMethods() {
+  idNameRow.classList.remove('inactive-row');
+  groupRow.classList.add('inactive-row');
+  learnerGroupInput.classList.add('inactive-input');
+
+  learnerIdInput.value = '';
+  learnerNameInput.value = '';
+  learnerGroupInput.value = '';
+}
+
+// When ID+Name row is clicked, activate it and deactivate Group row
+idNameRow.addEventListener('click', () => {
+  if (idNameRow.classList.contains('inactive-row')) {
+    idNameRow.classList.remove('inactive-row');
+    learnerIdInput.classList.remove('inactive-input');
+    learnerNameInput.classList.remove('inactive-input');
+
+    groupRow.classList.add('inactive-row');
+    learnerGroupInput.classList.add('inactive-input');
+
+    updateLearnerDisplay();
+  }
+});
+
+// When Group row is clicked, activate it and deactivate ID+Name row
+groupRow.addEventListener('click', () => {
+  if (groupRow.classList.contains('inactive-row')) {
+    groupRow.classList.remove('inactive-row');
+    learnerGroupInput.classList.remove('inactive-input');
+
+    idNameRow.classList.add('inactive-row');
+    learnerIdInput.classList.add('inactive-input');
+    learnerNameInput.classList.add('inactive-input');
+
+    updateLearnerDisplay();
+  }
+});
+
+// Handle input events
+learnerIdInput.addEventListener('input', updateLearnerDisplay);
+learnerNameInput.addEventListener('input', updateLearnerDisplay);
+learnerGroupInput.addEventListener('input', updateLearnerDisplay);
+
+// Synchronize ID and Name inputs
+learnerIdInput.addEventListener('input', () => {
+  const idValue = learnerIdInput.value.trim();
+  if (idValue) {
+    const learner = learners.find(l => l.id.toString() === idValue);
+    if (learner) {
+      learnerNameInput.value = learner.username;
+    } else {
+      learnerNameInput.value = '';
+    }
+  } else {
+    learnerNameInput.value = '';
+  }
+  updateLearnerDisplay();
+});
+
+learnerNameInput.addEventListener('input', () => {
+  const nameValue = learnerNameInput.value.trim().toLowerCase();
+  if (nameValue) {
+    const learner = learners.find(l => l.username.toLowerCase() === nameValue);
+    if (learner) {
+      learnerIdInput.value = learner.id;
+    } else {
+      learnerIdInput.value = '';
+    }
+  } else {
+    learnerIdInput.value = '';
+  }
+  updateLearnerDisplay();
+});
+
+// Function to update learner display based on inputs
+function updateLearnerDisplay() {
+  let filteredLearners = learners;
+
+  if (!groupRow.classList.contains('inactive-row')) {
+    // Group row is active
+    const groupValue = learnerGroupInput.value.trim().toLowerCase();
+    if (groupValue) {
+      filteredLearners = learners.filter(learner => learner.group.toLowerCase().includes(groupValue));
+    }
+  } else {
+    // ID+Name row is active
+    const idValue = learnerIdInput.value.trim();
+    const nameValue = learnerNameInput.value.trim().toLowerCase();
+
+    if (idValue || nameValue) {
+      filteredLearners = learners.filter(learner => {
+        const idMatches = idValue ? learner.id.toString() === idValue : true;
+        const nameMatches = nameValue ? learner.username.toLowerCase().includes(nameValue) : true;
+        return idMatches && nameMatches;
+      });
+    }
+  }
+
+  currentLearners = filteredLearners;
+  populateLearnerList(currentLearners);
+}
+
+// Function to populate learner list in the selection panel
+function populateLearnerList(learnerArray) {
+  const learnerList = document.getElementById('learner-list');
+  learnerList.innerHTML = '';
+
+  learnerArray.forEach(learner => {
+    const card = document.createElement('div');
+    card.classList.add('learner-card');
+
+    const idNameElement = document.createElement('p');
+    idNameElement.textContent = `ID: ${learner.id}, Name: ${learner.username}`;
+    card.appendChild(idNameElement);
+
+    const groupElement = document.createElement('p');
+    groupElement.textContent = `Group: ${learner.group}`;
+    card.appendChild(groupElement);
+
+    // Checkbox
+    const selectCheckbox = document.createElement('i');
+    selectCheckbox.classList.add('select-checkbox');
+    selectCheckbox.classList.add('fa-regular'); // Regular style
+    // Set checkbox status based on selection
+    if (selectedLearnerIds.includes(learner.id)) {
+      selectCheckbox.classList.add('fa-square-check'); // Checked
+    } else {
+      selectCheckbox.classList.add('fa-square'); // Unchecked
+    }
+    selectCheckbox.addEventListener('click', (e) => {
+      e.stopPropagation(); // Prevent card click event
+      toggleLearnerSelection(learner.id);
+    });
+    card.appendChild(selectCheckbox);
+
+    // Handle card click to toggle selection
+    card.addEventListener('click', () => {
+      toggleLearnerSelection(learner.id);
+    });
+
+    learnerList.appendChild(card);
+  });
+}
+
+// Function to toggle selection of a learner
+function toggleLearnerSelection(learnerId) {
+  if (selectedLearnerIds.includes(learnerId)) {
+    // Remove from selected
+    selectedLearnerIds = selectedLearnerIds.filter(id => id !== learnerId);
+  } else {
+    // Add to selected
+    selectedLearnerIds.push(learnerId);
+  }
+
+  // Update the ID list input
+  document.getElementById('selected-learner-id-list').value = selectedLearnerIds.join(', ');
+
+  // Update the learner list checkboxes
+  updateLearnerSelectionCheckboxes();
+
+  // Update the selected learner display
+  updateSelectedLearnerDisplay();
+}
+
+// Function to update learner selection checkboxes
+function updateLearnerSelectionCheckboxes() {
+  const checkboxes = document.querySelectorAll('#learner-list .select-checkbox');
+
+  checkboxes.forEach(checkbox => {
+    const idNameText = checkbox.parentElement.querySelector('p').textContent;
+    const learnerId = parseInt(idNameText.match(/ID: (\d+)/)[1]);
+    if (selectedLearnerIds.includes(learnerId)) {
+      checkbox.classList.remove('fa-square');
+      checkbox.classList.add('fa-square-check');
+    } else {
+      checkbox.classList.remove('fa-square-check');
+      checkbox.classList.add('fa-square');
+    }
+  });
+}
+
+// Function to update selected learner display
+function updateSelectedLearnerDisplay() {
+  const selectedLearnerList = document.getElementById('selected-learner-list');
+  selectedLearnerList.innerHTML = '';
+
+  const selectedLearners = selectedLearnerIds.map(id => learners.find(l => l.id === id)).filter(l => l !== undefined);
+
+  selectedLearners.forEach(learner => {
+    const card = document.createElement('div');
+    card.classList.add('learner-card');
+
+    const idNameElement = document.createElement('p');
+    idNameElement.textContent = `ID: ${learner.id}, Name: ${learner.username}`;
+    card.appendChild(idNameElement);
+
+    const groupElement = document.createElement('p');
+    groupElement.textContent = `Group: ${learner.group}`;
+    card.appendChild(groupElement);
+
+    selectedLearnerList.appendChild(card);
+  });
+}
+
+// Handle Select All and Unselect All buttons in learner selection panel
+document.getElementById('learner-select-all-button').addEventListener('click', () => {
+  // Add all currently displayed learners to selectedLearnerIds
+  currentLearners.forEach(learner => {
+    if (!selectedLearnerIds.includes(learner.id)) {
+      selectedLearnerIds.push(learner.id);
+    }
+  });
+  // Update the ID list input
+  document.getElementById('selected-learner-id-list').value = selectedLearnerIds.join(', ');
+  // Update checkboxes and selected learner display
+  updateLearnerSelectionCheckboxes();
+  updateSelectedLearnerDisplay();
+});
+
+document.getElementById('learner-unselect-all-button').addEventListener('click', () => {
+  // Remove all currently displayed learners from selectedLearnerIds
+  currentLearners.forEach(learner => {
+    selectedLearnerIds = selectedLearnerIds.filter(id => id !== learner.id);
+  });
+  // Update the ID list input
+  document.getElementById('selected-learner-id-list').value = selectedLearnerIds.join(', ');
+  // Update checkboxes and selected learner display
+  updateLearnerSelectionCheckboxes();
+  updateSelectedLearnerDisplay();
+});
+
+// Handle changes in the selected learner ID list input
+document.getElementById('selected-learner-id-list').addEventListener('input', () => {
+  const idListInput = document.getElementById('selected-learner-id-list').value.trim();
+  if (idListInput) {
+    const idList = idListInput.split(',').map(id => Number(id.trim())).filter(id => !isNaN(id));
+    selectedLearnerIds = idList;
+  } else {
+    selectedLearnerIds = [];
+  }
+  // Update checkboxes and selected learner display
+  updateLearnerSelectionCheckboxes();
+  updateSelectedLearnerDisplay();
+});
+
+// Handle Save and Restore buttons
+document.getElementById('learner-save-button').addEventListener('click', () => {
+  // Close the panel and save the selection
+  const learnerPanel = document.getElementById('learner-selection-panel');
+  learnerPanel.style.display = 'none';
+});
+
+document.getElementById('learner-restore-button').addEventListener('click', () => {
+  // Restore previous selection and input box content, but keep the panel open
+  selectedLearnerIds = [...previousSelectedLearnerIds];
+  document.getElementById('selected-learner-id-list').value = previousSelectedLearnerIdInput;
+
+  // Update checkboxes and displays
+  updateLearnerSelectionCheckboxes();
+  updateSelectedLearnerDisplay();
+});
+
+/* ------------------------------------ */
+/* Learner Selection Functionality Ends */
+/* ------------------------------------ */

@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <title>Item Bank</title>
   <link rel="stylesheet" href="style/instructor.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Update Font Awesome to the latest version -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <script>
     // Check if the user is logged in and is an instructor
     window.onload = function() {
@@ -52,16 +53,22 @@
           </div>
         </div>
       </div>
+      <!-- Separator line -->
+      <div class="vertical-separator"></div>
       <div class="preview-panel">
         <div class="preview-controls">
           <input type="text" id="selected-id-list" placeholder="Selected question IDs..." />
-          <!-- Removed 'Ans' label from toggle switch -->
+          <!-- Toggle switch for showing/hiding answers -->
           <div class="toggle-container">
             <label class="switch">
               <input type="checkbox" id="toggle-answers" checked>
               <span class="slider round"></span>
             </label>
           </div>
+          <!-- Adjusted circle button size -->
+          <button id="learner-selection-button" class="circle-button">
+            <i class="fa-solid fa-arrows-down-to-people"></i>
+          </button>
         </div>
         <div class="preview-question-container">
           <div id="preview-container">
@@ -170,7 +177,61 @@
       </div>    
     </div>
   </div>
-    
+
+  <!-- Learner Selection Panel (initially hidden) -->
+  <div id="learner-selection-panel" class="floating-panel" style="display: none;">
+    <!-- Removed the close button -->
+
+    <div class="learner-selection-content">
+      <!-- Left Half: Learner Selection Panel -->
+      <div class="left-half">
+        <!-- Search Area -->
+        <div class="search-area">
+          <!-- First Row: ID and Name input bars -->
+          <div class="input-row active-row" id="id-name-row">
+            <input type="text" id="learner-id-input" class="modern-input" placeholder="Learner ID" />
+            <input type="text" id="learner-name-input" class="modern-input" placeholder="Learner Name" />
+          </div>
+          <!-- Second Row: Group input bar -->
+          <div class="input-row inactive-row" id="group-row">
+            <input type="text" id="learner-group-input" class="modern-input" placeholder="Group" />
+          </div>
+        </div>
+        <!-- Select All and Unselect All Buttons -->
+        <div class="learner-selection-controls">
+          <button id="learner-select-all-button" class="modern-button half-width-button">Select All</button>
+          <button id="learner-unselect-all-button" class="modern-button half-width-button">Unselect All</button>
+        </div>
+        <!-- Displaying Search Results -->
+        <div class="learner-display-container">
+          <div id="learner-list">
+            <!-- List of learners will be injected here -->
+          </div>
+        </div>
+      </div>
+      <!-- Vertical Separator -->
+      <div class="vertical-separator"></div>
+      <!-- Right Half: Learner Preview Panel -->
+      <div class="right-half">
+        <!-- Selected ID List Input -->
+        <div class="selected-id-list-container">
+          <input type="text" id="selected-learner-id-list" class="modern-input" placeholder="Selected learner IDs..." />
+        </div>
+        <!-- Cancel and Save Buttons -->
+        <div class="learner-preview-controls">
+          <button id="learner-restore-button" class="modern-button half-width-button">Restore</button>
+          <button id="learner-save-button" class="modern-button half-width-button">Save</button>
+        </div>
+        <!-- Displaying Selected Learners -->
+        <div class="selected-learner-display-container">
+          <div id="selected-learner-list">
+            <!-- Selected learners will be displayed here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
   <script type="module" src="script/instructor.js"></script>
 </body>
 </html>

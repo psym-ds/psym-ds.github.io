@@ -852,24 +852,194 @@
         {
             "id": 1,
             "username": "instructor_1",
-            "password": "a665a45920422f9d417e4867efdc4fb8a04d224a"
+            "password": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"
+        },
+        {
+            "id": 1,
+            "username": "instructor_2",
+            "password": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"
         }
     ],
     "learner": [
         {
             "id": 1,
-            "username": "learner_1",
-            "password": "456"
+            "username": "Sophia",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_C"
         },
         {
             "id": 2,
-            "username": "learner_2",
-            "password": "456"
+            "username": "Ethan",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_A"
         },
         {
             "id": 3,
-            "username": "learner_3",
-            "password": "456"
+            "username": "Ava",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_D"
+        },
+        {
+            "id": 4,
+            "username": "Mason",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_B"
+        },
+        {
+            "id": 5,
+            "username": "Isabella",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_E"
+        },
+        {
+            "id": 6,
+            "username": "James",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_C"
+        },
+        {
+            "id": 7,
+            "username": "Emily",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_E"
+        },
+        {
+            "id": 8,
+            "username": "Oliver",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_A"
+        },
+        {
+            "id": 9,
+            "username": "Grace",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_D"
+        },
+        {
+            "id": 10,
+            "username": "Liam",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_B"
+        },
+        {
+            "id": 11,
+            "username": "Charlotte",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_C"
+        },
+        {
+            "id": 12,
+            "username": "Benjamin",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_B"
+        },
+        {
+            "id": 13,
+            "username": "Chloe",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_D"
+        },
+        {
+            "id": 14,
+            "username": "Noah",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_A"
+        },
+        {
+            "id": 15,
+            "username": "Ella",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_E"
+        },
+        {
+            "id": 16,
+            "username": "Lucas",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_C"
+        },
+        {
+            "id": 17,
+            "username": "Amelia",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_E"
+        },
+        {
+            "id": 18,
+            "username": "William",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_A"
+        },
+        {
+            "id": 19,
+            "username": "Avery",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_B"
+        },
+        {
+            "id": 20,
+            "username": "Jack",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_D"
+        },
+        {
+            "id": 21,
+            "username": "Harper",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_E"
+        },
+        {
+            "id": 22,
+            "username": "Henry",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_A"
+        },
+        {
+            "id": 23,
+            "username": "Scarlett",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_C"
+        },
+        {
+            "id": 24,
+            "username": "Sebastian",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_E"
+        },
+        {
+            "id": 25,
+            "username": "Mila",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_B"
+        },
+        {
+            "id": 26,
+            "username": "Levi",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_D"
+        },
+        {
+            "id": 27,
+            "username": "Sophie",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_E"
+        },
+        {
+            "id": 28,
+            "username": "Logan",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_C"
+        },
+        {
+            "id": 29,
+            "username": "Aria",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_A"
+        },
+        {
+            "id": 30,
+            "username": "Zachary",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_D"
         }
     ]
 }
