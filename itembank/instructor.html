@@ -79,6 +79,7 @@
     </div>
   </div>
 
+  <!-- Updated manage-mode container -->
   <div class="container" id="manage-mode" style="display: none;">
     <div class="sidebar">
       <!-- Reuse the search bar and question list panel -->
@@ -104,12 +105,13 @@
       </div>
 
       <div class="manage-question-container">
-        <div id="question-container">
+        <div id="manage-question-container">
           <!-- Questions and answers will be injected here for managing -->
         </div>
       </div>
     </div>
-  </div>  
+  </div>
+
 
   <div class="modify-panel" id="modify-panel" style="display: none;">
     <span class="close-button" id="close-modify-panel">×</span> <!-- Red cross to close the panel -->
@@ -180,8 +182,6 @@
 
   <!-- Learner Selection Panel (initially hidden) -->
   <div id="learner-selection-panel" class="floating-panel" style="display: none;">
-    <!-- Removed the close button -->
-
     <div class="learner-selection-content">
       <!-- Left Half: Learner Selection Panel -->
       <div class="left-half">
@@ -229,6 +229,12 @@
           </div>
         </div>
       </div>
+    </div>
+    <!-- Dispatch Button -->
+    <div class="dispatch-button-container">
+      <button id="dispatch-button" class="modern-button full-width-button">
+        <i class="fa-solid fa-paper-plane"></i> Dispatch
+      </button>
     </div>
   </div>
   

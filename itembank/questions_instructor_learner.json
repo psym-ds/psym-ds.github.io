@@ -865,181 +865,211 @@
             "id": 1,
             "username": "Sophia",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_C"
+            "group": "group_C",
+            "assignments": {}
         },
         {
             "id": 2,
             "username": "Ethan",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_A"
+            "group": "group_A",
+            "assignments": {}
         },
         {
             "id": 3,
             "username": "Ava",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_D"
+            "group": "group_D",
+            "assignments": {}
         },
         {
             "id": 4,
             "username": "Mason",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_B"
+            "group": "group_B",
+            "assignments": {}
         },
         {
             "id": 5,
             "username": "Isabella",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_E"
+            "group": "group_E",
+            "assignments": {}
         },
         {
             "id": 6,
             "username": "James",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_C"
+            "group": "group_C",
+            "assignments": {}
         },
         {
             "id": 7,
             "username": "Emily",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_E"
+            "group": "group_E",
+            "assignments": {}
         },
         {
             "id": 8,
             "username": "Oliver",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_A"
+            "group": "group_A",
+            "assignments": {}
         },
         {
             "id": 9,
             "username": "Grace",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_D"
+            "group": "group_D",
+            "assignments": {}
         },
         {
             "id": 10,
             "username": "Liam",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_B"
+            "group": "group_B",
+            "assignments": {}
         },
         {
             "id": 11,
             "username": "Charlotte",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_C"
+            "group": "group_C",
+            "assignments": {}
         },
         {
             "id": 12,
             "username": "Benjamin",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_B"
+            "group": "group_B",
+            "assignments": {}
         },
         {
             "id": 13,
             "username": "Chloe",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_D"
+            "group": "group_D",
+            "assignments": {}
         },
         {
             "id": 14,
             "username": "Noah",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_A"
+            "group": "group_A",
+            "assignments": {}
         },
         {
             "id": 15,
             "username": "Ella",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_E"
+            "group": "group_E",
+            "assignments": {}
         },
         {
             "id": 16,
             "username": "Lucas",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_C"
+            "group": "group_C",
+            "assignments": {}
         },
         {
             "id": 17,
             "username": "Amelia",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_E"
+            "group": "group_E",
+            "assignments": {}
         },
         {
             "id": 18,
             "username": "William",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_A"
+            "group": "group_A",
+            "assignments": {}
         },
         {
             "id": 19,
             "username": "Avery",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_B"
+            "group": "group_B",
+            "assignments": {}
         },
         {
             "id": 20,
             "username": "Jack",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_D"
+            "group": "group_D",
+            "assignments": {}
         },
         {
             "id": 21,
             "username": "Harper",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_E"
+            "group": "group_E",
+            "assignments": {}
         },
         {
             "id": 22,
             "username": "Henry",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_A"
+            "group": "group_A",
+            "assignments": {}
         },
         {
             "id": 23,
             "username": "Scarlett",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_C"
+            "group": "group_C",
+            "assignments": {}
         },
         {
             "id": 24,
             "username": "Sebastian",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_E"
+            "group": "group_E",
+            "assignments": {}
         },
         {
             "id": 25,
             "username": "Mila",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_B"
+            "group": "group_B",
+            "assignments": {}
         },
         {
             "id": 26,
             "username": "Levi",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_D"
+            "group": "group_D",
+            "assignments": {}
         },
         {
             "id": 27,
             "username": "Sophie",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_E"
+            "group": "group_E",
+            "assignments": {}
         },
         {
             "id": 28,
             "username": "Logan",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_C"
+            "group": "group_C",
+            "assignments": {}
         },
         {
             "id": 29,
             "username": "Aria",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_A"
+            "group": "group_A",
+            "assignments": {}
         },
         {
             "id": 30,
             "username": "Zachary",
             "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-            "group": "group_D"
+            "group": "group_D",
+            "assignments": {}
         }
     ]
 }

@@ -1,8 +1,9 @@
-// Firebase imports and initialization
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
-import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+// instructor.js
 
-// Your Firebase configuration (Replace with your own config)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCoXyCWebIypq2FO8QSt5IDdzfFNZsobFo",
   authDomain: "itembank-3b85f.firebaseapp.com",
@@ -18,151 +19,136 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
+// Global variables
 let questions = [];
 let learners = [];
-let showAnswers = true;
-let currentQuestions = []; // Keep track of current displayed questions in push mode
-let currentLearners = []; // Keep track of current displayed learners in selection panel
-let currentEditingQuestionId = null; // Track the ID of the question being edited
-let selectedQuestionIds = []; // Array to keep track of selected question IDs in push mode
-let selectedLearnerIds = []; // Array to keep track of selected learner IDs
-let previousSelectedLearnerIds = []; // To restore on restore action
-let previousSelectedLearnerIdInput = ''; // To restore the input box content on restore
+let currentQuestions = [];
+let currentLearners = [];
+let selectedQuestionIds = [];
+let selectedLearnerIds = [];
+let previousSelectedLearnerIds = [];
+let previousSelectedLearnerIdInput = '';
 
-// Fetch data from Firebase Realtime Database
-const dataRef = ref(database, '/'); // Assuming all data is stored at root
+let showAnswers = true; // For toggling answers in preview
+let currentEditingQuestionId = null; // For tracking editing question
 
-onValue(dataRef, (snapshot) => {
-  const data = snapshot.val();
-
-  if (data) {
-    // Fetch questions
-    if (data.question && Array.isArray(data.question)) {
-      questions = data.question;
-      populateQuestionList(questions, 'push-mode'); // Populate the sidebar with questions for push mode
-      populateQuestionList(questions, 'manage-mode'); // Populate the sidebar with questions for manage mode
+// Load data from Firebase
+function loadData() {
+  const questionsRef = ref(database, '/question');
+  onValue(questionsRef, (snapshot) => {
+    if (snapshot.exists()) {
+      questions = snapshot.val() || [];
+      populateQuestionList(questions, 'push-mode');
+      populateQuestionList(questions, 'manage-mode');
       displayQuestions(questions, 'push-mode');
       displayQuestions(questions, 'manage-mode');
-    } else {
-      console.error('No questions found or data is not in the expected format');
     }
+  });
 
-    // Fetch learners
-    if (data.learner && Array.isArray(data.learner)) {
-      learners = data.learner;
-      // Initialize the learner selection panel with all learners
-      currentLearners = [...learners];
-      populateLearnerList(currentLearners);
-    } else {
-      console.error('No learners found or data is not in the expected format');
+  const learnersRef = ref(database, '/learner');
+  onValue(learnersRef, (snapshot) => {
+    if (snapshot.exists()) {
+      learners = snapshot.val() || [];
     }
-  } else {
-    console.error('No data found or data is not in the expected format');
-  }
-}, (error) => {
-  console.error('Error fetching data from Firebase:', error);
-});
-
-// Populate the list of questions in the sidebar for both push and manage modes, sorting by ID
-function populateQuestionList(questions, mode) {
-  const questionList = document.getElementById(mode === 'push-mode' ? 'question-list' : 'manage-question-list');
-  questionList.innerHTML = ''; // Clear previous list
-
-  // Sort questions by ID before displaying
-  questions.sort((a, b) => a.id - b.id).forEach((question) => {
-    const listItem = document.createElement('li');
-    listItem.textContent = `${question.id}: ${question.question}`;
-    listItem.addEventListener('click', () => {
-      displayQuestions([question], mode);
-      // Reset selection methods
-      if (mode === 'push-mode') {
-        resetSelectionMethods();
-      } else {
-        resetManageSelectionMethods();
-      }
-    });
-    questionList.appendChild(listItem);
   });
 }
 
-// Display questions in the specified container (either push-mode or manage-mode)
-function displayQuestions(questionsToDisplay, containerId) {
-  const questionContainer = document.querySelector(`#${containerId} #question-container`);
-  questionContainer.innerHTML = ''; // Clear previous content
+// Initial load
+loadData();
 
-  if (containerId === 'push-mode') {
-    currentQuestions = [...questionsToDisplay]; // Update currentQuestions for push mode
+// Function to populate question list in the sidebar
+function populateQuestionList(questionArray, mode) {
+  const listElement = mode === 'push-mode' ? document.getElementById('question-list') : document.getElementById('manage-question-list');
+  listElement.innerHTML = '';
+  questionArray.forEach(question => {
+    const li = document.createElement('li');
+    li.textContent = `${question.id} - ${question.question}`;
+    li.addEventListener('click', () => {
+      // Scroll to the question card in the main content area
+      const questionCard = document.getElementById(`question-${question.id}-${mode}`);
+      if (questionCard) {
+        questionCard.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+    listElement.appendChild(li);
+  });
+}
+
+// Function to display questions in the main content area
+function displayQuestions(questionArray, mode) {
+  const container = mode === 'push-mode' ? document.getElementById('question-container') : document.getElementById('manage-question-container');
+  container.innerHTML = '';
+  if (mode === 'push-mode') {
+    currentQuestions = questionArray; // Update current questions
   }
 
-  questionsToDisplay.forEach((question) => {
-    const questionCard = document.createElement('div');
-    questionCard.classList.add('question-card');
+  questionArray.forEach(question => {
+    const card = document.createElement('div');
+    card.classList.add('question-card');
+    card.id = `question-${question.id}-${mode}`;
 
-    if (containerId === 'manage-mode') {
-      // Add edit and delete buttons for manage mode
-      const editButton = document.createElement('i');
-      editButton.classList.add('fa-solid', 'fa-pen-to-square', 'edit-button');
-      editButton.addEventListener('click', () => openModifyPanel(question));
-      questionCard.appendChild(editButton);
+    const questionText = document.createElement('p');
+    questionText.textContent = `ID: ${question.id} - ${question.question}`;
+    card.appendChild(questionText);
 
-      const deleteButton = document.createElement('i');
-      deleteButton.classList.add('fa-solid', 'fa-trash-can', 'delete-button');
-      deleteButton.addEventListener('click', () => confirmDelete(question.id));
-      questionCard.appendChild(deleteButton);
+    if (question.options) {
+      const optionsList = document.createElement('ul');
+      Object.entries(question.options).forEach(([key, value]) => {
+        const optionItem = document.createElement('li');
+        optionItem.textContent = `${key}: ${value}`;
+        optionsList.appendChild(optionItem);
+      });
+      card.appendChild(optionsList);
     }
 
-    if (containerId === 'push-mode') {
-      // Add checkbox for selection in push mode
+    const answerText = document.createElement('p');
+    answerText.textContent = `Answer: ${question.answer}`;
+    card.appendChild(answerText);
+
+    if (mode === 'push-mode') {
+      // Selection checkbox
       const selectCheckbox = document.createElement('i');
       selectCheckbox.classList.add('select-checkbox');
       selectCheckbox.classList.add('fa-regular'); // Regular style
-      // Set checkbox status based on selection
       if (selectedQuestionIds.includes(question.id)) {
         selectCheckbox.classList.add('fa-square-check'); // Checked
       } else {
         selectCheckbox.classList.add('fa-square'); // Unchecked
       }
-      selectCheckbox.addEventListener('click', () => toggleSelection(question.id));
-      questionCard.appendChild(selectCheckbox);
+      selectCheckbox.addEventListener('click', () => {
+        toggleQuestionSelection(question.id);
+      });
+      card.appendChild(selectCheckbox);
+    } else if (mode === 'manage-mode') {
+      // Edit and Delete buttons
+      const editButton = document.createElement('i');
+      editButton.classList.add('edit-button', 'fa-solid', 'fa-pen-to-square');
+      editButton.addEventListener('click', () => {
+        openModifyPanel(question.id);
+      });
+      card.appendChild(editButton);
+
+      const deleteButton = document.createElement('i');
+      deleteButton.classList.add('delete-button', 'fa-solid', 'fa-trash-can');
+      deleteButton.addEventListener('click', () => {
+        showNotification(
+          `Are you sure you want to delete question ID: ${question.id}?`,
+          'Delete',
+          'Cancel',
+          () => {
+            removeQuestion(question.id);
+          }
+        );
+      });
+      card.appendChild(deleteButton);
     }
 
-    const questionIdElement = document.createElement('p');
-    questionIdElement.innerHTML = `<strong>Question ID:</strong> ${question.id}`;
-    questionCard.appendChild(questionIdElement);
-
-    const questionTextElement = document.createElement('p');
-    questionTextElement.innerHTML = question.question;
-    questionCard.appendChild(questionTextElement);
-
-    // If options exist, display them
-    if (question.options) {
-      const ul = document.createElement('ul');
-      for (let key in question.options) {
-        const li = document.createElement('li');
-        li.textContent = `${key}. ${question.options[key]}`;
-        ul.appendChild(li);
-      }
-      questionCard.appendChild(ul);
-    }
-
-    // Display the answer in manage mode and selection panel
-    if (containerId === 'manage-mode' || containerId === 'push-mode') {
-      const answerElement = document.createElement('p');
-      answerElement.innerHTML = `<strong>Answer:</strong> ${question.answer}`;
-      questionCard.appendChild(answerElement);
-    }
-
-    questionContainer.appendChild(questionCard);
+    container.appendChild(card);
   });
-
-  // Update the selection statuses if in push mode
-  if (containerId === 'push-mode') {
-    updateSelectionCheckboxes();
-  }
 }
 
-// Function to toggle selection of a question
-function toggleSelection(questionId) {
+// Function to toggle question selection
+function toggleQuestionSelection(questionId) {
   if (selectedQuestionIds.includes(questionId)) {
     // Remove from selected
     selectedQuestionIds = selectedQuestionIds.filter(id => id !== questionId);
@@ -170,23 +156,19 @@ function toggleSelection(questionId) {
     // Add to selected
     selectedQuestionIds.push(questionId);
   }
-
   // Update the ID list input
   document.getElementById('selected-id-list').value = selectedQuestionIds.join(', ');
-
-  // Update the selection checkboxes
+  // Update the checkboxes
   updateSelectionCheckboxes();
-
-  // Update the preview panel
+  // Update preview panel
   updatePreviewPanel();
 }
 
-// Function to update the selection checkboxes based on selectedQuestionIds
+// Function to update selection checkboxes
 function updateSelectionCheckboxes() {
-  const checkboxes = document.querySelectorAll('#push-mode .select-checkbox');
-
+  const checkboxes = document.querySelectorAll('.select-checkbox');
   checkboxes.forEach(checkbox => {
-    const questionId = parseInt(checkbox.parentElement.querySelector('p strong').nextSibling.textContent.trim());
+    const questionId = parseInt(checkbox.parentElement.id.split('-')[1]);
     if (selectedQuestionIds.includes(questionId)) {
       checkbox.classList.remove('fa-square');
       checkbox.classList.add('fa-square-check');
@@ -197,347 +179,80 @@ function updateSelectionCheckboxes() {
   });
 }
 
-// Function to update the preview panel based on selectedQuestionIds
+// Function to update the preview panel
 function updatePreviewPanel() {
-  const previewContainer = document.querySelector('#push-mode #preview-container');
-  previewContainer.innerHTML = ''; // Clear previous content
+  const container = document.getElementById('preview-container');
+  container.innerHTML = '';
+  const previewQuestions = questions.filter(q => selectedQuestionIds.includes(q.id));
 
-  // Get the selected questions in the order of selectedQuestionIds
-  const selectedQuestions = selectedQuestionIds.map(id => questions.find(q => q.id === id)).filter(q => q !== undefined);
+  previewQuestions.forEach(question => {
+    const card = document.createElement('div');
+    card.classList.add('question-card');
 
-  selectedQuestions.forEach((question) => {
-    const questionCard = document.createElement('div');
-    questionCard.classList.add('question-card');
+    const questionText = document.createElement('p');
+    questionText.textContent = `ID: ${question.id} - ${question.question}`;
+    card.appendChild(questionText);
 
-    // Display the ID if showAnswers is true
-    if (showAnswers) {
-      const questionIdElement = document.createElement('p');
-      questionIdElement.innerHTML = `<strong>Question ID:</strong> ${question.id}`;
-      questionCard.appendChild(questionIdElement);
-    }
-
-    const questionTextElement = document.createElement('p');
-    questionTextElement.innerHTML = question.question;
-    questionCard.appendChild(questionTextElement);
-
-    // If options exist, display them
     if (question.options) {
-      const ul = document.createElement('ul');
-      for (let key in question.options) {
-        const li = document.createElement('li');
-        li.textContent = `${key}. ${question.options[key]}`;
-        ul.appendChild(li);
-      }
-      questionCard.appendChild(ul);
+      const optionsList = document.createElement('ul');
+      Object.entries(question.options).forEach(([key, value]) => {
+        const optionItem = document.createElement('li');
+        optionItem.textContent = `${key}: ${value}`;
+        optionsList.appendChild(optionItem);
+      });
+      card.appendChild(optionsList);
     }
 
-    // Display the answer if showAnswers is true
-    if (showAnswers) {
-      const answerElement = document.createElement('p');
-      answerElement.innerHTML = `<strong>Answer:</strong> ${question.answer}`;
-      questionCard.appendChild(answerElement);
+    if (showAnswers && question.answer) {
+      const answerText = document.createElement('p');
+      answerText.textContent = `Answer: ${question.answer}`;
+      card.appendChild(answerText);
     }
 
-    previewContainer.appendChild(questionCard);
+    container.appendChild(card);
   });
 }
 
-// Handle Add/Modify Panel toggle and make it draggable
-document.getElementById('toggle-modify-panel').addEventListener('click', () => {
-  openModifyPanel(); // Open panel for adding a new question
+// Handle Select All and Unselect All buttons in push mode
+document.getElementById('select-all-button').addEventListener('click', () => {
+  // Add all currently displayed questions to selectedQuestionIds
+  currentQuestions.forEach(question => {
+    if (!selectedQuestionIds.includes(question.id)) {
+      selectedQuestionIds.push(question.id);
+    }
+  });
+  // Update the ID list input
+  document.getElementById('selected-id-list').value = selectedQuestionIds.join(', ');
+  // Update checkboxes and preview panel
+  updateSelectionCheckboxes();
+  updatePreviewPanel();
 });
 
-// Function to open modify panel with prefilled data for editing, or blank for adding
-function openModifyPanel(question = null) {
-  const addPanel = document.getElementById('modify-panel');
-  addPanel.style.display = 'block'; // Display the modify panel
+document.getElementById('unselect-all-button').addEventListener('click', () => {
+  // Remove all currently displayed questions from selectedQuestionIds
+  currentQuestions.forEach(question => {
+    selectedQuestionIds = selectedQuestionIds.filter(id => id !== question.id);
+  });
+  // Update the ID list input
+  document.getElementById('selected-id-list').value = selectedQuestionIds.join(', ');
+  // Update checkboxes and preview panel
+  updateSelectionCheckboxes();
+  updatePreviewPanel();
+});
 
-  if (question) {
-    // Prefill data for editing
-    document.getElementById('new-question-id').value = question.id;
-    document.getElementById('new-question-text').value = question.question;
-    document.getElementById('new-question-answer').value = question.answer;
-
-    // Fill options, including blank ones, by iterating over all possible option keys
-    resetAdditionalOptions(); // Reset the options first
-    if (question.options) {
-      // Find the highest option number to account for missing or blank options
-      const maxOptionKey = Math.max(...Object.keys(question.options).map(Number));
-
-      for (let i = 1; i <= maxOptionKey; i++) {
-        if (i === 1) {
-          // Fill first option
-          document.querySelector('.option-input').value = question.options[i] || '';
-        } else {
-          // Add other options, including blank ones
-          addOptionInput();
-          document.querySelectorAll('.option-input')[i - 1].value = question.options[i] || ''; // Maintain index
-        }
-      }
-    }
-
-    currentEditingQuestionId = question.id; // Store the ID of the question being edited
+// Handle changes in the selected ID list input
+document.getElementById('selected-id-list').addEventListener('input', () => {
+  const idListInput = document.getElementById('selected-id-list').value.trim();
+  if (idListInput) {
+    const idList = idListInput.split(',').map(id => Number(id.trim())).filter(id => !isNaN(id));
+    selectedQuestionIds = idList;
   } else {
-    // Clear inputs for adding a new question
-    document.getElementById('new-question-id').value = '';
-    document.getElementById('new-question-text').value = '';
-    document.getElementById('new-question-answer').value = '';
-    resetAdditionalOptions();
-    currentEditingQuestionId = null; // No question being edited
+    selectedQuestionIds = [];
   }
-
-  makeMovable(addPanel); // Make the panel movable
-}
-
-// Close the Add Panel when the red cross is clicked
-document.getElementById('close-modify-panel').addEventListener('click', () => {
-  const addPanel = document.getElementById('modify-panel');
-  addPanel.style.display = 'none'; // Hide the pop-up box
+  // Update checkboxes and preview panel
+  updateSelectionCheckboxes();
+  updatePreviewPanel();
 });
-
-// Confirm delete function
-function confirmDelete(questionId) {
-  showNotification('Are you sure you want to delete this question?', 'Delete', 'Cancel', () => {
-    removeQuestion(Number(questionId)); // Ensure ID is treated as a number
-  });
-}
-
-// Remove question from Firebase
-function removeQuestion(questionId) {
-  const questionIndex = questions.findIndex(q => q.id === questionId);
-  if (questionIndex > -1) {
-    questions.splice(questionIndex, 1);
-
-    // Only update the 'question' part of the database
-    set(ref(database, '/question'), questions) // Notice the path is now '/question'
-      .then(() => {
-        console.log('Question removed successfully');
-        // After removing, refresh the question lists and displays
-        populateQuestionList(questions, 'push-mode');
-        populateQuestionList(questions, 'manage-mode');
-        displayQuestions(questions, 'push-mode');
-        displayQuestions(questions, 'manage-mode');
-      })
-      .catch((error) => console.error('Error updating Firebase:', error));
-  }
-}
-
-// Handle Save Question functionality (both Add and Modify)
-document.getElementById('save-question-button').addEventListener('click', () => {
-  const newId = Number(document.getElementById('new-question-id').value.trim()); // Ensure ID is a number
-  const newText = document.getElementById('new-question-text').value.trim();
-  const newAnswer = document.getElementById('new-question-answer').value.trim();
-
-  // Check if any required fields are empty
-  if (!newId || !newText || !newAnswer) {
-    showNotification('Please fill in all the required fields.', 'OK');
-    return;
-  }
-
-  const existingQuestion = questions.find(question => Number(question.id) === newId); // Check if the new ID already exists
-
-  if (currentEditingQuestionId !== null) {
-    // Editing an existing question
-
-    if (existingQuestion && newId !== currentEditingQuestionId) {
-      // A question with this ID already exists and the ID is changing
-      // Prompt user to confirm replacement
-      showNotification(
-        'A question with this ID already exists. Do you want to replace it?',
-        'Replace',
-        'Cancel',
-        () => {
-          // Remove both the current editing question and the conflicting existing one
-          removeQuestion(currentEditingQuestionId); // Remove the original question being edited
-          removeQuestion(newId); // Remove the existing question with the conflicting ID
-          addNewQuestion(newId, newText, newAnswer); // Create the new question with input details
-
-          // Close the modify panel after editing
-          closeModifyPanel();
-        }
-      );
-    } else {
-      // No ID conflict, just delete the original and create a new one
-      removeQuestion(currentEditingQuestionId); // Remove the original question
-      addNewQuestion(newId, newText, newAnswer); // Create the new question with input details
-
-      // Close the modify panel after editing
-      closeModifyPanel();
-    }
-
-    return;
-  }
-
-  // If adding a new question (not editing), check for ID conflict
-  if (existingQuestion) {
-    // Ask the user to confirm replacement
-    showNotification(
-      'A question with this ID already exists. Do you want to replace it?',
-      'Replace',
-      'Cancel',
-      () => {
-        removeQuestion(newId); // Delete the existing question with the conflicting ID
-        addNewQuestion(newId, newText, newAnswer); // Add the new question
-      }
-    );
-    return;
-  }
-
-  // If no conflict, just add the new question
-  addNewQuestion(newId, newText, newAnswer);
-
-  // Leave the panel open for add action (no closing here)
-});
-
-// Helper function to close the modify panel
-function closeModifyPanel() {
-  const addPanel = document.getElementById('modify-panel');
-  addPanel.style.display = 'none';
-}
-
-// Add new question to Firebase
-function addNewQuestion(newId, newText, newAnswer) {
-  const newQuestion = {
-    id: newId,
-    question: newText,
-    options: {},
-    answer: newAnswer
-  };
-
-  // Get options from the inputs
-  document.querySelectorAll('.option-input').forEach((input, index) => {
-    if (input.value.trim()) {
-      newQuestion.options[index + 1] = input.value.trim();
-    }
-  });
-
-  // Add the new question
-  questions.push(newQuestion);
-
-  // Update only the 'question' section in Firebase
-  set(ref(database, '/question'), questions) // Only updating the '/question' path
-    .then(() => {
-      console.log('Question added successfully');
-      // After adding, refresh the question lists and displays
-      populateQuestionList(questions, 'push-mode');
-      populateQuestionList(questions, 'manage-mode');
-      displayQuestions(questions, 'push-mode');
-      displayQuestions(questions, 'manage-mode');
-    })
-    .catch((error) => console.error('Error updating Firebase:', error));
-
-  // Clear input fields after adding
-  document.getElementById('new-question-id').value = '';
-  document.getElementById('new-question-text').value = '';
-  document.getElementById('new-question-answer').value = '';
-  resetAdditionalOptions();
-}
-
-// Function to reset additional options and clear the first option input
-function resetAdditionalOptions() {
-  const optionContainer = document.getElementById('new-options-container');
-  optionContainer.innerHTML = ''; // Clear all options first
-
-  // Add the first option with its delete button
-  const firstOptionWrapper = document.createElement('div');
-  firstOptionWrapper.classList.add('option-wrapper');
-
-  const firstOptionInput = document.createElement('input');
-  firstOptionInput.type = 'text';
-  firstOptionInput.classList.add('modern-input', 'option-input');
-  firstOptionInput.placeholder = 'Enter option 1';
-  firstOptionWrapper.appendChild(firstOptionInput);
-
-  const firstDeleteButton = document.createElement('button');
-  firstDeleteButton.classList.add('modern-button', 'delete-option-button', 'red-button');
-  firstDeleteButton.innerHTML = '<i class="fa-solid fa-trash-can"></i>'; // FontAwesome trash icon
-  firstDeleteButton.addEventListener('click', () => {
-    firstOptionWrapper.remove();
-    renumberOptions();
-  });
-  firstOptionWrapper.appendChild(firstDeleteButton);
-
-  optionContainer.appendChild(firstOptionWrapper);
-
-  // Add button for adding more options, aligned directly below delete button
-  const addButtonWrapper = document.createElement('div');
-  addButtonWrapper.classList.add('add-button-wrapper');
-
-  const addButton = document.createElement('button');
-  addButton.id = 'add-option-button';
-  addButton.classList.add('modern-button', 'add-option-button');
-  addButton.innerHTML = '<i class="fa-solid fa-plus"></i>'; // FontAwesome plus icon
-  addButton.addEventListener('click', addOptionInput); // Reuse the addOptionInput function
-  addButtonWrapper.appendChild(addButton);
-
-  optionContainer.appendChild(addButtonWrapper);
-}
-
-// Function to add option input box with delete button
-function addOptionInput() {
-  const optionContainer = document.getElementById('new-options-container');
-  const addButtonWrapper = document.querySelector('.add-button-wrapper');
-
-  // Create a new option input
-  const optionWrapper = document.createElement('div');
-  optionWrapper.classList.add('option-wrapper');
-
-  const newOptionInput = document.createElement('input');
-  newOptionInput.type = 'text';
-  newOptionInput.classList.add('modern-input', 'option-input');
-  newOptionInput.placeholder = `Enter option ${optionContainer.querySelectorAll('.option-input').length + 1}`;
-  optionWrapper.appendChild(newOptionInput);
-
-  // Add delete button for the new option input
-  const deleteButton = document.createElement('button');
-  deleteButton.classList.add('modern-button', 'delete-option-button', 'red-button');
-  deleteButton.innerHTML = '<i class="fa-solid fa-trash-can"></i>'; // FontAwesome trash icon
-  deleteButton.addEventListener('click', () => {
-    optionWrapper.remove(); // Remove the option
-    renumberOptions(); // Renumber remaining options
-  });
-  optionWrapper.appendChild(deleteButton);
-
-  // Insert the new option before the add button
-  optionContainer.insertBefore(optionWrapper, addButtonWrapper);
-}
-
-// Function to renumber options after deletion
-function renumberOptions() {
-  const optionInputs = document.querySelectorAll('.option-input');
-  optionInputs.forEach((input, index) => {
-    input.placeholder = `Enter option ${index + 1}`; // Renumber the placeholders
-  });
-}
-
-// Custom notification box for errors, warnings, and confirmation
-function showNotification(message, confirmText, cancelText = null, confirmCallback = null) {
-  const notificationBox = document.createElement('div');
-  notificationBox.classList.add('confirm-box');
-  notificationBox.innerHTML = `
-    <p>${message}</p>
-    <div class="button-container">
-      <button class="confirm-button ${confirmText.toLowerCase() === 'delete' || confirmText.toLowerCase() === 'replace' || confirmText.toLowerCase() === 'overwrite' ? 'red-button' : 'grey-button'}">${confirmText}</button>
-      ${cancelText ? `<button class="confirm-button grey-button">${cancelText}</button>` : ''}
-    </div>
-  `;
-  document.body.appendChild(notificationBox);
-
-  // Handle confirm action
-  notificationBox.querySelector('.confirm-button').addEventListener('click', () => {
-    document.body.removeChild(notificationBox);
-    if (confirmCallback) {
-      confirmCallback();
-    }
-  });
-
-  // Handle cancel action if provided
-  if (cancelText) {
-    notificationBox.querySelector('.grey-button').addEventListener('click', () => {
-      document.body.removeChild(notificationBox);
-    });
-  }
-}
 
 // Handle mutual exclusivity of selection methods in push mode
 const searchBarPush = document.getElementById('search-bar');
@@ -550,18 +265,8 @@ idListPush.classList.add('inactive-input');
 questionCountPush.classList.add('inactive-input');
 randomQuestionButtonPush.classList.add('inactive-button');
 
-// Function to reset selection methods in push mode
-function resetSelectionMethods() {
-  // Activate all methods
-  searchBarPush.classList.add('inactive-input');
-  idListPush.classList.add('inactive-input');
-  questionCountPush.classList.add('inactive-input');
-  randomQuestionButtonPush.classList.add('inactive-button');
-}
-
 // When search bar is focused, make it active and others inactive
-searchBarPush.addEventListener('click', () => {
-  console.log("clicked");
+searchBarPush.addEventListener('focus', () => {
   searchBarPush.classList.remove('inactive-input');
   idListPush.classList.add('inactive-input');
   questionCountPush.classList.add('inactive-input');
@@ -623,89 +328,6 @@ function updatePushModeQuestions() {
   displayQuestions(filteredQuestions, 'push-mode');
 }
 
-// Handle mutual exclusivity of selection methods in manage mode
-const searchBarManage = document.getElementById('manage-search-bar');
-const idListManage = document.getElementById('id-list-manage');
-const randomQuestionButtonManage = document.getElementById('manage-random-question-button');
-const questionCountManage = document.getElementById('manage-question-count');
-
-// By default, search bar is active, others are inactive
-idListManage.classList.add('inactive-input');
-questionCountManage.classList.add('inactive-input');
-randomQuestionButtonManage.classList.add('inactive-button');
-
-// Function to reset selection methods in manage mode
-function resetManageSelectionMethods() {
-  // Deactivate all methods
-  searchBarManage.classList.add('inactive-input');
-  idListManage.classList.add('inactive-input');
-  questionCountManage.classList.add('inactive-input');
-  randomQuestionButtonManage.classList.add('inactive-button');
-}
-
-// When search bar is focused, make it active and others inactive
-searchBarManage.addEventListener('focus', () => {
-  searchBarManage.classList.remove('inactive-input');
-  idListManage.classList.add('inactive-input');
-  questionCountManage.classList.add('inactive-input');
-  randomQuestionButtonManage.classList.add('inactive-button');
-  updateManageModeQuestions(); // Update immediately
-});
-
-// When ID list is focused, make it active and others inactive
-idListManage.addEventListener('focus', () => {
-  idListManage.classList.remove('inactive-input');
-  searchBarManage.classList.add('inactive-input');
-  questionCountManage.classList.add('inactive-input');
-  randomQuestionButtonManage.classList.add('inactive-button');
-  updateManageModeQuestions(); // Update immediately
-});
-
-// When question count is focused, make it active and others inactive
-questionCountManage.addEventListener('focus', () => {
-  questionCountManage.classList.remove('inactive-input');
-  randomQuestionButtonManage.classList.remove('inactive-button');
-  searchBarManage.classList.add('inactive-input');
-  idListManage.classList.add('inactive-input');
-});
-
-// Handle search bar input in manage mode
-searchBarManage.addEventListener('input', updateManageModeQuestions);
-
-// Handle ID list input in manage mode
-idListManage.addEventListener('input', updateManageModeQuestions);
-
-// Function to update questions in manage mode based on search and ID input
-function updateManageModeQuestions() {
-  let filteredQuestions = questions;
-
-  if (!searchBarManage.classList.contains('inactive-input')) {
-    const query = searchBarManage.value.toLowerCase();
-    if (query) {
-      filteredQuestions = questions.filter(question => {
-        const questionMatches = question.question.toLowerCase().includes(query);
-        let optionMatches = false;
-        if (question.options) {
-          optionMatches = Object.values(question.options).some(option =>
-            option.toLowerCase().includes(query)
-          );
-        }
-        return questionMatches || optionMatches || question.id.toString().includes(query);
-      });
-    }
-  } else if (!idListManage.classList.contains('inactive-input')) {
-    const idListInput = idListManage.value.trim();
-    if (idListInput) {
-      const idList = idListInput.split(',').map(id => Number(id.trim()));
-      filteredQuestions = idList
-        .map(id => questions.find(q => Number(q.id) === id))
-        .filter(q => q !== undefined);
-    }
-  }
-
-  displayQuestions(filteredQuestions, 'manage-mode');
-}
-
 // Handle picking random questions in Push mode
 document.getElementById('random-question-button').addEventListener('click', () => {
   const questionCount = parseInt(document.getElementById('question-count').value, 10) || 1;
@@ -715,16 +337,6 @@ document.getElementById('random-question-button').addEventListener('click', () =
   searchBarPush.classList.add('inactive-input');
   idListPush.classList.add('inactive-input');
   questionCountPush.classList.remove('inactive-input');
-});
-
-// Handle picking random questions in Manage mode
-document.getElementById('manage-random-question-button').addEventListener('click', () => {
-  const questionCount = parseInt(document.getElementById('manage-question-count').value, 10) || 1;
-  const randomQuestions = getRandomQuestions(questions, questionCount);
-  displayQuestions(randomQuestions, 'manage-mode');
-  // Deactivate other methods
-  searchBarManage.classList.add('inactive-input');
-  idListManage.classList.add('inactive-input');
 });
 
 // Function to select a random set of questions
@@ -768,237 +380,7 @@ document.querySelectorAll('.tab-link').forEach(button => {
   });
 });
 
-// Add functionality to make the add panel draggable
-function makeMovable(element) {
-  let isDragging = false;
-  let offsetX, offsetY;
-
-  element.addEventListener('mousedown', (e) => {
-    if (e.target !== element) return; // Only move when clicking on the panel background
-    isDragging = true;
-    offsetX = e.clientX - element.offsetLeft;
-    offsetY = e.clientY - element.offsetTop;
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-  });
-
-  function onMouseMove(e) {
-    if (isDragging) {
-      element.style.left = `${e.clientX - offsetX}px`;
-      element.style.top = `${e.clientY - offsetY}px`;
-    }
-  }
-
-  function onMouseUp() {
-    isDragging = false;
-    document.removeEventListener('mousemove', onMouseMove);
-    document.removeEventListener('mouseup', onMouseUp);
-  }
-}
-
-// Add event listener for the Export button
-document.getElementById('export-button').addEventListener('click', () => {
-  exportQuestionsAsJSON();
-});
-
-// Function to export questions as a JSON file in the specified format
-function exportQuestionsAsJSON() {
-  // Wrap the questions array inside an object with a "question" key
-  const formattedData = {
-    question: questions.map(q => ({
-      id: q.id,
-      question: q.question,
-      options: q.options || {},
-      answer: q.answer
-    }))
-  };
-
-  // Create a blob with the formatted data as a JSON string
-  const jsonData = JSON.stringify(formattedData, null, 2); // Convert the formatted data to JSON
-  const blob = new Blob([jsonData], { type: 'application/json' });
-
-  // Create a temporary download link element
-  const url = URL.createObjectURL(blob);
-  const downloadLink = document.createElement('a');
-  downloadLink.href = url;
-  downloadLink.download = 'questions.json'; // File name for the exported file
-
-  // Trigger the download by clicking the link programmatically
-  document.body.appendChild(downloadLink);
-  downloadLink.click();
-
-  // Clean up the URL and remove the temporary link element
-  URL.revokeObjectURL(url);
-  document.body.removeChild(downloadLink);
-}
-
-// Show the import panel when the import button is clicked
-document.getElementById('import-button').addEventListener('click', () => {
-  document.getElementById('import-panel').style.display = 'block';
-});
-
-// Close the import panel when the close button is clicked
-document.getElementById('close-import-panel').addEventListener('click', () => {
-  document.getElementById('import-panel').style.display = 'none';
-});
-
-// Handle file upload via click or drag/drop
-document.getElementById('file-drop-area').addEventListener('click', () => {
-  // Create a hidden input element of type 'file' for the click functionality
-  const tempFileInput = document.createElement('input');
-  tempFileInput.type = 'file';
-  tempFileInput.accept = '.json'; // Accept only JSON files
-  tempFileInput.style.display = 'none'; // Hide it from the view
-
-  // Append it to the body so it can be triggered
-  document.body.appendChild(tempFileInput);
-
-  // Trigger the file browser
-  tempFileInput.click();
-
-  // Handle the file selection
-  tempFileInput.addEventListener('change', (event) => {
-    handleFileUpload({ target: event.target });
-    document.body.removeChild(tempFileInput); // Clean up the temporary input element
-  });
-});
-
-// Handle file upload via drag/drop
-document.getElementById('file-drop-area').addEventListener('drop', (event) => {
-  event.preventDefault();
-  const file = event.dataTransfer.files[0];
-  handleFileUpload({ target: { files: [file] } }); // Trigger upload function
-});
-
-// Ensure proper dragging over the drop area
-document.getElementById('file-drop-area').addEventListener('dragover', (event) => {
-  event.preventDefault();
-});
-
-// Function to handle file upload
-function handleFileUpload(event) {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const jsonData = JSON.parse(e.target.result); // Parse JSON file
-        if (jsonData && jsonData.question && Array.isArray(jsonData.question)) {
-          // Process JSON data and check for conflicts
-          checkForConflicts(jsonData.question);
-        } else {
-          showNotification('Invalid JSON format. Please provide a valid question set.', 'OK');
-        }
-      } catch (error) {
-        showNotification('Failed to parse JSON. Please check the file format.', 'OK');
-      }
-    };
-    reader.readAsText(file);
-  }
-}
-
-// Check if there are any existing questions with the same ID
-function checkForConflicts(newQuestions) {
-  const conflictingQuestions = newQuestions.filter(newQ => questions.some(existing => existing.id === newQ.id));
-
-  if (conflictingQuestions.length > 0) {
-    showOverwriteNotification(conflictingQuestions, newQuestions);
-  } else {
-    addQuestions(newQuestions); // Proceed if no conflicts
-  }
-}
-
-// Function to show overwrite notification for conflicting questions
-function showOverwriteNotification(conflictingQuestions, newQuestions) {
-  const conflictIds = conflictingQuestions.map(q => q.id).join(', ');
-  showNotification(
-    `Some questions with IDs (${conflictIds}) already exist. Do you want to overwrite them?`,
-    'Overwrite',
-    'Cancel',
-    () => {
-      overwriteQuestions(conflictingQuestions, newQuestions); // Proceed with overwrite
-    }
-  );
-}
-
-// Overwrite the conflicting questions
-function overwriteQuestions(conflictingQuestions, newQuestions) {
-  // Remove the conflicting questions and add the new ones
-  conflictingQuestions.forEach(conflict => removeQuestion(conflict.id));
-  addQuestions(newQuestions);
-}
-
-// Add new questions to Firebase and update the local list
-function addQuestions(newQuestions) {
-  newQuestions.forEach(newQ => {
-    const formattedQuestion = {
-      id: newQ.id,
-      question: newQ.question,
-      options: newQ.options || {}, // Ensure options exist
-      answer: newQ.answer
-    };
-    questions.push(formattedQuestion); // Add to local array
-  });
-
-  // Update only the 'question' section in Firebase
-  set(ref(database, '/question'), questions)
-    .then(() => {
-      console.log('Questions imported successfully');
-      populateQuestionList(questions, 'push-mode'); // Update the push-mode list
-      populateQuestionList(questions, 'manage-mode'); // Update the manage-mode list
-      displayQuestions(questions, 'push-mode'); // Display questions in push mode
-      displayQuestions(questions, 'manage-mode'); // Display questions in manage mode
-    })
-    .catch((error) => console.error('Error updating Firebase:', error));
-
-  // Close the import panel after success
-  document.getElementById('import-panel').style.display = 'none';
-}
-
-// Handle Select All and Unselect All buttons in push mode
-document.getElementById('select-all-button').addEventListener('click', () => {
-  // Add all currently displayed questions to selectedQuestionIds
-  currentQuestions.forEach(question => {
-    if (!selectedQuestionIds.includes(question.id)) {
-      selectedQuestionIds.push(question.id);
-    }
-  });
-  // Update the ID list input
-  document.getElementById('selected-id-list').value = selectedQuestionIds.join(', ');
-  // Update checkboxes and preview panel
-  updateSelectionCheckboxes();
-  updatePreviewPanel();
-});
-
-document.getElementById('unselect-all-button').addEventListener('click', () => {
-  // Remove all currently displayed questions from selectedQuestionIds
-  currentQuestions.forEach(question => {
-    selectedQuestionIds = selectedQuestionIds.filter(id => id !== question.id);
-  });
-  // Update the ID list input
-  document.getElementById('selected-id-list').value = selectedQuestionIds.join(', ');
-  // Update checkboxes and preview panel
-  updateSelectionCheckboxes();
-  updatePreviewPanel();
-});
-
-// Handle changes in the selected ID list input
-document.getElementById('selected-id-list').addEventListener('input', () => {
-  const idListInput = document.getElementById('selected-id-list').value.trim();
-  if (idListInput) {
-    const idList = idListInput.split(',').map(id => Number(id.trim())).filter(id => !isNaN(id));
-    selectedQuestionIds = idList;
-  } else {
-    selectedQuestionIds = [];
-  }
-  // Update checkboxes and preview panel
-  updateSelectionCheckboxes();
-  updatePreviewPanel();
-});
-
-/* -------------------------------------- */
-/* Learner Selection Functionality Starts */
-/* -------------------------------------- */
+// Learner Selection Functionality Starts
 
 // Open the learner selection panel when the circle button is clicked
 document.getElementById('learner-selection-button').addEventListener('click', () => {
@@ -1012,8 +394,6 @@ document.getElementById('learner-selection-button').addEventListener('click', ()
   updateLearnerDisplay();
   updateSelectedLearnerDisplay();
 });
-
-// Remove close button functionality since it's no longer present
 
 // Handle learner selection methods (ID+Name group or Group input)
 const learnerIdInput = document.getElementById('learner-id-input');
@@ -1291,6 +671,488 @@ document.getElementById('learner-restore-button').addEventListener('click', () =
   updateSelectedLearnerDisplay();
 });
 
-/* ------------------------------------ */
-/* Learner Selection Functionality Ends */
-/* ------------------------------------ */
+// Handle Dispatch Button Click
+document.getElementById('dispatch-button').addEventListener('click', () => {
+  // Show notification box with input for assignment name
+  showAssignmentNamePrompt();
+});
+
+// Function to show assignment name prompt
+function showAssignmentNamePrompt() {
+  const notificationBox = document.createElement('div');
+  notificationBox.classList.add('confirm-box');
+  notificationBox.innerHTML = `
+    <p>Please enter the assignment name:</p>
+    <input type="text" id="assignment-name-input" class="modern-input full-width-input" placeholder="Assignment Name" />
+    <div class="button-container">
+      <button class="confirm-button grey-button">Cancel</button>
+      <button class="confirm-button blue-button">Confirm</button>
+    </div>
+  `;
+  document.body.appendChild(notificationBox);
+
+  // Handle Confirm action
+  notificationBox.querySelector('.blue-button').addEventListener('click', () => {
+    const assignmentName = document.getElementById('assignment-name-input').value.trim();
+    // Check if assignment name, question list, student list are not empty
+    if (!assignmentName) {
+      document.body.removeChild(notificationBox);
+      showNotification('Assignment name cannot be empty.', 'OK');
+      return;
+    }
+    if (selectedQuestionIds.length === 0) {
+      document.body.removeChild(notificationBox);
+      showNotification('Question list cannot be empty.', 'OK');
+      return;
+    }
+    if (selectedLearnerIds.length === 0) {
+      document.body.removeChild(notificationBox);
+      showNotification('Learner list cannot be empty.', 'OK');
+      return;
+    }
+
+    // All checks passed, proceed to dispatch assignment
+    document.body.removeChild(notificationBox);
+    dispatchAssignment(assignmentName);
+  });
+
+  // Handle Cancel action
+  notificationBox.querySelector('.grey-button').addEventListener('click', () => {
+    document.body.removeChild(notificationBox);
+  });
+}
+
+// Function to dispatch assignment
+function dispatchAssignment(assignmentName) {
+  const timestamp = Date.now().toString();
+
+  // Prepare assignment data
+  const assignmentData = {
+    name: assignmentName,
+    status: false, // false means not completed
+    questionList: selectedQuestionIds,
+    answerList: [] // Initially empty
+  };
+
+  // For each selected learner, add assignment to their assignments
+  selectedLearnerIds.forEach(learnerId => {
+    // Find learner in the learners array
+    const learnerIndex = learners.findIndex(l => l.id === learnerId);
+    if (learnerIndex !== -1) {
+      const learner = learners[learnerIndex];
+      if (!learner.assignments) {
+        learner.assignments = {};
+      }
+      learner.assignments[timestamp] = assignmentData;
+    }
+  });
+
+  // Update the 'learner' section in Firebase
+  set(ref(database, '/learner'), learners)
+    .then(() => {
+      console.log('Assignments dispatched successfully');
+      showNotification('Assignments dispatched successfully.', 'OK');
+      // Close the learner selection panel
+      document.getElementById('learner-selection-panel').style.display = 'none';
+    })
+    .catch((error) => {
+      console.error('Error updating Firebase:', error);
+      showNotification('Failed to dispatch assignments. Please try again.', 'OK');
+    });
+}
+
+// Custom notification box for errors, warnings, and confirmation
+function showNotification(message, confirmText, cancelText = null, confirmCallback = null) {
+  const notificationBox = document.createElement('div');
+  notificationBox.classList.add('confirm-box');
+  notificationBox.innerHTML = `
+    <p>${message}</p>
+    <div class="button-container">
+      <button class="confirm-button ${confirmText.toLowerCase() === 'delete' || confirmText.toLowerCase() === 'replace' || confirmText.toLowerCase() === 'overwrite' ? 'red-button' : 'grey-button'}">${confirmText}</button>
+      ${cancelText ? `<button class="confirm-button grey-button">${cancelText}</button>` : ''}
+    </div>
+  `;
+  document.body.appendChild(notificationBox);
+
+  // Handle confirm action
+  notificationBox.querySelector('.confirm-button').addEventListener('click', () => {
+    document.body.removeChild(notificationBox);
+    if (confirmCallback) {
+      confirmCallback();
+    }
+  });
+
+  // Handle cancel action if provided
+  if (cancelText) {
+    notificationBox.querySelector('.grey-button').addEventListener('click', () => {
+      document.body.removeChild(notificationBox);
+    });
+  }
+}
+
+// Manage Mode Functionality Starts
+
+// Handle mutual exclusivity of selection methods in manage mode
+const searchBarManage = document.getElementById('manage-search-bar');
+const idListManage = document.getElementById('id-list-manage');
+const randomQuestionButtonManage = document.getElementById('manage-random-question-button');
+const questionCountManage = document.getElementById('manage-question-count');
+
+// By default, search bar is active, others are inactive
+idListManage.classList.add('inactive-input');
+questionCountManage.classList.add('inactive-input');
+randomQuestionButtonManage.classList.add('inactive-button');
+
+// When search bar is focused, make it active and others inactive
+searchBarManage.addEventListener('focus', () => {
+  searchBarManage.classList.remove('inactive-input');
+  idListManage.classList.add('inactive-input');
+  questionCountManage.classList.add('inactive-input');
+  randomQuestionButtonManage.classList.add('inactive-button');
+  updateManageModeQuestions(); // Update immediately
+});
+
+// When ID list is focused, make it active and others inactive
+idListManage.addEventListener('focus', () => {
+  idListManage.classList.remove('inactive-input');
+  searchBarManage.classList.add('inactive-input');
+  questionCountManage.classList.add('inactive-input');
+  randomQuestionButtonManage.classList.add('inactive-button');
+  updateManageModeQuestions(); // Update immediately
+});
+
+// When question count is focused, make it active and others inactive
+questionCountManage.addEventListener('focus', () => {
+  questionCountManage.classList.remove('inactive-input');
+  randomQuestionButtonManage.classList.remove('inactive-button');
+  searchBarManage.classList.add('inactive-input');
+  idListManage.classList.add('inactive-input');
+});
+
+// Handle search bar input in manage mode
+searchBarManage.addEventListener('input', updateManageModeQuestions);
+
+// Handle ID list input in manage mode
+idListManage.addEventListener('input', updateManageModeQuestions);
+
+// Function to update questions in manage mode based on search and ID input
+function updateManageModeQuestions() {
+  let filteredQuestions = questions;
+
+  if (!searchBarManage.classList.contains('inactive-input')) {
+    const query = searchBarManage.value.toLowerCase();
+    if (query) {
+      filteredQuestions = questions.filter(question => {
+        const questionMatches = question.question.toLowerCase().includes(query);
+        let optionMatches = false;
+        if (question.options) {
+          optionMatches = Object.values(question.options).some(option =>
+            option.toLowerCase().includes(query)
+          );
+        }
+        return questionMatches || optionMatches || question.id.toString().includes(query);
+      });
+    }
+  } else if (!idListManage.classList.contains('inactive-input')) {
+    const idListInput = idListManage.value.trim();
+    if (idListInput) {
+      const idList = idListInput.split(',').map(id => Number(id.trim()));
+      filteredQuestions = idList
+        .map(id => questions.find(q => Number(q.id) === id))
+        .filter(q => q !== undefined);
+    }
+  }
+
+  displayQuestions(filteredQuestions, 'manage-mode');
+}
+
+// Handle picking random questions in Manage mode
+document.getElementById('manage-random-question-button').addEventListener('click', () => {
+  const questionCount = parseInt(document.getElementById('manage-question-count').value, 10) || 1;
+  const randomQuestions = getRandomQuestions(questions, questionCount);
+  displayQuestions(randomQuestions, 'manage-mode');
+  // Deactivate other methods
+  searchBarManage.classList.add('inactive-input');
+  idListManage.classList.add('inactive-input');
+  questionCountManage.classList.remove('inactive-input');
+});
+
+// Handle Add Question button
+document.getElementById('toggle-modify-panel').addEventListener('click', () => {
+  openModifyPanel();
+});
+
+// Function to open modify panel for adding or editing
+function openModifyPanel(questionId = null) {
+  const modifyPanel = document.getElementById('modify-panel');
+  modifyPanel.style.display = 'block';
+
+  // If questionId is provided, we're editing an existing question
+  if (questionId !== null) {
+    currentEditingQuestionId = questionId;
+    const question = questions.find(q => q.id === questionId);
+    if (question) {
+      document.getElementById('new-question-id').value = question.id;
+      document.getElementById('new-question-text').value = question.question;
+      document.getElementById('new-question-answer').value = question.answer;
+
+      // Clear existing options
+      const optionsContainer = document.getElementById('new-options-container');
+      optionsContainer.innerHTML = '';
+
+      // Populate options
+      Object.entries(question.options).forEach(([key, value], index) => {
+        const optionWrapper = document.createElement('div');
+        optionWrapper.classList.add('option-wrapper');
+
+        const optionInput = document.createElement('input');
+        optionInput.type = 'text';
+        optionInput.classList.add('modern-input', 'option-input');
+        optionInput.placeholder = `Option ${key}`;
+        optionInput.value = value;
+        optionWrapper.appendChild(optionInput);
+
+        const optionButton = document.createElement('button');
+
+        if (index === 0) {
+          // First option, add 'Add' button
+          optionButton.classList.add('modern-button');
+          optionButton.textContent = 'Add';
+          optionButton.addEventListener('click', () => {
+            addOption();
+          });
+        } else {
+          // Subsequent options, add 'Del' button
+          optionButton.classList.add('red-button');
+          optionButton.textContent = 'Del';
+          optionButton.addEventListener('click', () => {
+            optionsContainer.removeChild(optionWrapper);
+          });
+        }
+
+        optionWrapper.appendChild(optionButton);
+        optionsContainer.appendChild(optionWrapper);
+      });
+    }
+  } else {
+    // Adding a new question
+    currentEditingQuestionId = null;
+    document.getElementById('new-question-id').value = '';
+    document.getElementById('new-question-text').value = '';
+    document.getElementById('new-question-answer').value = '';
+    document.getElementById('new-options-container').innerHTML = '';
+
+    // Add an initial option
+    addOption();
+  }
+}
+
+// Close modify panel
+document.getElementById('close-modify-panel').addEventListener('click', () => {
+  document.getElementById('modify-panel').style.display = 'none';
+});
+
+// Add option button handler
+document.getElementById('add-option-button').addEventListener('click', () => {
+  addOption();
+});
+
+// Function to add a new option input
+function addOption() {
+  const optionsContainer = document.getElementById('new-options-container');
+  const optionCount = optionsContainer.children.length;
+
+  const optionWrapper = document.createElement('div');
+  optionWrapper.classList.add('option-wrapper');
+
+  const optionInput = document.createElement('input');
+  optionInput.type = 'text';
+  optionInput.classList.add('modern-input', 'option-input');
+  optionInput.placeholder = `Option ${optionCount + 1}`;
+  optionWrapper.appendChild(optionInput);
+
+  const optionButton = document.createElement('button');
+  optionButton.classList.add('modern-button');
+
+  if (optionCount === 0) {
+    // First option, add 'Add' button
+    optionButton.textContent = 'Add';
+    optionButton.addEventListener('click', () => {
+      addOption();
+    });
+  } else {
+    // Subsequent options, add 'Del' button
+    optionButton.classList.add('red-button');
+    optionButton.textContent = 'Del';
+    optionButton.addEventListener('click', () => {
+      optionsContainer.removeChild(optionWrapper);
+    });
+  }
+
+  optionWrapper.appendChild(optionButton);
+  optionsContainer.appendChild(optionWrapper);
+}
+
+// Save question button handler
+document.getElementById('save-question-button').addEventListener('click', () => {
+  const id = parseInt(document.getElementById('new-question-id').value.trim(), 10);
+  const questionText = document.getElementById('new-question-text').value.trim();
+  const answer = document.getElementById('new-question-answer').value.trim();
+  const optionInputs = document.querySelectorAll('.option-input');
+  const options = {};
+
+  optionInputs.forEach((input, index) => {
+    const optionKey = (index + 1).toString();
+    options[optionKey] = input.value.trim();
+  });
+
+  if (isNaN(id) || !questionText || !answer || Object.keys(options).length === 0) {
+    showNotification('Please fill in all fields correctly.', 'OK');
+    return;
+  }
+
+  // Check if ID already exists when adding a new question
+  if (currentEditingQuestionId === null && questions.some(q => q.id === id)) {
+    showNotification(`Question ID ${id} already exists.`, 'OK');
+    return;
+  }
+
+  const newQuestion = {
+    id,
+    question: questionText,
+    options,
+    answer
+  };
+
+  if (currentEditingQuestionId !== null) {
+    // Editing existing question
+    const questionIndex = questions.findIndex(q => q.id === currentEditingQuestionId);
+    if (questionIndex !== -1) {
+      questions[questionIndex] = newQuestion;
+    }
+  } else {
+    // Adding new question
+    questions.push(newQuestion);
+  }
+
+  // Update Firebase
+  set(ref(database, '/question'), questions)
+    .then(() => {
+      showNotification('Question saved successfully.', 'OK');
+      document.getElementById('modify-panel').style.display = 'none';
+    })
+    .catch((error) => {
+      console.error('Error updating Firebase:', error);
+      showNotification('Failed to save question. Please try again.', 'OK');
+    });
+});
+
+// Remove question function
+function removeQuestion(questionId) {
+  questions = questions.filter(q => q.id !== questionId);
+
+  // Update Firebase
+  set(ref(database, '/question'), questions)
+    .then(() => {
+      showNotification('Question deleted successfully.', 'OK');
+    })
+    .catch((error) => {
+      console.error('Error updating Firebase:', error);
+      showNotification('Failed to delete question. Please try again.', 'OK');
+    });
+}
+
+// Import and Export Functionality
+
+// Handle Import button click
+document.getElementById('import-button').addEventListener('click', () => {
+  document.getElementById('import-panel').style.display = 'flex';
+});
+
+// Close import panel
+document.getElementById('close-import-panel').addEventListener('click', () => {
+  document.getElementById('import-panel').style.display = 'none';
+});
+
+// Handle file drop area
+const fileDropArea = document.getElementById('file-drop-area');
+fileDropArea.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  fileDropArea.classList.add('dragover');
+});
+
+fileDropArea.addEventListener('dragleave', () => {
+  fileDropArea.classList.remove('dragover');
+});
+
+fileDropArea.addEventListener('drop', (e) => {
+  e.preventDefault();
+  fileDropArea.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  handleFileUpload(file);
+});
+
+fileDropArea.addEventListener('click', () => {
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = '.json';
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    handleFileUpload(file);
+  });
+  fileInput.click();
+});
+
+function handleFileUpload(file) {
+  if (file && file.type === 'application/json') {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const importedData = JSON.parse(e.target.result);
+        if (importedData.question && Array.isArray(importedData.question)) {
+          showNotification(
+            'Importing questions will overwrite existing questions. Proceed?',
+            'Overwrite',
+            'Cancel',
+            () => {
+              questions = importedData.question;
+              // Update Firebase
+              set(ref(database, '/question'), questions)
+                .then(() => {
+                  showNotification('Questions imported successfully.', 'OK');
+                  document.getElementById('import-panel').style.display = 'none';
+                })
+                .catch((error) => {
+                  console.error('Error updating Firebase:', error);
+                  showNotification('Failed to import questions. Please try again.', 'OK');
+                });
+            }
+          );
+        } else {
+          showNotification('Invalid JSON structure.', 'OK');
+        }
+      } catch (error) {
+        console.error('Error parsing JSON:', error);
+        showNotification('Error parsing JSON file.', 'OK');
+      }
+    };
+    reader.readAsText(file);
+  } else {
+    showNotification('Please upload a valid JSON file.', 'OK');
+  }
+}
+
+// Handle Export button click
+document.getElementById('export-button').addEventListener('click', () => {
+  const dataStr = JSON.stringify({ question: questions }, null, 2);
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'questions_export.json';
+  a.click();
+
+  URL.revokeObjectURL(url);
+});
+
