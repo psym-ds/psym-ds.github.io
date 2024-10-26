@@ -72,7 +72,7 @@ body {
   margin-bottom: 10px;
 }
 
-#search-bar, #manage-search-bar, #id-list-view, #id-list-manage, #selected-id-list {
+#search-bar, #manage-search-bar, #label-filter-push, #label-filter-manage, #id-list-view, #id-list-manage, #selected-id-list {
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
@@ -105,7 +105,7 @@ body {
   font-size: 14px;
 }
 
-#question-list, #manage-question-list {
+#item-list, #manage-item-list {
   list-style-type: none;
   padding: 0;
   margin: 0;
@@ -147,6 +147,14 @@ body {
   position: relative;
 }
 
+.weight-input {
+  margin-top: 10px;
+}
+
+.weight-input label {
+  margin-right: 10px;
+}
+
 .vertical-separator {
   width: 1px;
   background-color: #bdc3c7;
@@ -179,7 +187,7 @@ body {
   border-radius: 5px;
 }
 
-.selection-question-container {
+.selection-item-container {
   position: absolute;
   top: 60px; /* Adjust based on controls height */
   bottom: 0;
@@ -222,7 +230,7 @@ body {
   flex: 0 0 auto;
 }
 
-.preview-question-container {
+.preview-item-container {
   position: absolute;
   top: 60px; /* Adjust based on controls height */
   bottom: 0;
@@ -313,7 +321,7 @@ button:hover {
   transform: translate(-50%, -50%);
   z-index: 1000;
   width: 400px;
-  display: none; /* Initially hidden, will be displayed when needed */
+  /* Removed display: none; */
   cursor: move;
 }
 
@@ -324,6 +332,17 @@ button:hover {
 .modify-panel label {
   display: block;
   margin: 10px 0 5px;
+}
+
+.choice-wrapper {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.choice-wrapper .choice-input {
+  flex-grow: 1;
+  margin-right: 10px;
 }
 
 .delete-option-button, .add-option-button {
@@ -373,13 +392,17 @@ button:hover {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
+  z-index: 2000;
   max-width: 400px;
   text-align: center;
 }
 
 .confirm-box p {
   margin-bottom: 20px;
+}
+
+.confirm-box.assignment-prompt {
+  z-index: 1500;
 }
 
 .confirm-button {
@@ -408,7 +431,7 @@ button:hover {
   margin-top: 10px;
 }
 
-#new-question-answer {
+#new-item-difficulty {
   margin-bottom: 20px;
 }
 
@@ -435,7 +458,7 @@ button:hover {
   margin-right: 10px;
 }
 
-.manage-question-container {
+.manage-item-container {
   position: absolute;
   top: 60px; /* Adjust based on controls height */
   bottom: 0;
@@ -445,7 +468,7 @@ button:hover {
   box-sizing: border-box;
 }
 
-.question-card {
+.item-card {
   background-color: #fff;
   padding: 20px;
   margin-bottom: 15px;
@@ -455,7 +478,7 @@ button:hover {
   transition: all 0.3s ease;
 }
 
-.question-card:hover {
+.item-card:hover {
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
 
@@ -626,6 +649,15 @@ input:checked + .slider:before {
   display: flex;
   flex-direction: column;
   background-color: #ffffff; /* Make the background white */
+}
+
+#learner-selection-panel .close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+  cursor: pointer;
+  color: #7c7c7c;
 }
 
 .learner-selection-content {
@@ -815,4 +847,28 @@ input:checked + .slider:before {
 .left-half .search-area,
 .right-half .selected-id-list-container {
   height: 110px; /* Adjusted height */
+}
+
+.label-input-container {
+  position: relative;
+  width: 100%;
+}
+
+.inline-suggestion {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  pointer-events: none;
+  font-size: 14px;
+  white-space: pre; /* Preserve spaces and text alignment */
+  color: black;
+}
+
+.mirrored {
+  color: transparent; /* Mimic the input exactly */
+  white-space: pre; /* Preserve spaces for perfect alignment */
+}
+
+.remaining {
+  color: grey; /* Grey color for the suggestion */
 }

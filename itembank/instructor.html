@@ -4,240 +4,682 @@
   <meta charset="UTF-8">
   <title>Item Bank</title>
   <link rel="stylesheet" href="style/instructor.css">
-  <!-- Update Font Awesome to the latest version -->
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-  <script>
-    // Check if the user is logged in and is an instructor
-    window.onload = function() {
-      const loggedIn = sessionStorage.getItem('loggedIn');
-      const role = sessionStorage.getItem('role');
-
-      // If not logged in or not an instructor, redirect to login page
-      if (!loggedIn || role !== 'instructor') {
-        window.location.href = 'login.html';  // Redirect to login page
-      }
-    };
-  </script>
 </head>
 <body>
-  <div class="tabs">
-    <button class="tab-link active" data-mode="push">Dispatch</button>
-    <button class="tab-link" data-mode="manage">Manage</button>
-  </div>
-
-  <div class="container" id="push-mode">
-    <div class="sidebar">
-      <h2>Question List</h2>
-      <input type="text" id="search-bar" placeholder="Search for a question..." />
-      <input type="text" id="id-list-view" placeholder="Enter question IDs (comma separated)" />
-      <!-- Adjusted random controls -->
-      <div class="random-controls">
-        <input type="number" id="question-count" class="modern-input" value="1" min="1" placeholder="#" />
-        <button id="random-question-button" class="modern-button">Pick Random</button>
-      </div>
-      <ul id="question-list">
-        <!-- List of questions will be injected here -->
-      </ul>
+  <div id="app">
+    <!-- Tabs -->
+    <div class="tabs">
+      <button
+        class="tab-link"
+        :class="{ active: activeTab === 'push' }"
+        @click="activeTab = 'push'"
+      >Dispatch</button>
+      <button
+        class="tab-link"
+        :class="{ active: activeTab === 'manage' }"
+        @click="activeTab = 'manage'"
+      >Manage</button>
     </div>
 
-    <div class="content">
-      <div class="selection-panel">
-        <div class="selection-controls">
-          <!-- Adjusted buttons with space in between -->
-          <button id="select-all-button" class="modern-button half-width-button">Select All</button>
-          <button id="unselect-all-button" class="modern-button half-width-button">Unselect All</button>
+    <!-- Dispatch Mode -->
+    <div class="container" v-show="activeTab === 'push'">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <h2 style="padding: 5px;">Item Bank</h2>
+        <input
+          type="text"
+          id="search-bar"
+          placeholder="Search for an item..."
+          v-model="searchQueryPush"
+          :class="{ 'inactive-input': isRandomActivePush || isIdListActivePush }"
+          @focus="activateSearchPush"
+        />
+        <input
+          type="text"
+          id="label-filter-push"
+          placeholder="Filter by labels..."
+          v-model="labelFilterPush"
+          :class="{ 'inactive-input': isRandomActivePush || isIdListActivePush }"
+          @focus="activateSearchPush"
+        />
+        <input
+          type="text"
+          id="id-list-view"
+          placeholder="Enter item IDs (comma separated)"
+          v-model="idListPush"
+          :class="{ 'inactive-input': isSearchActivePush || isRandomActivePush }"
+          @focus="activateIdListPush"
+        />
+        <!-- Random Controls -->
+        <div class="random-controls">
+          <input
+            type="number"
+            id="item-count"
+            class="modern-input"
+            value="1"
+            min="1"
+            placeholder="#"
+            v-model.number="randomCountPush"
+            :class="{ 'inactive-input': isSearchActivePush || isIdListActivePush }"
+            @focus="activateRandomPush"
+          />
+          <button
+            id="random-item-button"
+            class="modern-button"
+            :class="{ 'inactive-button': isSearchActivePush || isIdListActivePush }"
+            @click="pickRandomItemsPush"
+          >Pick Random</button>
         </div>
-        <div class="selection-question-container">
-          <div id="question-container">
-            <!-- Questions and answers will be injected here in card format -->
+        <ul id="item-list">
+          <li
+            v-for="item in filteredItemsPush"
+            :key="item.id"
+            @click="scrollToItem(item.id, 'push')"
+          >{{ item.id }} - {{ item.question }}</li>
+        </ul>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+        <!-- Selection Panel -->
+        <div class="selection-panel">
+          <div class="selection-controls">
+            <button
+              id="select-all-button"
+              class="modern-button half-width-button"
+              @click="selectAllItems"
+            >Select All</button>
+            <button
+              id="unselect-all-button"
+              class="modern-button half-width-button"
+              @click="unselectAllItems"
+            >Unselect All</button>
+          </div>
+          <div class="selection-item-container">
+            <div id="item-container">
+              <div
+                class="item-card"
+                v-for="item in displayedItemsPush"
+                :key="item.id"
+                :id="`item-${item.id}-push`"
+              >
+                <p>ID: {{ item.id }}</p>
+                <p>Type: {{ displayItemType(item.type) }}</p>
+                <p>Question: {{ item.question }}</p>
+                <div v-if="item.type === 'MC' && item.choices && Object.keys(item.choices).length">
+                  <p>Choices:</p>
+                  <ul>
+                    <li
+                      v-for="(choice, key) in item.choices"
+                      :key="key"
+                    >{{ key+1 }}: {{ choice }}</li>
+                  </ul>
+                </div>
+                <p>Answer: {{ (item.answer || []).join(', ') }}</p>
+                <p v-if="item.explanation">Explanation: {{ item.explanation }}</p>
+                <p>Difficulty: {{ displayDifficulty(item.difficulty) }}</p>
+                <p v-if="item.label && item.label.length">Labels: {{ item.label.join(', ') }}</p>
+                <i
+                  class="select-checkbox fa-regular"
+                  :class="isSelectedItem(item.id) ? 'fa-square-check' : 'fa-square'"
+                  @click="toggleItemSelection(item.id)"
+                ></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Separator -->
+        <div class="vertical-separator"></div>
+
+        <!-- Preview Panel -->
+        <div class="preview-panel">
+          <div class="preview-controls">
+            <input
+              type="text"
+              id="selected-id-list"
+              placeholder="Selected item IDs..."
+              v-model="selectedItemIdsString"
+            />
+            <div class="toggle-container">
+              <label class="switch">
+                <input type="checkbox" v-model="showLimitedPreview" />
+                <span class="slider round"></span>
+              </label>
+            </div>
+            <button
+              id="learner-selection-button"
+              class="circle-button"
+              @click="openLearnerSelectionPanel"
+            >
+              <i class="fa-solid fa-arrows-down-to-people"></i>
+            </button>
+          </div>
+          <div class="preview-item-container">
+            <div id="preview-container">
+              <div
+                class="item-card"
+                v-for="item in previewItems"
+                :key="item.id"
+              >
+                <p>ID: {{ item.id }}</p>
+                <p>Type: {{ displayItemType(item.type) }}</p>
+                <p>Question: {{ item.question }}</p>
+                <div v-if="item.type === 'MC' && item.choices && Object.keys(item.choices).length">
+                  <p>Choices:</p>
+                  <ul>
+                    <li
+                      v-for="(choice, key) in item.choices"
+                      :key="key"
+                    >{{ key+1 }}: {{ choice }}</li>
+                  </ul>
+                </div>
+                <p v-if="!showLimitedPreview">Answer: {{ (item.answer || []).join(', ') }}</p>
+                <p v-if="!showLimitedPreview && item.explanation">Explanation: {{ item.explanation }}</p>
+                <p v-if="!showLimitedPreview">Difficulty: {{ displayDifficulty(item.difficulty) }}</p>
+                <p v-if="item.label && item.label.length && !showLimitedPreview">Labels: {{ item.label.join(', ') }}</p>
+                <!-- Weight Input -->
+                <div class="weight-input">
+                  <label>
+                    Weight:
+                    <input
+                      type="number"
+                      min="0"
+                      v-model.number="selectedItemWeights[item.id]"
+                      placeholder="Weight"
+                    />
+                  </label>
+                </div>                
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <!-- Separator line -->
-      <div class="vertical-separator"></div>
-      <div class="preview-panel">
-        <div class="preview-controls">
-          <input type="text" id="selected-id-list" placeholder="Selected question IDs..." />
-          <!-- Toggle switch for showing/hiding answers -->
-          <div class="toggle-container">
-            <label class="switch">
-              <input type="checkbox" id="toggle-answers" checked>
-              <span class="slider round"></span>
-            </label>
+    </div>
+
+    <!-- Manage Mode -->
+    <div class="container" v-show="activeTab === 'manage'">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <h2 style="padding: 5px;">Item Bank</h2>
+        <input
+          type="text"
+          id="manage-search-bar"
+          placeholder="Search for an item..."
+          v-model="searchQueryManage"
+          :class="{ 'inactive-input': isRandomActiveManage || isIdListActiveManage }"
+          @focus="activateSearchManage"
+        />
+        <input
+          type="text"
+          id="label-filter-manage"
+          placeholder="Filter by labels..."
+          v-model="labelFilterManage"
+          :class="{ 'inactive-input': isRandomActiveManage || isIdListActiveManage }"
+          @focus="activateSearchManage"
+        />
+        <input
+          type="text"
+          id="id-list-manage"
+          placeholder="Enter item IDs (comma separated)"
+          v-model="idListManage"
+          :class="{ 'inactive-input': isSearchActiveManage || isRandomActiveManage }"
+          @focus="activateIdListManage"
+        />
+        <!-- Random Controls -->
+        <div class="random-controls">
+          <input
+            type="number"
+            id="manage-item-count"
+            class="modern-input"
+            value="1"
+            min="1"
+            placeholder="#"
+            v-model.number="randomCountManage"
+            :class="{ 'inactive-input': isSearchActiveManage || isIdListActiveManage }"
+            @focus="activateRandomManage"
+          />
+          <button
+            id="manage-random-item-button"
+            class="modern-button"
+            :class="{ 'inactive-button': isSearchActiveManage || isIdListActiveManage }"
+            @click="pickRandomItemsManage"
+          >Pick Random</button>
+        </div>
+        <ul id="manage-item-list">
+          <li
+            v-for="item in filteredItemsManage"
+            :key="item.id"
+            @click="scrollToItem(item.id, 'manage')"
+          >{{ item.id }} - {{ item.question }}</li>
+        </ul>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+        <div class="control-buttons">
+          <button
+            id="toggle-modify-panel"
+            class="modern-button one-third-width-button"
+            @click="openModifyPanel()"
+          >Add</button>
+          <button
+            id="import-button"
+            class="modern-button one-third-width-button"
+            @click="openImportPanel"
+          >Import</button>
+          <button
+            id="export-button"
+            class="modern-button one-third-width-button"
+            @click="exportItems"
+          >Export</button>
+        </div>
+
+        <div class="manage-item-container">
+          <div id="manage-item-container">
+            <div
+              class="item-card"
+              v-for="item in displayedItemsManage"
+              :key="item.id"
+              :id="`item-${item.id}-manage`"
+            >
+              <p>ID: {{ item.id }}</p>
+              <p>Type: {{ displayItemType(item.type) }}</p>
+              <p>Question: {{ item.question }}</p>
+              <div v-if="item.type === 'MC' && item.choices && Object.keys(item.choices).length">
+                <p>Choices:</p>
+                <ul>
+                  <li
+                    v-for="(choice, key) in item.choices"
+                    :key="key"
+                  >{{ key+1 }}: {{ choice }}</li>
+                </ul>
+              </div>
+              <p>Answer: {{ (item.answer || []).join(', ') }}</p>
+              <p v-if="item.explanation">Explanation: {{ item.explanation }}</p>
+              <p>Difficulty: {{ displayDifficulty(item.difficulty) }}</p>
+              <p v-if="item.label && item.label.length">Labels: {{ item.label.join(', ') }}</p>
+              <i
+                class="edit-button fa-solid fa-pen-to-square"
+                @click="openModifyPanel(item.id)"
+              ></i>
+              <i
+                class="delete-button fa-solid fa-trash-can"
+                @click="confirmDeleteItem(item.id)"
+              ></i>
+            </div>
           </div>
-          <!-- Adjusted circle button size -->
-          <button id="learner-selection-button" class="circle-button">
-            <i class="fa-solid fa-arrows-down-to-people"></i>
-          </button>
-        </div>
-        <div class="preview-question-container">
-          <div id="preview-container">
-            <!-- Selected questions will be previewed here -->
-          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Updated manage-mode container -->
-  <div class="container" id="manage-mode" style="display: none;">
-    <div class="sidebar">
-      <!-- Reuse the search bar and question list panel -->
-      <h2>Question List</h2>
-      <input type="text" id="manage-search-bar" placeholder="Search for a question..." />
-      <input type="text" id="id-list-manage" placeholder="Enter question IDs (comma separated)" />
-      <!-- Adjusted random controls -->
-      <div class="random-controls">
-        <input type="number" id="manage-question-count" class="modern-input" value="1" min="1" placeholder="#" />
-        <button id="manage-random-question-button" class="modern-button">Pick Random</button>
-      </div>
-      <ul id="manage-question-list">
-        <!-- List of questions will be injected here for managing -->
-      </ul>
-    </div>
+    <!-- Modals and Panels -->
+    <!-- Modify Panel -->
+    <div class="modify-panel" v-if="showModifyPanel">
+      <span class="close-button" @click="closeModifyPanel">×</span>
+      <label for="new-item-id">ID:</label>
+      <input
+        type="text"
+        id="new-item-id"
+        class="modern-input full-width-input"
+        placeholder="Enter item ID"
+        v-model="newItem.id"
+      />
 
-    <div class="content">
-      <div class="control-buttons">
-        <!-- Adjusted control buttons with space in between -->
-        <button id="toggle-modify-panel" class="modern-button one-third-width-button">Add</button>
-        <button id="import-button" class="modern-button one-third-width-button">Import</button>
-        <button id="export-button" class="modern-button one-third-width-button">Export</button>
-      </div>
+      <label for="new-item-question">Question:</label>
+      <textarea
+        id="new-item-question"
+        class="modern-input full-width-input"
+        placeholder="Enter question text"
+        v-model="newItem.question"
+      ></textarea>
 
-      <div class="manage-question-container">
-        <div id="manage-question-container">
-          <!-- Questions and answers will be injected here for managing -->
+      <label for="new-item-type">Type:</label>
+      <select
+        id="new-item-type"
+        class="modern-input full-width-input"
+        v-model="newItem.type"
+      >
+        <option value="MC">Multiple Choice</option>
+        <option value="numeric">Numerical Response</option>
+        <option value="OC">Open-Ended/Constructed Response</option>
+      </select>
+
+      <label for="new-item-labels">Labels:</label>
+      <div class="label-input-container">
+        <!-- Input Field -->
+        <input
+          type="text"
+          id="new-item-labels"
+          class="modern-input full-width-input label-input"
+          placeholder="Enter labels (comma separated)"
+          v-model="newItem.labelInput"
+          @input="updateSuggestion"
+          @keydown.tab.prevent="autocompleteLabel"
+        />
+      
+        <!-- Inline Suggestion Overlay -->
+        <div class="inline-suggestion">
+          <span class="mirrored">{{ newItem.labelInput }}</span
+          ><span class="remaining" v-if="remainingText">{{ remainingText }}</span>
+        </div>
+      </div>      
+
+      <label for="new-item-choices" v-if="newItem.type === 'MC'">Choices:</label>
+      <div id="new-choices-container" v-if="newItem.type === 'MC'">
+        <div
+          class="choice-wrapper"
+          v-for="(choice, index) in newItem.choices"
+          :key="index"
+        >
+          <input
+            type="text"
+            class="modern-input choice-input"
+            :placeholder="`Enter choice ${index + 1}`"
+            v-model="newItem.choices[index]"
+          />
+          <button
+            v-if="index === 0"
+            class="modern-button add-choice-button"
+            @click="addChoice"
+          >Add</button>
+          <button
+            v-else
+            class="modern-button red-button"
+            @click="removeChoice(index)"
+          >Del</button>
         </div>
       </div>
+
+      <label for="new-item-answer">Answer:</label>
+      <input
+        type="text"
+        id="new-item-answer"
+        class="modern-input full-width-input"
+        :placeholder="answerPlaceholder"
+        v-model="newItem.answerInput"
+      />
+
+      <label for="new-item-explanation">Explanation:</label>
+      <textarea
+        id="new-item-explanation"
+        class="modern-input full-width-input"
+        placeholder="Enter explanation (optional)"
+        v-model="newItem.explanation"
+      ></textarea>
+
+      <label for="new-item-difficulty">Difficulty:</label>
+      <select
+        id="new-item-difficulty"
+        class="modern-input full-width-input"
+        v-model.number="newItem.difficulty"
+      >
+        <option :value="0">Not Determined</option>
+        <option :value="1">Easy</option>
+        <option :value="2">Medium</option>
+        <option :value="3">Hard</option>
+      </select>
+
+      <button
+        id="save-item-button"
+        class="modern-button full-width-button"
+        @click="saveItem"
+      >Save</button>
     </div>
-  </div>
 
+    <!-- Import Panel -->
+    <div id="import-panel" class="floating-panel" v-if="showImportPanel">
+      <span class="close-button" @click="closeImportPanel">×</span>
 
-  <div class="modify-panel" id="modify-panel" style="display: none;">
-    <span class="close-button" id="close-modify-panel">×</span> <!-- Red cross to close the panel -->
-    <label for="new-question-id">ID:</label>
-    <input type="text" id="new-question-id" class="modern-input full-width-input" placeholder="Enter question ID" />
-    
-    <label for="new-question-text">Question:</label>
-    <textarea id="new-question-text" class="modern-input full-width-input" placeholder="Enter question text"></textarea>
-    
-    <label for="new-question-options">Options:</label>
-    <div id="new-options-container">
-      <div class="option-wrapper">
-        <input type="text" class="modern-input option-input" placeholder="Enter option 1" />
-        <button id="add-option-button" class="modern-button add-option-button">Add</button>
-      </div>
-    </div>
-  
-    <label for="new-question-answer">Answer:</label>
-    <input type="text" id="new-question-answer" class="modern-input full-width-input" placeholder="Enter answer" />
-    
-    <button id="save-question-button" class="modern-button full-width-button">Save</button>
-  </div>
-
-  <!-- Import panel (initially hidden) -->
-  <div id="import-panel" class="floating-panel" style="display: none;">
-    <span class="close-button" id="close-import-panel">×</span> <!-- Close button -->
-    
-    <div class="import-content">
-      <div class="left-half">
-        <h3>Sample JSON Structure</h3>
-        <pre>
+      <div class="import-content">
+        <div class="left-half">
+          <h3>Sample JSON Structure</h3>
+          <pre>
 {
-  "question": [
-      {
-          "id": 1,
-          "question": "Sample question 1",
-          "options": {
-              "1": "Option A",
-              "2": "Option B",
-              "3": "Option C",
-              "4": "Option D"
-          },
-          "answer": "2"
+  "item": [
+    {
+      "id": 1,
+      "type": "MC",
+      "question": "Sample question 1",
+      "choices": {
+        "1": "Option A",
+        "2": "Option B",
+        "3": "Option C",
+        "4": "Option D"
       },
-      {
-          "id": 2,
-          "question": "Sample question 2",
-          "options": {
-              "1": "Option A",
-              "2": "Option B",
-              "4": "Option C",
-              "8": "Option D"
-          },
-          "answer": "13"
-      },
+      "answer": ["2"],
+      "label": ["label1", "label2"],
+      "explanation": "Explanation text",
+      "difficulty": 0
+    }
   ]
-}</pre>
-      </div>
-      <div class="right-half">
-        <h3>Upload File</h3>
-        <div class="file-drop-area" id="file-drop-area">
-          <i class="fas fa-upload"></i>
-          <p>Drag and drop your file here or click to upload</p>
+}
+          </pre>
         </div>
-      </div>    
+        <div class="right-half">
+          <h3>Upload File</h3>
+          <div
+            class="file-drop-area"
+            id="file-drop-area"
+            @dragover.prevent
+            @dragleave.prevent
+            @drop.prevent="handleFileDrop"
+            @click="triggerFileInput"
+          >
+            <i class="fas fa-upload"></i>
+            <p>Drag and drop your file here or click to upload</p>
+          </div>
+          <input
+            type="file"
+            ref="fileInput"
+            style="display: none"
+            @change="handleFileUpload"
+            accept=".json"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Learner Selection Panel -->
+    <div id="learner-selection-panel" class="floating-panel" v-if="showLearnerPanel">
+      <span class="close-button" @click="closeLearnerPanel">×</span>
+      <div class="learner-selection-content">
+        <!-- Left Half -->
+        <div class="left-half">
+          <div class="search-area">
+            <!-- ID and Name Inputs -->
+            <div
+              class="input-row"
+              :class="{ 'inactive-row': !isIdNameActive }"
+              id="id-name-row"
+              @click="activateIdName"
+            >
+              <input
+                type="text"
+                id="learner-id-input"
+                class="modern-input"
+                placeholder="Learner ID"
+                v-model="learnerIdInput"
+                :class="{ 'inactive-input': !isIdNameActive }"
+              />
+              <input
+                type="text"
+                id="learner-name-input"
+                class="modern-input"
+                placeholder="Learner Name"
+                v-model="learnerNameInput"
+                :class="{ 'inactive-input': !isIdNameActive }"
+              />
+            </div>
+            <!-- Group Input -->
+            <div
+              class="input-row"
+              :class="{ 'inactive-row': !isGroupActive }"
+              id="group-row"
+              @click="activateGroup"
+            >
+              <input
+                type="text"
+                id="learner-group-input"
+                class="modern-input"
+                placeholder="Group"
+                v-model="learnerGroupInput"
+                :class="{ 'inactive-input': !isGroupActive }"
+              />
+            </div>
+          </div>
+          <!-- Controls -->
+          <div class="learner-selection-controls">
+            <button
+              id="learner-select-all-button"
+              class="modern-button half-width-button"
+              @click="selectAllLearners"
+            >Select All</button>
+            <button
+              id="learner-unselect-all-button"
+              class="modern-button half-width-button"
+              @click="unselectAllLearners"
+            >Unselect All</button>
+          </div>
+          <!-- Learner List -->
+          <div class="learner-display-container">
+            <div id="learner-list">
+              <div
+                class="learner-card"
+                v-for="learner in filteredLearners"
+                :key="learner.id"
+                @click="toggleLearnerSelection(learner.id)"
+              >
+                <p>ID: {{ learner.id }}, Name: {{ learner.username }}</p>
+                <p>Group: {{ learner.group }}</p>
+                <i
+                  class="select-checkbox fa-regular"
+                  :class="isSelectedLearner(learner.id) ? 'fa-square-check' : 'fa-square'"
+                  @click.stop="toggleLearnerSelection(learner.id)"
+                ></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Separator -->
+        <div class="vertical-separator"></div>
+
+        <!-- Right Half -->
+        <div class="right-half">
+          <!-- Selected IDs -->
+          <div class="selected-id-list-container">
+            <input
+              type="text"
+              id="selected-learner-id-list"
+              class="modern-input"
+              placeholder="Selected learner IDs..."
+              v-model="selectedLearnerIdsString"
+            />
+          </div>
+          <!-- Controls -->
+          <div class="learner-preview-controls">
+            <button
+              id="learner-restore-button"
+              class="modern-button half-width-button"
+              @click="restoreLearnerSelection"
+            >Restore</button>
+            <button
+              id="learner-save-button"
+              class="modern-button half-width-button"
+              @click="saveLearnerSelection"
+            >Save</button>
+          </div>
+          <!-- Selected Learner List -->
+          <div class="selected-learner-display-container">
+            <div id="selected-learner-list">
+              <div
+                class="learner-card"
+                v-for="learner in selectedLearnersList"
+                :key="learner.id"
+              >
+                <p>ID: {{ learner.id }}, Name: {{ learner.username }}</p>
+                <p>Group: {{ learner.group }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Dispatch Button -->
+      <div class="dispatch-button-container">
+        <button
+          id="dispatch-button"
+          class="modern-button full-width-button"
+          @click="promptAssignmentDetails"
+        >
+          <i class="fa-solid fa-paper-plane"></i> Dispatch
+        </button>
+      </div>
+    </div>
+
+    <!-- Notification Box -->
+    <div class="confirm-box" v-if="notification.show">
+      <p v-html="notification.message"></p>
+      <div class="button-container">
+        <button
+          class="confirm-button grey-button"
+          v-if="notification.cancelText"
+          @click="handleNotificationCancel"
+        >{{ notification.cancelText }}</button>
+        <button
+          class="confirm-button"
+          :class="{
+            'red-button': notification.confirmText.toLowerCase() === 'delete' ||
+                         notification.confirmText.toLowerCase() === 'replace' ||
+                         notification.confirmText.toLowerCase() === 'overwrite',
+            'blue-button': notification.confirmText.toLowerCase() === 'confirm',
+            'grey-button': notification.confirmText.toLowerCase() === 'ok'
+          }"
+          @click="handleNotificationConfirm"
+        >{{ notification.confirmText }}</button>
+      </div>
+    </div>
+
+    <!-- Assignment Details Prompt -->
+    <div class="confirm-box assignment-prompt" v-if="showAssignmentPrompt">
+      <p>Please enter the assignment details:</p>
+      <label for="assignment-name">Name:</label>
+      <input
+        type="text"
+        id="assignment-name"
+        class="modern-input full-width-input"
+        placeholder="Assignment Name"
+        v-model="assignmentDetails.name"
+      />
+
+      <label for="assignment-type">Type:</label>
+      <select
+        id="assignment-type"
+        class="modern-input full-width-input"
+        v-model="assignmentDetails.type"
+      >
+        <option value="exercise">Exercise</option>
+        <option value="quiz">Quiz</option>
+      </select>
+
+      <label for="assignment-deadline">Deadline:</label>
+      <input
+        type="datetime-local"
+        id="assignment-deadline"
+        class="modern-input full-width-input"
+        v-model="assignmentDetails.deadline"
+      />
+
+      <div class="button-container">
+        <button class="confirm-button grey-button" @click="cancelAssignmentPrompt">Cancel</button>
+        <button class="confirm-button blue-button" @click="confirmAssignmentDetails">Confirm</button>
+      </div>
     </div>
   </div>
 
-  <!-- Learner Selection Panel (initially hidden) -->
-  <div id="learner-selection-panel" class="floating-panel" style="display: none;">
-    <div class="learner-selection-content">
-      <!-- Left Half: Learner Selection Panel -->
-      <div class="left-half">
-        <!-- Search Area -->
-        <div class="search-area">
-          <!-- First Row: ID and Name input bars -->
-          <div class="input-row active-row" id="id-name-row">
-            <input type="text" id="learner-id-input" class="modern-input" placeholder="Learner ID" />
-            <input type="text" id="learner-name-input" class="modern-input" placeholder="Learner Name" />
-          </div>
-          <!-- Second Row: Group input bar -->
-          <div class="input-row inactive-row" id="group-row">
-            <input type="text" id="learner-group-input" class="modern-input" placeholder="Group" />
-          </div>
-        </div>
-        <!-- Select All and Unselect All Buttons -->
-        <div class="learner-selection-controls">
-          <button id="learner-select-all-button" class="modern-button half-width-button">Select All</button>
-          <button id="learner-unselect-all-button" class="modern-button half-width-button">Unselect All</button>
-        </div>
-        <!-- Displaying Search Results -->
-        <div class="learner-display-container">
-          <div id="learner-list">
-            <!-- List of learners will be injected here -->
-          </div>
-        </div>
-      </div>
-      <!-- Vertical Separator -->
-      <div class="vertical-separator"></div>
-      <!-- Right Half: Learner Preview Panel -->
-      <div class="right-half">
-        <!-- Selected ID List Input -->
-        <div class="selected-id-list-container">
-          <input type="text" id="selected-learner-id-list" class="modern-input" placeholder="Selected learner IDs..." />
-        </div>
-        <!-- Cancel and Save Buttons -->
-        <div class="learner-preview-controls">
-          <button id="learner-restore-button" class="modern-button half-width-button">Restore</button>
-          <button id="learner-save-button" class="modern-button half-width-button">Save</button>
-        </div>
-        <!-- Displaying Selected Learners -->
-        <div class="selected-learner-display-container">
-          <div id="selected-learner-list">
-            <!-- Selected learners will be displayed here -->
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Dispatch Button -->
-    <div class="dispatch-button-container">
-      <button id="dispatch-button" class="modern-button full-width-button">
-        <i class="fa-solid fa-paper-plane"></i> Dispatch
-      </button>
-    </div>
-  </div>
-  
+  <!-- App Script -->
   <script type="module" src="script/instructor.js"></script>
 </body>
 </html>

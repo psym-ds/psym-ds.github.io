@@ -1,0 +1,77 @@
+{
+  "item": [
+    {
+      "id": 1,                              // (integer) Unique identifier for the item.
+      "type": "MC",                         // (string) Type of question (e.g., "MC", "numeric", "OC").
+      "question": "What is one of Python's major strengths in natural language processing?", // (string) The question text presented to the user.
+      "choices": [                          // (array of strings) Contains the available answer options.
+        "Multiple high-level frameworks",   // (string) Text of the first option.
+        "Limited library support"           // (string) Text of the second option.
+      ],
+      "answer": [1],                        // (array of integers) Index(es) of correct answer(s).
+      "group": {                            // (object) Holds IDs of the groups to which this question belongs.
+        "series": [],                       // (array of integers) IDs of the series this question is part of.
+        "similar": []                       // (array of integers) IDs of similar question groups.
+      },
+      "label": [],                          // (array of strings) Tags categorizing the question.
+      "explanation": "",                    // (string) Explanation or feedback for the correct answer.
+      "difficulty": 0                       // (integer) Difficulty level (0 = not determined yet, 1 = easy, 2 = medium, 3 = hard).
+    }
+  ],
+
+  "group": [
+    {
+      "id": 1,                              // (integer) Unique identifier for the group.
+      "type": "",                           // (string) Type of group (e.g., "series", "similar").
+      "info": "",                           // (string) Description or information about the group.
+      "items": [],                          // (array of integers) IDs of items belonging to this group.
+      "label": []                           // (array of strings) Tags categorizing the group.
+    }
+  ],
+
+  "instructor": [
+    {
+      "id": 1,                              // (integer) Unique identifier for the instructor.
+      "username": "instructor_1",           // (string) Username for the instructor's login.
+      "password": "8d969eef6ecad3...",      // (string) Encrypted password for secure login.
+    }
+  ],
+
+  "learner": [
+    {
+      "id": 1,                              // (integer) Unique identifier for the learner.
+      "username": "Sophia",                 // (string) Username for the learner's login.
+      "password": "481f6cc051114...",       // (string) Encrypted password for secure login.
+      "group": "group_C",                   // (string) The group the learner belongs to (e.g., "group_A").
+      "attempts": []                        // (array of integers) IDs of all attempts by the learner.
+    }
+  ],
+
+  "assignment": [
+    {
+      "id": 1,                              // (integer) Unique identifier for the assignment.
+      "type": "",                           // (string) Type of the assignment (e.g., "exercise", "quiz").
+      "name": "Python Basics",              // (string) Name or title of the assignment.
+      "instructor_id": 1,                   // (integer) ID of the instructor who created the assignment.
+      "learner_ids": [1, 2, 3],             // (array of integers) List of learner IDs assigned to this assignment.
+      "item_ids": [1, 2, 3],                // (array of integers) IDs of items included in the assignment.
+      "weights": [1, 2, 1],                 // (array of integers) Weights for the items in the assignment.
+      "deadline": "2024-11-01T23:59:59Z",   // (string) Deadline for submission.
+      "timestamp": "2024-10-20T10:00:00Z"   // (string) Timestamp when the assignment was created.
+    }
+  ],
+
+  "attempt": [
+    {
+      "id": 1,                              // (integer) Unique identifier for the attempt.
+      "assignment_id": 1,                   // (integer) ID of the assignment associated with the attempt.
+      "learner_id": 1,                      // (integer) ID of the learner who made the attempt.
+      "submitted_answers": ["2", "4", "3", "1"], // (array of strings) Answers provided by the learner.
+      "score": 85.0,                        // (float) Score earned in this attempt.
+      "duration": 450,                      // (integer) Time in seconds spent on the attempt.
+      "attempt_count": 2,                   // (integer) The number of times the learner attempted this assignment.
+      "feedback": "",                       // (string) Feedback or comments for the attempt.
+      "timestamp": "2024-10-25T10:00:00Z"   // (string) Timestamp when the attempt was submitted.
+    }
+  ]
+}

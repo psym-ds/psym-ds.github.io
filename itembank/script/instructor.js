@@ -1,10 +1,16 @@
-// instructor.js
+import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.prod.js';
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+import {
+  getDatabase,
+  ref,
+  set,
+  onValue,
+} from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
 
-// Firebase configuration
+// Initialize Firebase
 const firebaseConfig = {
+  // Replace with your Firebase configuration
   apiKey: "AIzaSyCoXyCWebIypq2FO8QSt5IDdzfFNZsobFo",
   authDomain: "itembank-3b85f.firebaseapp.com",
   databaseURL: "https://itembank-3b85f-default-rtdb.firebaseio.com",
@@ -15,1144 +21,992 @@ const firebaseConfig = {
   measurementId: "G-7G0SRY2JE9"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+const appFirebase = initializeApp(firebaseConfig);
+const database = getDatabase(appFirebase);
 
-// Global variables
-let questions = [];
-let learners = [];
-let currentQuestions = [];
-let currentLearners = [];
-let selectedQuestionIds = [];
-let selectedLearnerIds = [];
-let previousSelectedLearnerIds = [];
-let previousSelectedLearnerIdInput = '';
+// Create Vue app
+const app = createApp({
+  data() {
+    return {
+      // Tabs
+      activeTab: 'push',
 
-let showAnswers = true; // For toggling answers in preview
-let currentEditingQuestionId = null; // For tracking editing question
+      // Items and Learners
+      items: [],
+      learners: [],
+      assignments: [],
 
-// Load data from Firebase
-function loadData() {
-  const questionsRef = ref(database, '/question');
-  onValue(questionsRef, (snapshot) => {
-    if (snapshot.exists()) {
-      questions = snapshot.val() || [];
-      populateQuestionList(questions, 'push-mode');
-      populateQuestionList(questions, 'manage-mode');
-      displayQuestions(questions, 'push-mode');
-      displayQuestions(questions, 'manage-mode');
-    }
-  });
+      // Push Mode
+      searchQueryPush: '',
+      labelFilterPush: '',
+      idListPush: '',
+      randomCountPush: 1,
+      selectedItemIds: [],
+      selectedItemWeights: {}, // For storing weights
+      showLimitedPreview: false, // For preview toggle
 
-  const learnersRef = ref(database, '/learner');
-  onValue(learnersRef, (snapshot) => {
-    if (snapshot.exists()) {
-      learners = snapshot.val() || [];
-    }
-  });
-}
+      // For storing random items
+      randomItemsPush: [],
 
-// Initial load
-loadData();
+      // Manage Mode
+      searchQueryManage: '',
+      labelFilterManage: '',
+      idListManage: '',
+      randomCountManage: 1,
 
-// Function to populate question list in the sidebar
-function populateQuestionList(questionArray, mode) {
-  const listElement = mode === 'push-mode' ? document.getElementById('question-list') : document.getElementById('manage-question-list');
-  listElement.innerHTML = '';
-  questionArray.forEach(question => {
-    const li = document.createElement('li');
-    li.textContent = `${question.id} - ${question.question}`;
-    li.addEventListener('click', () => {
-      // Scroll to the question card in the main content area
-      const questionCard = document.getElementById(`question-${question.id}-${mode}`);
-      if (questionCard) {
-        questionCard.scrollIntoView({ behavior: 'smooth' });
-      }
-    });
-    listElement.appendChild(li);
-  });
-}
+      // For storing random items
+      randomItemsManage: [],
 
-// Function to display questions in the main content area
-function displayQuestions(questionArray, mode) {
-  const container = mode === 'push-mode' ? document.getElementById('question-container') : document.getElementById('manage-question-container');
-  container.innerHTML = '';
-  if (mode === 'push-mode') {
-    currentQuestions = questionArray; // Update current questions
-  }
+      // Selection Modes
+      isSearchActivePush: true,
+      isIdListActivePush: false,
+      isRandomActivePush: false,
 
-  questionArray.forEach(question => {
-    const card = document.createElement('div');
-    card.classList.add('question-card');
-    card.id = `question-${question.id}-${mode}`;
+      isSearchActiveManage: true,
+      isIdListActiveManage: false,
+      isRandomActiveManage: false,
 
-    const questionText = document.createElement('p');
-    questionText.textContent = `ID: ${question.id} - ${question.question}`;
-    card.appendChild(questionText);
+      // Learner Selection
+      showLearnerPanel: false,
+      isIdNameActive: true,
+      isGroupActive: false,
+      learnerIdInput: '',
+      learnerNameInput: '',
+      learnerGroupInput: '',
+      selectedLearnerIds: [],
+      previousSelectedLearnerIds: [],
+      previousSelectedLearnerIdInput: '',
 
-    if (question.options) {
-      const optionsList = document.createElement('ul');
-      Object.entries(question.options).forEach(([key, value]) => {
-        const optionItem = document.createElement('li');
-        optionItem.textContent = `${key}: ${value}`;
-        optionsList.appendChild(optionItem);
-      });
-      card.appendChild(optionsList);
-    }
+      // Modify Panel
+      showModifyPanel: false,
+      newItem: {
+        id: '',
+        question: '',
+        type: 'MC',
+        labelInput: '',
+        label: [],
+        choices: [''],
+        answerInput: '',
+        answer: [],
+        explanation: '',
+        difficulty: 0,
+      },
+      currentEditingItemId: null,
+      originalItemData: null, // To store original item data for comparison
 
-    const answerText = document.createElement('p');
-    answerText.textContent = `Answer: ${question.answer}`;
-    card.appendChild(answerText);
+      // Import Panel
+      showImportPanel: false,
 
-    if (mode === 'push-mode') {
-      // Selection checkbox
-      const selectCheckbox = document.createElement('i');
-      selectCheckbox.classList.add('select-checkbox');
-      selectCheckbox.classList.add('fa-regular'); // Regular style
-      if (selectedQuestionIds.includes(question.id)) {
-        selectCheckbox.classList.add('fa-square-check'); // Checked
+      // Notification
+      notification: {
+        show: false,
+        message: '',
+        confirmText: '',
+        cancelText: '',
+        callback: null,
+        cancelCallback: null,
+      },
+
+      // Assignment Prompt
+      showAssignmentPrompt: false,
+      assignmentDetails: {
+        name: '',
+        type: 'exercise',
+        deadline: '',
+      },
+
+      remainingText: '', // Greyed-out part of the suggestion
+    };
+  },
+  computed: {
+    // Filtered Items for Push Mode
+    filteredItemsPush() {
+      let items = [];
+      if (this.isSearchActivePush) {
+        const query = this.searchQueryPush.toLowerCase();
+        if (query) {
+          items = this.items.filter((item) => {
+            const questionMatches = item.question.toLowerCase().includes(query);
+            let choiceMatches = false;
+            if (item.choices) {
+              choiceMatches = item.choices.some((choice) =>
+                choice.toLowerCase().includes(query)
+              );
+            }
+            const labelMatches = item.label.some((label) =>
+              label.toLowerCase().includes(query)
+            );
+            return (
+              questionMatches ||
+              choiceMatches ||
+              labelMatches ||
+              item.id.toString().includes(query)
+            );
+          });
+        } else {
+          items = this.items.slice();
+        }
+      } else if (this.isIdListActivePush) {
+        const idListInput = this.idListPush.trim();
+        if (idListInput) {
+          const idList = idListInput
+            .split(',')
+            .map((id) => Number(id.trim()))
+            .filter((id) => !isNaN(id));
+          items = idList
+            .map((id) => this.items.find((q) => Number(q.id) === id))
+            .filter((q) => q !== undefined);
+        } else {
+          items = this.items.slice();
+        }
       } else {
-        selectCheckbox.classList.add('fa-square'); // Unchecked
+        items = this.items.slice();
       }
-      selectCheckbox.addEventListener('click', () => {
-        toggleQuestionSelection(question.id);
-      });
-      card.appendChild(selectCheckbox);
-    } else if (mode === 'manage-mode') {
-      // Edit and Delete buttons
-      const editButton = document.createElement('i');
-      editButton.classList.add('edit-button', 'fa-solid', 'fa-pen-to-square');
-      editButton.addEventListener('click', () => {
-        openModifyPanel(question.id);
-      });
-      card.appendChild(editButton);
+      const labelFilter = this.labelFilterPush.trim().toLowerCase();
+      if (labelFilter) {
+        const labelsToFilter = labelFilter.split(',').map(label => label.trim());
+        items = items.filter(item => {
+          return labelsToFilter.every(labelToFilter => 
+            item.label.some(label => label.toLowerCase() === labelToFilter.toLowerCase())
+          );
+        });
+      }
 
-      const deleteButton = document.createElement('i');
-      deleteButton.classList.add('delete-button', 'fa-solid', 'fa-trash-can');
-      deleteButton.addEventListener('click', () => {
-        showNotification(
-          `Are you sure you want to delete question ID: ${question.id}?`,
-          'Delete',
-          'Cancel',
+      return items.sort((a, b) => a.id - b.id);
+    },
+    // Displayed Items in Push Mode
+    displayedItemsPush() {
+      if (this.isRandomActivePush) {
+        return this.randomItemsPush;
+      }
+      return this.filteredItemsPush;
+    },
+    // Filtered Items for Manage Mode
+    filteredItemsManage() {
+      let items = [];
+      if (this.isSearchActiveManage) {
+        const query = this.searchQueryManage.toLowerCase();
+        if (query) {
+          items = this.items.filter((item) => {
+            const questionMatches = item.question.toLowerCase().includes(query);
+            let choiceMatches = false;
+            if (item.choices) {
+              choiceMatches = item.choices.some((choice) =>
+                choice.toLowerCase().includes(query)
+              );
+            }
+            const labelMatches = item.label.some((label) =>
+              label.toLowerCase().includes(query)
+            );
+            return (
+              questionMatches ||
+              choiceMatches ||
+              labelMatches ||
+              item.id.toString().includes(query)
+            );
+          });
+        } else {
+          items = this.items.slice();
+        }
+      } else if (this.isIdListActiveManage) {
+        const idListInput = this.idListManage.trim();
+        if (idListInput) {
+          const idList = idListInput
+            .split(',')
+            .map((id) => Number(id.trim()))
+            .filter((id) => !isNaN(id));
+          items = idList
+            .map((id) => this.items.find((q) => Number(q.id) === id))
+            .filter((q) => q !== undefined);
+        } else {
+          items = this.items.slice();
+        }
+      } else {
+        items = this.items.slice();
+      }
+      const labelFilter = this.labelFilterManage.trim().toLowerCase();
+      if (labelFilter) {
+        const labelsToFilter = labelFilter.split(',').map(label => label.trim());
+        items = items.filter(item => {
+          return labelsToFilter.every(labelToFilter => 
+            item.label.some(label => label.toLowerCase() === labelToFilter.toLowerCase())
+          );
+        });
+      }
+
+      return items.sort((a, b) => a.id - b.id);
+    },
+    // Displayed Items in Manage Mode
+    displayedItemsManage() {
+      if (this.isRandomActiveManage) {
+        return this.randomItemsManage;
+      }
+      return this.filteredItemsManage;
+    },
+    // Selected Item IDs String
+    selectedItemIdsString: {
+      get() {
+        return this.selectedItemIds.join(', ');
+      },
+      set(value) {
+        if (value.trim()) {
+          const ids = value
+            .split(',')
+            .map((id) => Number(id.trim()))
+            .filter((id) => !isNaN(id));
+          this.selectedItemIds = ids;
+        } else {
+          this.selectedItemIds = [];
+        }
+        this.initializeWeights(); // Initialize weights when IDs change
+      },
+    },
+    // Preview Items
+    previewItems() {
+      return this.items.filter((q) => this.selectedItemIds.includes(q.id));
+    },
+    // Filtered Learners
+    filteredLearners() {
+      let filteredLearners = this.learners;
+      if (this.isGroupActive) {
+        const groupValue = this.learnerGroupInput.trim().toLowerCase();
+        if (groupValue) {
+          filteredLearners = this.learners.filter((learner) =>
+            learner.group.toLowerCase().includes(groupValue)
+          );
+        }
+      } else if (this.isIdNameActive) {
+        const idValue = this.learnerIdInput.trim();
+        const nameValue = this.learnerNameInput.trim().toLowerCase();
+
+        if (idValue || nameValue) {
+          filteredLearners = this.learners.filter((learner) => {
+            const idMatches = idValue ? learner.id.toString() === idValue : true;
+            const nameMatches = nameValue
+              ? learner.username.toLowerCase().includes(nameValue)
+              : true;
+            return idMatches && nameMatches;
+          });
+        }
+      }
+      return filteredLearners;
+    },
+    // Selected Learner IDs String
+    selectedLearnerIdsString: {
+      get() {
+        return this.selectedLearnerIds.join(', ');
+      },
+      set(value) {
+        if (value.trim()) {
+          const ids = value
+            .split(',')
+            .map((id) => Number(id.trim()))
+            .filter((id) => !isNaN(id));
+          this.selectedLearnerIds = ids;
+        } else {
+          this.selectedLearnerIds = [];
+        }
+      },
+    },
+    // Selected Learners List
+    selectedLearnersList() {
+      return this.selectedLearnerIds
+        .map((id) => this.learners.find((l) => l.id === id))
+        .filter((l) => l !== undefined);
+    },
+    // Generate suggestions dynamically
+    labelSuggestions() {
+      const allLabels = new Set();
+      this.items.forEach((item) => {
+        if (Array.isArray(item.label)) {
+          item.label.forEach((label) => allLabels.add(label.trim()));
+        }
+      });
+
+      const labelsArray = this.newItem.labelInput.split(',').map(label => label.trim());
+      const lastLabel = labelsArray[labelsArray.length - 1];
+
+      return lastLabel.length > 0
+        ? Array.from(allLabels).filter((label) =>
+            label.toLowerCase().startsWith(lastLabel.toLowerCase())
+          )
+        : [];
+    },
+    // Dynamic placeholder based on the question type
+    answerPlaceholder() {
+      switch (this.newItem.type) {
+        case 'MC':
+          return 'Enter correct choice(s) number (comma-separated)';
+        case 'numeric':
+          return 'Enter the correct numeric value';
+        case 'OC':
+          return 'Enter a short answer or response';
+        default:
+          return 'Enter the answer';
+      }
+    }
+  },
+  watch: {
+    selectedItemIds(newIds, oldIds) {
+      this.initializeWeights();
+    },
+  },
+  methods: {
+    initializeWeights() {
+      this.items.forEach((item) => {
+        if (!(item.id in this.selectedItemWeights)) {
+          // Directly assign the default weight
+          this.selectedItemWeights[item.id] = 1;
+        }
+      });
+    },
+
+    // Update the remaining part of the suggestion
+    updateSuggestion() {
+      const labelsArray = this.newItem.labelInput.split(',');
+      const lastLabel = labelsArray[labelsArray.length - 1].trim();
+      const suggestion = this.labelSuggestions[0] || '';
+
+      // Only show the remaining part if the suggestion matches
+      if (suggestion.toLowerCase().startsWith(lastLabel.toLowerCase())) {
+        this.remainingText = suggestion.slice(lastLabel.length); // Grey part
+      } else {
+        this.remainingText = ''; // No valid suggestion
+      }
+    },
+
+    // Autocomplete label on Tab key press
+    autocompleteLabel() {
+      if (this.remainingText) {
+        this.newItem.labelInput += this.remainingText; // Append only the grey part
+        this.remainingText = ''; // Clear suggestion after autocomplete
+      }
+    },
+
+    // Save Item
+    saveItem() {
+      const id = parseInt(this.newItem.id.toString().trim(), 10);
+      const questionText = this.newItem.question.trim();
+      const type = this.newItem.type;
+      const labelInput = this.newItem.labelInput.trim();
+      const labels = labelInput ? labelInput.split(',').map((l) => l.trim()) : [];
+      const answerInput = this.newItem.answerInput.trim();
+      const answers = answerInput ? answerInput.split(',').map((a) => a.trim()) : [];
+      const explanation = this.newItem.explanation.trim();
+      const difficulty = this.newItem.difficulty;
+
+      if (isNaN(id) || !questionText || !type || answers.length === 0) {
+        this.showNotification('Please fill in all required fields correctly.', 'OK');
+        return;
+      }
+
+      const idExists = this.items.some((q) => q.id === id && q.id !== this.currentEditingItemId);
+
+      if (idExists) {
+        this.showNotification(`Item ID ${id} already exists.`, 'OK');
+        return;
+      }
+
+      let choices = [];
+      if (type === 'MC') {
+        if (this.newItem.choices.length === 0) {
+          this.showNotification('Please provide choices for Multiple Choice items.', 'OK');
+          return;
+        }
+        choices = this.newItem.choices.map(choice => choice.trim()).filter(choice => choice);
+
+        // Validate answers are valid choice indices
+        if (!answers.every(a => {
+          const index = parseInt(a, 10);
+          return !isNaN(index) && index >= 1 && index <= choices.length;
+        })) {
+          this.showNotification('Please provide valid choice numbers as answers.', 'OK');
+          return;
+        }
+      } else if (type === 'numeric') {
+        // Validate numeric answer
+        if (answers.length !== 1 || isNaN(Number(answers[0]))) {
+          this.showNotification('Please provide a valid numeric answer.', 'OK');
+          return;
+        }
+      } else if (type === 'OC') {
+        // No additional validation
+      }
+
+      const newItem = {
+        id,
+        question: questionText,
+        type,
+        label: labels,
+        choices: type === 'MC' ? choices : [],
+        answer: answers,
+        explanation,
+        difficulty,
+      };
+
+      if (this.currentEditingItemId !== null) {
+        const itemIndex = this.items.findIndex(
+          (q) => q.id === this.currentEditingItemId
+        );
+        if (itemIndex !== -1) {
+          this.items.splice(itemIndex, 1, newItem);
+        }
+      } else {
+        this.items.push(newItem);
+      }
+
+      set(ref(database, '/item'), this.items)
+        .then(() => {
+          this.showNotification('Item saved successfully.', 'OK');
+          this.showModifyPanel = false;
+        })
+        .catch((error) => {
+          console.error('Error updating Firebase:', error);
+          this.showNotification('Failed to save item. Please try again.', 'OK');
+        });
+    },
+
+    // Toggle Item Selection
+    toggleItemSelection(itemId) {
+      if (this.selectedItemIds.includes(itemId)) {
+        this.selectedItemIds = this.selectedItemIds.filter((id) => id !== itemId);
+        delete this.selectedItemWeights[itemId]; // Use delete to remove the property
+      } else {
+        this.selectedItemIds.push(itemId);
+        this.selectedItemWeights[itemId] = 1; // Set default weight to 1
+      }
+    },    
+
+    // Check if Item is Selected
+    isSelectedItem(itemId) {
+      return this.selectedItemIds.includes(itemId);
+    },
+
+    // Select All Items
+    selectAllItems() {
+      const idsToAdd = this.displayedItemsPush.map((q) => q.id);
+      this.selectedItemIds = Array.from(new Set([...this.selectedItemIds, ...idsToAdd]));
+      this.initializeWeights(); // Initialize weights after selection
+    },
+    // Unselect All Items
+    unselectAllItems() {
+      const idsToRemove = this.displayedItemsPush.map((q) => q.id);
+      this.selectedItemIds = this.selectedItemIds.filter(id => !idsToRemove.includes(id));
+      this.initializeWeights(); // Initialize weights after unselection
+    },
+
+    // Activate Search in Push Mode
+    activateSearchPush() {
+      this.isSearchActivePush = true;
+      this.isIdListActivePush = false;
+      this.isRandomActivePush = false;
+    },
+    // Activate ID List in Push Mode
+    activateIdListPush() {
+      this.isSearchActivePush = false;
+      this.isIdListActivePush = true;
+      this.isRandomActivePush = false;
+    },
+    // Activate Random in Push Mode
+    activateRandomPush() {
+      this.isSearchActivePush = false;
+      this.isIdListActivePush = false;
+      this.isRandomActivePush = true;
+    },
+    // Pick Random Items in Push Mode
+    pickRandomItemsPush() {
+      this.activateRandomPush();
+      this.randomItemsPush = this.getRandomItems(this.items, this.randomCountPush);
+    },
+    // Scroll to Item
+    scrollToItem(itemId, mode) {
+      const itemCard = document.getElementById(`item-${itemId}-${mode}`);
+      if (itemCard) {
+        itemCard.scrollIntoView({ behavior: 'smooth' });
+      }
+    },
+
+    // Open Learner Selection Panel
+    openLearnerSelectionPanel() {
+      this.showLearnerPanel = true;
+      this.previousSelectedLearnerIds = [...this.selectedLearnerIds];
+      this.previousSelectedLearnerIdInput = this.selectedLearnerIdsString;
+    },
+    // Close Learner Panel
+    closeLearnerPanel() {
+      if (JSON.stringify(this.selectedLearnerIds) !== JSON.stringify(this.previousSelectedLearnerIds)) {
+        this.showNotification(
+          'You have unsaved changes. Do you want to save them before closing?',
+          'Save',
+          'Discard',
           () => {
-            removeQuestion(question.id);
+            this.saveLearnerSelection();
+            this.showLearnerPanel = false;
+          },
+          () => {
+            this.restoreLearnerSelection();
+            this.showLearnerPanel = false;
           }
         );
-      });
-      card.appendChild(deleteButton);
-    }
-
-    container.appendChild(card);
-  });
-}
-
-// Function to toggle question selection
-function toggleQuestionSelection(questionId) {
-  if (selectedQuestionIds.includes(questionId)) {
-    // Remove from selected
-    selectedQuestionIds = selectedQuestionIds.filter(id => id !== questionId);
-  } else {
-    // Add to selected
-    selectedQuestionIds.push(questionId);
-  }
-  // Update the ID list input
-  document.getElementById('selected-id-list').value = selectedQuestionIds.join(', ');
-  // Update the checkboxes
-  updateSelectionCheckboxes();
-  // Update preview panel
-  updatePreviewPanel();
-}
-
-// Function to update selection checkboxes
-function updateSelectionCheckboxes() {
-  const checkboxes = document.querySelectorAll('.select-checkbox');
-  checkboxes.forEach(checkbox => {
-    const questionId = parseInt(checkbox.parentElement.id.split('-')[1]);
-    if (selectedQuestionIds.includes(questionId)) {
-      checkbox.classList.remove('fa-square');
-      checkbox.classList.add('fa-square-check');
-    } else {
-      checkbox.classList.remove('fa-square-check');
-      checkbox.classList.add('fa-square');
-    }
-  });
-}
-
-// Function to update the preview panel
-function updatePreviewPanel() {
-  const container = document.getElementById('preview-container');
-  container.innerHTML = '';
-  const previewQuestions = questions.filter(q => selectedQuestionIds.includes(q.id));
-
-  previewQuestions.forEach(question => {
-    const card = document.createElement('div');
-    card.classList.add('question-card');
-
-    const questionText = document.createElement('p');
-    questionText.textContent = `ID: ${question.id} - ${question.question}`;
-    card.appendChild(questionText);
-
-    if (question.options) {
-      const optionsList = document.createElement('ul');
-      Object.entries(question.options).forEach(([key, value]) => {
-        const optionItem = document.createElement('li');
-        optionItem.textContent = `${key}: ${value}`;
-        optionsList.appendChild(optionItem);
-      });
-      card.appendChild(optionsList);
-    }
-
-    if (showAnswers && question.answer) {
-      const answerText = document.createElement('p');
-      answerText.textContent = `Answer: ${question.answer}`;
-      card.appendChild(answerText);
-    }
-
-    container.appendChild(card);
-  });
-}
-
-// Handle Select All and Unselect All buttons in push mode
-document.getElementById('select-all-button').addEventListener('click', () => {
-  // Add all currently displayed questions to selectedQuestionIds
-  currentQuestions.forEach(question => {
-    if (!selectedQuestionIds.includes(question.id)) {
-      selectedQuestionIds.push(question.id);
-    }
-  });
-  // Update the ID list input
-  document.getElementById('selected-id-list').value = selectedQuestionIds.join(', ');
-  // Update checkboxes and preview panel
-  updateSelectionCheckboxes();
-  updatePreviewPanel();
-});
-
-document.getElementById('unselect-all-button').addEventListener('click', () => {
-  // Remove all currently displayed questions from selectedQuestionIds
-  currentQuestions.forEach(question => {
-    selectedQuestionIds = selectedQuestionIds.filter(id => id !== question.id);
-  });
-  // Update the ID list input
-  document.getElementById('selected-id-list').value = selectedQuestionIds.join(', ');
-  // Update checkboxes and preview panel
-  updateSelectionCheckboxes();
-  updatePreviewPanel();
-});
-
-// Handle changes in the selected ID list input
-document.getElementById('selected-id-list').addEventListener('input', () => {
-  const idListInput = document.getElementById('selected-id-list').value.trim();
-  if (idListInput) {
-    const idList = idListInput.split(',').map(id => Number(id.trim())).filter(id => !isNaN(id));
-    selectedQuestionIds = idList;
-  } else {
-    selectedQuestionIds = [];
-  }
-  // Update checkboxes and preview panel
-  updateSelectionCheckboxes();
-  updatePreviewPanel();
-});
-
-// Handle mutual exclusivity of selection methods in push mode
-const searchBarPush = document.getElementById('search-bar');
-const idListPush = document.getElementById('id-list-view');
-const randomQuestionButtonPush = document.getElementById('random-question-button');
-const questionCountPush = document.getElementById('question-count');
-
-// By default, search bar is active, others are inactive
-idListPush.classList.add('inactive-input');
-questionCountPush.classList.add('inactive-input');
-randomQuestionButtonPush.classList.add('inactive-button');
-
-// When search bar is focused, make it active and others inactive
-searchBarPush.addEventListener('focus', () => {
-  searchBarPush.classList.remove('inactive-input');
-  idListPush.classList.add('inactive-input');
-  questionCountPush.classList.add('inactive-input');
-  randomQuestionButtonPush.classList.add('inactive-button');
-  updatePushModeQuestions(); // Update immediately
-});
-
-// When ID list is focused, make it active and others inactive
-idListPush.addEventListener('focus', () => {
-  idListPush.classList.remove('inactive-input');
-  searchBarPush.classList.add('inactive-input');
-  questionCountPush.classList.add('inactive-input');
-  randomQuestionButtonPush.classList.add('inactive-button');
-  updatePushModeQuestions(); // Update immediately
-});
-
-// When question count is focused, make it active and others inactive
-questionCountPush.addEventListener('focus', () => {
-  questionCountPush.classList.remove('inactive-input');
-  randomQuestionButtonPush.classList.remove('inactive-button');
-  searchBarPush.classList.add('inactive-input');
-  idListPush.classList.add('inactive-input');
-});
-
-// Handle search bar input in push mode
-searchBarPush.addEventListener('input', updatePushModeQuestions);
-
-// Handle ID list input in push mode
-idListPush.addEventListener('input', updatePushModeQuestions);
-
-// Function to update questions in push mode based on search and ID input
-function updatePushModeQuestions() {
-  let filteredQuestions = questions;
-
-  if (!searchBarPush.classList.contains('inactive-input')) {
-    const query = searchBarPush.value.toLowerCase();
-    if (query) {
-      filteredQuestions = questions.filter(question => {
-        const questionMatches = question.question.toLowerCase().includes(query);
-        let optionMatches = false;
-        if (question.options) {
-          optionMatches = Object.values(question.options).some(option =>
-            option.toLowerCase().includes(query)
-          );
-        }
-        return questionMatches || optionMatches || question.id.toString().includes(query);
-      });
-    }
-  } else if (!idListPush.classList.contains('inactive-input')) {
-    const idListInput = idListPush.value.trim();
-    if (idListInput) {
-      const idList = idListInput.split(',').map(id => Number(id.trim()));
-      filteredQuestions = idList
-        .map(id => questions.find(q => Number(q.id) === id))
-        .filter(q => q !== undefined);
-    }
-  }
-
-  displayQuestions(filteredQuestions, 'push-mode');
-}
-
-// Handle picking random questions in Push mode
-document.getElementById('random-question-button').addEventListener('click', () => {
-  const questionCount = parseInt(document.getElementById('question-count').value, 10) || 1;
-  const randomQuestions = getRandomQuestions(questions, questionCount);
-  displayQuestions(randomQuestions, 'push-mode');
-  // Deactivate other methods
-  searchBarPush.classList.add('inactive-input');
-  idListPush.classList.add('inactive-input');
-  questionCountPush.classList.remove('inactive-input');
-});
-
-// Function to select a random set of questions
-function getRandomQuestions(questionArray, num) {
-  const shuffled = [...questionArray].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, num);
-}
-
-// Toggle showing/hiding answers in Preview panel only
-document.getElementById('toggle-answers').addEventListener('change', () => {
-  showAnswers = document.getElementById('toggle-answers').checked;
-
-  // Update the preview panel only
-  updatePreviewPanel();
-});
-
-// Tab switching functionality
-document.querySelectorAll('.tab-link').forEach(button => {
-  button.addEventListener('click', () => {
-    // Remove active class from all tabs
-    document.querySelectorAll('.tab-link').forEach(btn => btn.classList.remove('active'));
-
-    // Add active class to clicked tab
-    button.classList.add('active');
-
-    // Hide all containers
-    document.querySelectorAll('.container').forEach(container => {
-      container.style.display = 'none';
-    });
-
-    // Show the selected container based on the data-mode attribute
-    const mode = button.getAttribute('data-mode');
-    document.getElementById(`${mode}-mode`).style.display = 'flex';
-
-    // For push mode, display all questions initially
-    if (mode === 'push') {
-      displayQuestions(questions, 'push-mode');
-    } else {
-      displayQuestions(questions, 'manage-mode');
-    }
-  });
-});
-
-// Learner Selection Functionality Starts
-
-// Open the learner selection panel when the circle button is clicked
-document.getElementById('learner-selection-button').addEventListener('click', () => {
-  const learnerPanel = document.getElementById('learner-selection-panel');
-  learnerPanel.style.display = 'flex';
-  previousSelectedLearnerIds = [...selectedLearnerIds]; // Store previous selection in case of restore
-  previousSelectedLearnerIdInput = document.getElementById('selected-learner-id-list').value; // Store previous input box content
-
-  // Initialize inputs and displays
-  resetLearnerSelectionMethods();
-  updateLearnerDisplay();
-  updateSelectedLearnerDisplay();
-});
-
-// Handle learner selection methods (ID+Name group or Group input)
-const learnerIdInput = document.getElementById('learner-id-input');
-const learnerNameInput = document.getElementById('learner-name-input');
-const learnerGroupInput = document.getElementById('learner-group-input');
-
-// Rows for ID+Name and Group
-const idNameRow = document.getElementById('id-name-row');
-const groupRow = document.getElementById('group-row');
-
-// By default, ID+Name group is active
-groupRow.classList.add('inactive-row');
-learnerGroupInput.classList.add('inactive-input');
-
-// Function to reset learner selection methods
-function resetLearnerSelectionMethods() {
-  idNameRow.classList.remove('inactive-row');
-  groupRow.classList.add('inactive-row');
-  learnerGroupInput.classList.add('inactive-input');
-
-  learnerIdInput.value = '';
-  learnerNameInput.value = '';
-  learnerGroupInput.value = '';
-}
-
-// When ID+Name row is clicked, activate it and deactivate Group row
-idNameRow.addEventListener('click', () => {
-  if (idNameRow.classList.contains('inactive-row')) {
-    idNameRow.classList.remove('inactive-row');
-    learnerIdInput.classList.remove('inactive-input');
-    learnerNameInput.classList.remove('inactive-input');
-
-    groupRow.classList.add('inactive-row');
-    learnerGroupInput.classList.add('inactive-input');
-
-    updateLearnerDisplay();
-  }
-});
-
-// When Group row is clicked, activate it and deactivate ID+Name row
-groupRow.addEventListener('click', () => {
-  if (groupRow.classList.contains('inactive-row')) {
-    groupRow.classList.remove('inactive-row');
-    learnerGroupInput.classList.remove('inactive-input');
-
-    idNameRow.classList.add('inactive-row');
-    learnerIdInput.classList.add('inactive-input');
-    learnerNameInput.classList.add('inactive-input');
-
-    updateLearnerDisplay();
-  }
-});
-
-// Handle input events
-learnerIdInput.addEventListener('input', updateLearnerDisplay);
-learnerNameInput.addEventListener('input', updateLearnerDisplay);
-learnerGroupInput.addEventListener('input', updateLearnerDisplay);
-
-// Synchronize ID and Name inputs
-learnerIdInput.addEventListener('input', () => {
-  const idValue = learnerIdInput.value.trim();
-  if (idValue) {
-    const learner = learners.find(l => l.id.toString() === idValue);
-    if (learner) {
-      learnerNameInput.value = learner.username;
-    } else {
-      learnerNameInput.value = '';
-    }
-  } else {
-    learnerNameInput.value = '';
-  }
-  updateLearnerDisplay();
-});
-
-learnerNameInput.addEventListener('input', () => {
-  const nameValue = learnerNameInput.value.trim().toLowerCase();
-  if (nameValue) {
-    const learner = learners.find(l => l.username.toLowerCase() === nameValue);
-    if (learner) {
-      learnerIdInput.value = learner.id;
-    } else {
-      learnerIdInput.value = '';
-    }
-  } else {
-    learnerIdInput.value = '';
-  }
-  updateLearnerDisplay();
-});
-
-// Function to update learner display based on inputs
-function updateLearnerDisplay() {
-  let filteredLearners = learners;
-
-  if (!groupRow.classList.contains('inactive-row')) {
-    // Group row is active
-    const groupValue = learnerGroupInput.value.trim().toLowerCase();
-    if (groupValue) {
-      filteredLearners = learners.filter(learner => learner.group.toLowerCase().includes(groupValue));
-    }
-  } else {
-    // ID+Name row is active
-    const idValue = learnerIdInput.value.trim();
-    const nameValue = learnerNameInput.value.trim().toLowerCase();
-
-    if (idValue || nameValue) {
-      filteredLearners = learners.filter(learner => {
-        const idMatches = idValue ? learner.id.toString() === idValue : true;
-        const nameMatches = nameValue ? learner.username.toLowerCase().includes(nameValue) : true;
-        return idMatches && nameMatches;
-      });
-    }
-  }
-
-  currentLearners = filteredLearners;
-  populateLearnerList(currentLearners);
-}
-
-// Function to populate learner list in the selection panel
-function populateLearnerList(learnerArray) {
-  const learnerList = document.getElementById('learner-list');
-  learnerList.innerHTML = '';
-
-  learnerArray.forEach(learner => {
-    const card = document.createElement('div');
-    card.classList.add('learner-card');
-
-    const idNameElement = document.createElement('p');
-    idNameElement.textContent = `ID: ${learner.id}, Name: ${learner.username}`;
-    card.appendChild(idNameElement);
-
-    const groupElement = document.createElement('p');
-    groupElement.textContent = `Group: ${learner.group}`;
-    card.appendChild(groupElement);
-
-    // Checkbox
-    const selectCheckbox = document.createElement('i');
-    selectCheckbox.classList.add('select-checkbox');
-    selectCheckbox.classList.add('fa-regular'); // Regular style
-    // Set checkbox status based on selection
-    if (selectedLearnerIds.includes(learner.id)) {
-      selectCheckbox.classList.add('fa-square-check'); // Checked
-    } else {
-      selectCheckbox.classList.add('fa-square'); // Unchecked
-    }
-    selectCheckbox.addEventListener('click', (e) => {
-      e.stopPropagation(); // Prevent card click event
-      toggleLearnerSelection(learner.id);
-    });
-    card.appendChild(selectCheckbox);
-
-    // Handle card click to toggle selection
-    card.addEventListener('click', () => {
-      toggleLearnerSelection(learner.id);
-    });
-
-    learnerList.appendChild(card);
-  });
-}
-
-// Function to toggle selection of a learner
-function toggleLearnerSelection(learnerId) {
-  if (selectedLearnerIds.includes(learnerId)) {
-    // Remove from selected
-    selectedLearnerIds = selectedLearnerIds.filter(id => id !== learnerId);
-  } else {
-    // Add to selected
-    selectedLearnerIds.push(learnerId);
-  }
-
-  // Update the ID list input
-  document.getElementById('selected-learner-id-list').value = selectedLearnerIds.join(', ');
-
-  // Update the learner list checkboxes
-  updateLearnerSelectionCheckboxes();
-
-  // Update the selected learner display
-  updateSelectedLearnerDisplay();
-}
-
-// Function to update learner selection checkboxes
-function updateLearnerSelectionCheckboxes() {
-  const checkboxes = document.querySelectorAll('#learner-list .select-checkbox');
-
-  checkboxes.forEach(checkbox => {
-    const idNameText = checkbox.parentElement.querySelector('p').textContent;
-    const learnerId = parseInt(idNameText.match(/ID: (\d+)/)[1]);
-    if (selectedLearnerIds.includes(learnerId)) {
-      checkbox.classList.remove('fa-square');
-      checkbox.classList.add('fa-square-check');
-    } else {
-      checkbox.classList.remove('fa-square-check');
-      checkbox.classList.add('fa-square');
-    }
-  });
-}
-
-// Function to update selected learner display
-function updateSelectedLearnerDisplay() {
-  const selectedLearnerList = document.getElementById('selected-learner-list');
-  selectedLearnerList.innerHTML = '';
-
-  const selectedLearners = selectedLearnerIds.map(id => learners.find(l => l.id === id)).filter(l => l !== undefined);
-
-  selectedLearners.forEach(learner => {
-    const card = document.createElement('div');
-    card.classList.add('learner-card');
-
-    const idNameElement = document.createElement('p');
-    idNameElement.textContent = `ID: ${learner.id}, Name: ${learner.username}`;
-    card.appendChild(idNameElement);
-
-    const groupElement = document.createElement('p');
-    groupElement.textContent = `Group: ${learner.group}`;
-    card.appendChild(groupElement);
-
-    selectedLearnerList.appendChild(card);
-  });
-}
-
-// Handle Select All and Unselect All buttons in learner selection panel
-document.getElementById('learner-select-all-button').addEventListener('click', () => {
-  // Add all currently displayed learners to selectedLearnerIds
-  currentLearners.forEach(learner => {
-    if (!selectedLearnerIds.includes(learner.id)) {
-      selectedLearnerIds.push(learner.id);
-    }
-  });
-  // Update the ID list input
-  document.getElementById('selected-learner-id-list').value = selectedLearnerIds.join(', ');
-  // Update checkboxes and selected learner display
-  updateLearnerSelectionCheckboxes();
-  updateSelectedLearnerDisplay();
-});
-
-document.getElementById('learner-unselect-all-button').addEventListener('click', () => {
-  // Remove all currently displayed learners from selectedLearnerIds
-  currentLearners.forEach(learner => {
-    selectedLearnerIds = selectedLearnerIds.filter(id => id !== learner.id);
-  });
-  // Update the ID list input
-  document.getElementById('selected-learner-id-list').value = selectedLearnerIds.join(', ');
-  // Update checkboxes and selected learner display
-  updateLearnerSelectionCheckboxes();
-  updateSelectedLearnerDisplay();
-});
-
-// Handle changes in the selected learner ID list input
-document.getElementById('selected-learner-id-list').addEventListener('input', () => {
-  const idListInput = document.getElementById('selected-learner-id-list').value.trim();
-  if (idListInput) {
-    const idList = idListInput.split(',').map(id => Number(id.trim())).filter(id => !isNaN(id));
-    selectedLearnerIds = idList;
-  } else {
-    selectedLearnerIds = [];
-  }
-  // Update checkboxes and selected learner display
-  updateLearnerSelectionCheckboxes();
-  updateSelectedLearnerDisplay();
-});
-
-// Handle Save and Restore buttons
-document.getElementById('learner-save-button').addEventListener('click', () => {
-  // Close the panel and save the selection
-  const learnerPanel = document.getElementById('learner-selection-panel');
-  learnerPanel.style.display = 'none';
-});
-
-document.getElementById('learner-restore-button').addEventListener('click', () => {
-  // Restore previous selection and input box content, but keep the panel open
-  selectedLearnerIds = [...previousSelectedLearnerIds];
-  document.getElementById('selected-learner-id-list').value = previousSelectedLearnerIdInput;
-
-  // Update checkboxes and displays
-  updateLearnerSelectionCheckboxes();
-  updateSelectedLearnerDisplay();
-});
-
-// Handle Dispatch Button Click
-document.getElementById('dispatch-button').addEventListener('click', () => {
-  // Show notification box with input for assignment name
-  showAssignmentNamePrompt();
-});
-
-// Function to show assignment name prompt
-function showAssignmentNamePrompt() {
-  const notificationBox = document.createElement('div');
-  notificationBox.classList.add('confirm-box');
-  notificationBox.innerHTML = `
-    <p>Please enter the assignment name:</p>
-    <input type="text" id="assignment-name-input" class="modern-input full-width-input" placeholder="Assignment Name" />
-    <div class="button-container">
-      <button class="confirm-button grey-button">Cancel</button>
-      <button class="confirm-button blue-button">Confirm</button>
-    </div>
-  `;
-  document.body.appendChild(notificationBox);
-
-  // Handle Confirm action
-  notificationBox.querySelector('.blue-button').addEventListener('click', () => {
-    const assignmentName = document.getElementById('assignment-name-input').value.trim();
-    // Check if assignment name, question list, student list are not empty
-    if (!assignmentName) {
-      document.body.removeChild(notificationBox);
-      showNotification('Assignment name cannot be empty.', 'OK');
-      return;
-    }
-    if (selectedQuestionIds.length === 0) {
-      document.body.removeChild(notificationBox);
-      showNotification('Question list cannot be empty.', 'OK');
-      return;
-    }
-    if (selectedLearnerIds.length === 0) {
-      document.body.removeChild(notificationBox);
-      showNotification('Learner list cannot be empty.', 'OK');
-      return;
-    }
-
-    // All checks passed, proceed to dispatch assignment
-    document.body.removeChild(notificationBox);
-    dispatchAssignment(assignmentName);
-  });
-
-  // Handle Cancel action
-  notificationBox.querySelector('.grey-button').addEventListener('click', () => {
-    document.body.removeChild(notificationBox);
-  });
-}
-
-// Function to dispatch assignment
-function dispatchAssignment(assignmentName) {
-  const timestamp = Date.now().toString();
-
-  // Prepare assignment data
-  const assignmentData = {
-    name: assignmentName,
-    status: false, // false means not completed
-    questionList: selectedQuestionIds,
-    answerList: [] // Initially empty
-  };
-
-  // For each selected learner, add assignment to their assignments
-  selectedLearnerIds.forEach(learnerId => {
-    // Find learner in the learners array
-    const learnerIndex = learners.findIndex(l => l.id === learnerId);
-    if (learnerIndex !== -1) {
-      const learner = learners[learnerIndex];
-      if (!learner.assignments) {
-        learner.assignments = {};
+      } else {
+        this.showLearnerPanel = false;
       }
-      learner.assignments[timestamp] = assignmentData;
-    }
-  });
+    },
+    // Save Learner Selection
+    saveLearnerSelection() {
+      this.showLearnerPanel = false;
+    },
+    // Restore Learner Selection
+    restoreLearnerSelection() {
+      this.selectedLearnerIds = [...this.previousSelectedLearnerIds];
+      this.selectedLearnerIdsString = this.previousSelectedLearnerIdInput;
+    },
+    // Toggle Learner Selection
+    toggleLearnerSelection(learnerId) {
+      if (this.selectedLearnerIds.includes(learnerId)) {
+        this.selectedLearnerIds = this.selectedLearnerIds.filter((id) => id !== learnerId);
+      } else {
+        this.selectedLearnerIds.push(learnerId);
+      }
+    },
+    // Check if Learner is Selected
+    isSelectedLearner(learnerId) {
+      return this.selectedLearnerIds.includes(learnerId);
+    },
+    // Select All Learners
+    selectAllLearners() {
+      this.selectedLearnerIds = Array.from(new Set([...this.selectedLearnerIds, ...this.filteredLearners.map((l) => l.id)]));
+    },
+    // Unselect All Learners
+    unselectAllLearners() {
+      const idsToRemove = this.filteredLearners.map((l) => l.id);
+      this.selectedLearnerIds = this.selectedLearnerIds.filter(id => !idsToRemove.includes(id));
+    },
+    // Activate ID+Name
+    activateIdName() {
+      this.isIdNameActive = true;
+      this.isGroupActive = false;
+    },
+    // Activate Group
+    activateGroup() {
+      this.isIdNameActive = false;
+      this.isGroupActive = true;
+    },
 
-  // Update the 'learner' section in Firebase
-  set(ref(database, '/learner'), learners)
-    .then(() => {
-      console.log('Assignments dispatched successfully');
-      showNotification('Assignments dispatched successfully.', 'OK');
-      // Close the learner selection panel
-      document.getElementById('learner-selection-panel').style.display = 'none';
-    })
-    .catch((error) => {
-      console.error('Error updating Firebase:', error);
-      showNotification('Failed to dispatch assignments. Please try again.', 'OK');
-    });
-}
+    // Prompt Assignment Details
+    promptAssignmentDetails() {
+      this.showAssignmentPrompt = true;
+    },
+    // Cancel Assignment Prompt
+    cancelAssignmentPrompt() {
+      this.showAssignmentPrompt = false;
+    },
+    // Confirm Assignment Details
+    confirmAssignmentDetails() {
+      if (!this.assignmentDetails.name.trim()) {
+        this.showNotification('Assignment name cannot be empty.', 'OK');
+        return;
+      }
+      if (this.selectedItemIds.length === 0) {
+        this.showNotification('Item list cannot be empty.', 'OK');
+        return;
+      }
+      if (this.selectedLearnerIds.length === 0) {
+        this.showNotification('Learner list cannot be empty.', 'OK');
+        return;
+      }
+      // Collect weights
+      const weights = this.selectedItemIds.map(id => this.selectedItemWeights[id]);
+      if (weights.some(w => isNaN(w) || w <= 0)) {
+        this.showNotification('All weights must be positive numbers.', 'OK');
+        return;
+      }
+      this.assignmentDetails.weights = weights;
 
-// Custom notification box for errors, warnings, and confirmation
-function showNotification(message, confirmText, cancelText = null, confirmCallback = null) {
-  const notificationBox = document.createElement('div');
-  notificationBox.classList.add('confirm-box');
-  notificationBox.innerHTML = `
-    <p>${message}</p>
-    <div class="button-container">
-      <button class="confirm-button ${confirmText.toLowerCase() === 'delete' || confirmText.toLowerCase() === 'replace' || confirmText.toLowerCase() === 'overwrite' ? 'red-button' : 'grey-button'}">${confirmText}</button>
-      ${cancelText ? `<button class="confirm-button grey-button">${cancelText}</button>` : ''}
-    </div>
-  `;
-  document.body.appendChild(notificationBox);
+      // Ensure deadline is set
+      if (!this.assignmentDetails.deadline) {
+        this.showNotification('Please specify a deadline.', 'OK');
+        return;
+      }
 
-  // Handle confirm action
-  notificationBox.querySelector('.confirm-button').addEventListener('click', () => {
-    document.body.removeChild(notificationBox);
-    if (confirmCallback) {
-      confirmCallback();
-    }
-  });
+      this.dispatchAssignment();
+      this.showAssignmentPrompt = false;
+    },
 
-  // Handle cancel action if provided
-  if (cancelText) {
-    notificationBox.querySelector('.grey-button').addEventListener('click', () => {
-      document.body.removeChild(notificationBox);
-    });
-  }
-}
+    // Dispatch Assignment
+    dispatchAssignment() {
+      const timestamp = new Date().toISOString();
+      const assignmentId = Date.now().toString();
 
-// Manage Mode Functionality Starts
+      const assignmentData = {
+        id: assignmentId,
+        type: this.assignmentDetails.type,
+        name: this.assignmentDetails.name,
+        instructor_id: 1, // Assuming instructor ID is 1
+        learner_ids: this.selectedLearnerIds,
+        item_ids: this.selectedItemIds,
+        weights: this.assignmentDetails.weights,
+        deadline: this.assignmentDetails.deadline,
+        timestamp: timestamp,
+      };
 
-// Handle mutual exclusivity of selection methods in manage mode
-const searchBarManage = document.getElementById('manage-search-bar');
-const idListManage = document.getElementById('id-list-manage');
-const randomQuestionButtonManage = document.getElementById('manage-random-question-button');
-const questionCountManage = document.getElementById('manage-question-count');
+      // Update assignments
+      set(ref(database, `/assignment/${assignmentId}`), assignmentData)
+        .then(() => {
+          this.showNotification('Assignment dispatched successfully.', 'OK');
+          this.showLearnerPanel = false;
+        })
+        .catch((error) => {
+          console.error('Error updating Firebase:', error);
+          this.showNotification('Failed to dispatch assignment. Please try again.', 'OK');
+        });
+    },
 
-// By default, search bar is active, others are inactive
-idListManage.classList.add('inactive-input');
-questionCountManage.classList.add('inactive-input');
-randomQuestionButtonManage.classList.add('inactive-button');
+    // Show Notification (updated to handle two callbacks)
+    showNotification(message, confirmText, cancelText = null, confirmCallback = null, cancelCallback = null) {
+      this.notification = {
+        show: true,
+        message,
+        confirmText,
+        cancelText,
+        callback: confirmCallback,
+        cancelCallback: cancelCallback,
+      };
+    },
+    // Handle Notification Confirm
+    handleNotificationConfirm() {
+      if (this.notification.callback) {
+        this.notification.callback();
+      }
+      this.notification.show = false;
+    },
+    // Handle Notification Cancel
+    handleNotificationCancel() {
+      if (this.notification.cancelCallback) {
+        this.notification.cancelCallback();
+      }
+      this.notification.show = false;
+    },
 
-// When search bar is focused, make it active and others inactive
-searchBarManage.addEventListener('focus', () => {
-  searchBarManage.classList.remove('inactive-input');
-  idListManage.classList.add('inactive-input');
-  questionCountManage.classList.add('inactive-input');
-  randomQuestionButtonManage.classList.add('inactive-button');
-  updateManageModeQuestions(); // Update immediately
-});
+    // Open Modify Panel
+    openModifyPanel(itemId = null) {
+      if (itemId !== null) {
+        this.currentEditingItemId = parseInt(itemId, 10);
+        const item = this.items.find((q) => q.id === this.currentEditingItemId);
+        if (item) {
+          this.newItem.id = item.id;
+          this.newItem.question = item.question;
+          this.newItem.type = item.type;
+          this.newItem.label = item.label;
+          this.newItem.labelInput = item.label.join(', ');
+          this.newItem.explanation = item.explanation;
+          this.newItem.difficulty = item.difficulty;
+          if (item.type === 'MC') {
+            this.newItem.choices = item.choices.slice();
+          } else {
+            this.newItem.choices = [];
+          }
+          this.newItem.answer = item.answer;
+          this.newItem.answerInput = item.answer.join(', ');
 
-// When ID list is focused, make it active and others inactive
-idListManage.addEventListener('focus', () => {
-  idListManage.classList.remove('inactive-input');
-  searchBarManage.classList.add('inactive-input');
-  questionCountManage.classList.add('inactive-input');
-  randomQuestionButtonManage.classList.add('inactive-button');
-  updateManageModeQuestions(); // Update immediately
-});
-
-// When question count is focused, make it active and others inactive
-questionCountManage.addEventListener('focus', () => {
-  questionCountManage.classList.remove('inactive-input');
-  randomQuestionButtonManage.classList.remove('inactive-button');
-  searchBarManage.classList.add('inactive-input');
-  idListManage.classList.add('inactive-input');
-});
-
-// Handle search bar input in manage mode
-searchBarManage.addEventListener('input', updateManageModeQuestions);
-
-// Handle ID list input in manage mode
-idListManage.addEventListener('input', updateManageModeQuestions);
-
-// Function to update questions in manage mode based on search and ID input
-function updateManageModeQuestions() {
-  let filteredQuestions = questions;
-
-  if (!searchBarManage.classList.contains('inactive-input')) {
-    const query = searchBarManage.value.toLowerCase();
-    if (query) {
-      filteredQuestions = questions.filter(question => {
-        const questionMatches = question.question.toLowerCase().includes(query);
-        let optionMatches = false;
-        if (question.options) {
-          optionMatches = Object.values(question.options).some(option =>
-            option.toLowerCase().includes(query)
-          );
+          // Store original item data for comparison
+          this.originalItemData = JSON.stringify(this.newItem);
         }
-        return questionMatches || optionMatches || question.id.toString().includes(query);
-      });
-    }
-  } else if (!idListManage.classList.contains('inactive-input')) {
-    const idListInput = idListManage.value.trim();
-    if (idListInput) {
-      const idList = idListInput.split(',').map(id => Number(id.trim()));
-      filteredQuestions = idList
-        .map(id => questions.find(q => Number(q.id) === id))
-        .filter(q => q !== undefined);
-    }
-  }
+      } else {
+        this.currentEditingItemId = null;
+        this.newItem = {
+          id: '',
+          question: '',
+          type: 'MC',
+          labelInput: '',
+          label: [],
+          choices: [''],
+          answerInput: '',
+          answer: [],
+          explanation: '',
+          difficulty: 0,
+        };
+        // Store original item data for comparison
+        this.originalItemData = JSON.stringify(this.newItem);
+      }
+      this.showModifyPanel = true;
+    },
 
-  displayQuestions(filteredQuestions, 'manage-mode');
-}
+    // Close Modify Panel
+    closeModifyPanel() {
+      const currentItemData = JSON.stringify(this.newItem);
+      if (currentItemData !== this.originalItemData) {
+        // Changes detected, prompt the user
+        this.showNotification(
+          'You have unsaved changes. Do you want to save them before closing?',
+          'Save',
+          'Discard',
+          () => {
+            this.saveItem();
+            this.showModifyPanel = false;
+          },
+          () => {
+            this.showModifyPanel = false;
+          }
+        );
+      } else {
+        this.showModifyPanel = false;
+      }
+    },
 
-// Handle picking random questions in Manage mode
-document.getElementById('manage-random-question-button').addEventListener('click', () => {
-  const questionCount = parseInt(document.getElementById('manage-question-count').value, 10) || 1;
-  const randomQuestions = getRandomQuestions(questions, questionCount);
-  displayQuestions(randomQuestions, 'manage-mode');
-  // Deactivate other methods
-  searchBarManage.classList.add('inactive-input');
-  idListManage.classList.add('inactive-input');
-  questionCountManage.classList.remove('inactive-input');
-});
+    // Add Choice
+    addChoice() {
+      this.newItem.choices.push('');
+    },
+    // Remove Choice
+    removeChoice(index) {
+      this.newItem.choices.splice(index, 1);
+    },
 
-// Handle Add Question button
-document.getElementById('toggle-modify-panel').addEventListener('click', () => {
-  openModifyPanel();
-});
-
-// Function to open modify panel for adding or editing
-function openModifyPanel(questionId = null) {
-  const modifyPanel = document.getElementById('modify-panel');
-  modifyPanel.style.display = 'block';
-
-  // If questionId is provided, we're editing an existing question
-  if (questionId !== null) {
-    currentEditingQuestionId = questionId;
-    const question = questions.find(q => q.id === questionId);
-    if (question) {
-      document.getElementById('new-question-id').value = question.id;
-      document.getElementById('new-question-text').value = question.question;
-      document.getElementById('new-question-answer').value = question.answer;
-
-      // Clear existing options
-      const optionsContainer = document.getElementById('new-options-container');
-      optionsContainer.innerHTML = '';
-
-      // Populate options
-      Object.entries(question.options).forEach(([key, value], index) => {
-        const optionWrapper = document.createElement('div');
-        optionWrapper.classList.add('option-wrapper');
-
-        const optionInput = document.createElement('input');
-        optionInput.type = 'text';
-        optionInput.classList.add('modern-input', 'option-input');
-        optionInput.placeholder = `Option ${key}`;
-        optionInput.value = value;
-        optionWrapper.appendChild(optionInput);
-
-        const optionButton = document.createElement('button');
-
-        if (index === 0) {
-          // First option, add 'Add' button
-          optionButton.classList.add('modern-button');
-          optionButton.textContent = 'Add';
-          optionButton.addEventListener('click', () => {
-            addOption();
-          });
-        } else {
-          // Subsequent options, add 'Del' button
-          optionButton.classList.add('red-button');
-          optionButton.textContent = 'Del';
-          optionButton.addEventListener('click', () => {
-            optionsContainer.removeChild(optionWrapper);
-          });
+    // Confirm Delete Item
+    confirmDeleteItem(itemId) {
+      this.showNotification(
+        `Are you sure you want to delete item ID: ${itemId}?`,
+        'Delete',
+        'Cancel',
+        () => {
+          this.deleteItem(itemId);
         }
+      );
+    },
+    // Delete Item
+    deleteItem(itemId) {
+      this.items = this.items.filter((q) => q.id !== itemId);
+      set(ref(database, '/item'), this.items)
+        .then(() => {
+          this.showNotification('Item deleted successfully.', 'OK');
+        })
+        .catch((error) => {
+          console.error('Error updating Firebase:', error);
+          this.showNotification('Failed to delete item. Please try again.', 'OK');
+        });
+    },
 
-        optionWrapper.appendChild(optionButton);
-        optionsContainer.appendChild(optionWrapper);
-      });
-    }
-  } else {
-    // Adding a new question
-    currentEditingQuestionId = null;
-    document.getElementById('new-question-id').value = '';
-    document.getElementById('new-question-text').value = '';
-    document.getElementById('new-question-answer').value = '';
-    document.getElementById('new-options-container').innerHTML = '';
+    // Activate Search in Manage Mode
+    activateSearchManage() {
+      this.isSearchActiveManage = true;
+      this.isIdListActiveManage = false;
+      this.isRandomActiveManage = false;
+    },
+    // Activate ID List in Manage Mode
+    activateIdListManage() {
+      this.isSearchActiveManage = false;
+      this.isIdListActiveManage = true;
+      this.isRandomActiveManage = false;
+    },
+    // Activate Random in Manage Mode
+    activateRandomManage() {
+      this.isSearchActiveManage = false;
+      this.isIdListActiveManage = false;
+      this.isRandomActiveManage = true;
+    },
+    // Pick Random Items in Manage Mode
+    pickRandomItemsManage() {
+      this.activateRandomManage();
+      this.randomItemsManage = this.getRandomItems(this.items, this.randomCountManage);
+    },
 
-    // Add an initial option
-    addOption();
-  }
-}
+    // Get Random Items
+    getRandomItems(array, num) {
+      const shuffled = array.slice().sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, num);
+    },
 
-// Close modify panel
-document.getElementById('close-modify-panel').addEventListener('click', () => {
-  document.getElementById('modify-panel').style.display = 'none';
-});
-
-// Add option button handler
-document.getElementById('add-option-button').addEventListener('click', () => {
-  addOption();
-});
-
-// Function to add a new option input
-function addOption() {
-  const optionsContainer = document.getElementById('new-options-container');
-  const optionCount = optionsContainer.children.length;
-
-  const optionWrapper = document.createElement('div');
-  optionWrapper.classList.add('option-wrapper');
-
-  const optionInput = document.createElement('input');
-  optionInput.type = 'text';
-  optionInput.classList.add('modern-input', 'option-input');
-  optionInput.placeholder = `Option ${optionCount + 1}`;
-  optionWrapper.appendChild(optionInput);
-
-  const optionButton = document.createElement('button');
-  optionButton.classList.add('modern-button');
-
-  if (optionCount === 0) {
-    // First option, add 'Add' button
-    optionButton.textContent = 'Add';
-    optionButton.addEventListener('click', () => {
-      addOption();
-    });
-  } else {
-    // Subsequent options, add 'Del' button
-    optionButton.classList.add('red-button');
-    optionButton.textContent = 'Del';
-    optionButton.addEventListener('click', () => {
-      optionsContainer.removeChild(optionWrapper);
-    });
-  }
-
-  optionWrapper.appendChild(optionButton);
-  optionsContainer.appendChild(optionWrapper);
-}
-
-// Save question button handler
-document.getElementById('save-question-button').addEventListener('click', () => {
-  const id = parseInt(document.getElementById('new-question-id').value.trim(), 10);
-  const questionText = document.getElementById('new-question-text').value.trim();
-  const answer = document.getElementById('new-question-answer').value.trim();
-  const optionInputs = document.querySelectorAll('.option-input');
-  const options = {};
-
-  optionInputs.forEach((input, index) => {
-    const optionKey = (index + 1).toString();
-    options[optionKey] = input.value.trim();
-  });
-
-  if (isNaN(id) || !questionText || !answer || Object.keys(options).length === 0) {
-    showNotification('Please fill in all fields correctly.', 'OK');
-    return;
-  }
-
-  // Check if ID already exists when adding a new question
-  if (currentEditingQuestionId === null && questions.some(q => q.id === id)) {
-    showNotification(`Question ID ${id} already exists.`, 'OK');
-    return;
-  }
-
-  const newQuestion = {
-    id,
-    question: questionText,
-    options,
-    answer
-  };
-
-  if (currentEditingQuestionId !== null) {
-    // Editing existing question
-    const questionIndex = questions.findIndex(q => q.id === currentEditingQuestionId);
-    if (questionIndex !== -1) {
-      questions[questionIndex] = newQuestion;
-    }
-  } else {
-    // Adding new question
-    questions.push(newQuestion);
-  }
-
-  // Update Firebase
-  set(ref(database, '/question'), questions)
-    .then(() => {
-      showNotification('Question saved successfully.', 'OK');
-      document.getElementById('modify-panel').style.display = 'none';
-    })
-    .catch((error) => {
-      console.error('Error updating Firebase:', error);
-      showNotification('Failed to save question. Please try again.', 'OK');
-    });
-});
-
-// Remove question function
-function removeQuestion(questionId) {
-  questions = questions.filter(q => q.id !== questionId);
-
-  // Update Firebase
-  set(ref(database, '/question'), questions)
-    .then(() => {
-      showNotification('Question deleted successfully.', 'OK');
-    })
-    .catch((error) => {
-      console.error('Error updating Firebase:', error);
-      showNotification('Failed to delete question. Please try again.', 'OK');
-    });
-}
-
-// Import and Export Functionality
-
-// Handle Import button click
-document.getElementById('import-button').addEventListener('click', () => {
-  document.getElementById('import-panel').style.display = 'flex';
-});
-
-// Close import panel
-document.getElementById('close-import-panel').addEventListener('click', () => {
-  document.getElementById('import-panel').style.display = 'none';
-});
-
-// Handle file drop area
-const fileDropArea = document.getElementById('file-drop-area');
-fileDropArea.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  fileDropArea.classList.add('dragover');
-});
-
-fileDropArea.addEventListener('dragleave', () => {
-  fileDropArea.classList.remove('dragover');
-});
-
-fileDropArea.addEventListener('drop', (e) => {
-  e.preventDefault();
-  fileDropArea.classList.remove('dragover');
-  const file = e.dataTransfer.files[0];
-  handleFileUpload(file);
-});
-
-fileDropArea.addEventListener('click', () => {
-  const fileInput = document.createElement('input');
-  fileInput.type = 'file';
-  fileInput.accept = '.json';
-  fileInput.addEventListener('change', () => {
-    const file = fileInput.files[0];
-    handleFileUpload(file);
-  });
-  fileInput.click();
-});
-
-function handleFileUpload(file) {
-  if (file && file.type === 'application/json') {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const importedData = JSON.parse(e.target.result);
-        if (importedData.question && Array.isArray(importedData.question)) {
-          showNotification(
-            'Importing questions will overwrite existing questions. Proceed?',
-            'Overwrite',
-            'Cancel',
-            () => {
-              questions = importedData.question;
-              // Update Firebase
-              set(ref(database, '/question'), questions)
-                .then(() => {
-                  showNotification('Questions imported successfully.', 'OK');
-                  document.getElementById('import-panel').style.display = 'none';
-                })
-                .catch((error) => {
-                  console.error('Error updating Firebase:', error);
-                  showNotification('Failed to import questions. Please try again.', 'OK');
-                });
+    // Open Import Panel
+    openImportPanel() {
+      this.showImportPanel = true;
+    },
+    // Close Import Panel
+    closeImportPanel() {
+      this.showImportPanel = false;
+    },
+    // Handle File Upload
+    handleFileUpload(event) {
+      const file = event.target.files[0];
+      this.handleFileUploadInternal(file);
+    },
+    // Handle File Upload Internal
+    handleFileUploadInternal(file) {
+      if (file && file.type === 'application/json') {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const importedData = JSON.parse(e.target.result);
+            if (importedData.item && Array.isArray(importedData.item)) {
+              this.showNotification(
+                'Importing items will overwrite existing items. Proceed?',
+                'Overwrite',
+                'Cancel',
+                () => {
+                  this.items = importedData.item;
+                  set(ref(database, '/item'), this.items)
+                    .then(() => {
+                      this.showNotification('Items imported successfully.', 'OK');
+                      this.showImportPanel = false;
+                    })
+                    .catch((error) => {
+                      console.error('Error updating Firebase:', error);
+                      this.showNotification('Failed to import items. Please try again.', 'OK');
+                    });
+                }
+              );
+            } else {
+              this.showNotification('Invalid JSON structure.', 'OK');
             }
-          );
-        } else {
-          showNotification('Invalid JSON structure.', 'OK');
-        }
-      } catch (error) {
-        console.error('Error parsing JSON:', error);
-        showNotification('Error parsing JSON file.', 'OK');
+          } catch (error) {
+            console.error('Error parsing JSON:', error);
+            this.showNotification('Error parsing JSON file.', 'OK');
+          }
+        };
+        reader.readAsText(file);
+      } else {
+        this.showNotification('Please upload a valid JSON file.', 'OK');
       }
-    };
-    reader.readAsText(file);
-  } else {
-    showNotification('Please upload a valid JSON file.', 'OK');
-  }
-}
+    },
 
-// Handle Export button click
-document.getElementById('export-button').addEventListener('click', () => {
-  const dataStr = JSON.stringify({ question: questions }, null, 2);
-  const blob = new Blob([dataStr], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
+    // Open Import Panel
+    openImportPanel() {
+      this.showImportPanel = true;
+    },
+    // Close Import Panel
+    closeImportPanel() {
+      this.showImportPanel = false;
+    },
 
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'questions_export.json';
-  a.click();
+    // Trigger File Input
+    triggerFileInput() {
+      this.$refs.fileInput.click();
+    },
 
-  URL.revokeObjectURL(url);
+    // Handle File Drop
+    handleFileDrop(event) {
+      const file = event.dataTransfer.files[0];
+      this.handleFileUploadInternal(file);
+    },
+
+    // Handle File Upload
+    handleFileUpload(event) {
+      const file = event.target.files[0];
+      this.handleFileUploadInternal(file);
+    },
+
+    // Handle File Upload Internal
+    handleFileUploadInternal(file) {
+      if (file && file.type === 'application/json') {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const importedData = JSON.parse(e.target.result);
+            if (importedData.item && Array.isArray(importedData.item)) {
+              this.showNotification(
+                'Importing items will overwrite existing items. Proceed?',
+                'Overwrite',
+                'Cancel',
+                () => {
+                  this.items = importedData.item;
+                  set(ref(database, '/item'), this.items)
+                    .then(() => {
+                      this.showNotification('Items imported successfully.', 'OK');
+                      this.showImportPanel = false;
+                    })
+                    .catch((error) => {
+                      console.error('Error updating Firebase:', error);
+                      this.showNotification('Failed to import items. Please try again.', 'OK');
+                    });
+                }
+              );
+            } else {
+              this.showNotification('Invalid JSON structure.', 'OK');
+            }
+          } catch (error) {
+            console.error('Error parsing JSON:', error);
+            this.showNotification('Error parsing JSON file.', 'OK');
+          }
+        };
+        reader.readAsText(file);
+      } else {
+        this.showNotification('Please upload a valid JSON file.', 'OK');
+      }
+    },
+
+    // Export Items
+    exportItems() {
+      const dataStr = JSON.stringify({ item: this.items }, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'items_export.json';
+      a.click();
+
+      URL.revokeObjectURL(url);
+    },
+
+    // Display Item Type
+    displayItemType(type) {
+      const typeMap = {
+        'MC': 'Multiple Choice',
+        'numeric': 'Numerical Response',
+        'OC': 'Open-Ended/Constructed Response',
+      };
+      return typeMap[type] || 'Unknown';
+    },
+    // Display Difficulty
+    displayDifficulty(level) {
+      const difficultyMap = {
+        0: 'Not Determined',
+        1: 'Easy',
+        2: 'Medium',
+        3: 'Hard',
+      };
+      return difficultyMap[level] || 'Unknown';
+    },
+    // Display Answer
+    displayAnswer(item) {
+      if (item.type === 'MC') {
+        return item.answer.join(', ');
+      } else if (item.type === 'numeric') {
+        return item.answer[0];
+      } else if (item.type === 'OC') {
+        return item.answer.join(', ');
+      } else {
+        return '';
+      }
+    },
+  },
+  mounted() {
+    // Load Data from Firebase
+    onValue(ref(database, '/item'), (snapshot) => {
+      if (snapshot.exists()) {
+        const itemsData = snapshot.val() || [];
+        // Ensure that label and answer are arrays, and id is a number
+        this.items = itemsData.map((item) => ({
+          ...item,
+          id: parseInt(item.id, 10),
+          label: Array.isArray(item.label) ? item.label : [],
+          answer: Array.isArray(item.answer) ? item.answer : [],
+          choices: item.choices ? item.choices : [],
+        }));
+  
+        // Initialize weights to 1 for all items
+        this.initializeWeights();
+      } else {
+        this.items = [];
+      }
+    });
+  
+    onValue(ref(database, '/learner'), (snapshot) => {
+      if (snapshot.exists()) {
+        this.learners = snapshot.val() || [];
+      }
+    });
+  },
 });
 
+app.mount('#app');

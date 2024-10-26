@@ -1,0 +1,1705 @@
+{
+    "item": [
+        {
+            "id": 1,
+            "type": "MC",
+            "question": "What is one of Python's major strengths in natural language processing?",
+            "choices": [
+                "Multiple high-level frameworks",
+                "Limited library support",
+                "Lack of flexibility for large datasets",
+                "Inefficient memory management"
+            ],
+            "answer": [
+                1
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 2,
+            "type": "MC",
+            "question": "What does the 'Zen of Python' emphasize as a core design principle?",
+            "choices": [
+                "Performance is more important than simplicity",
+                "Simple is better than complex",
+                "Implicit is better than explicit",
+                "Complicated is better than complex"
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 3,
+            "type": "MC",
+            "question": "Which feature does Python NOT support?",
+            "choices": [
+                "Object-oriented programming",
+                "Functional programming",
+                "Procedural programming",
+                "Assembly language programming"
+            ],
+            "answer": [
+                4
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 4,
+            "type": "MC",
+            "question": "Which tool is recommended for managing Python packages in a virtual environment?",
+            "choices": [
+                "Docker",
+                "pip",
+                "Git",
+                "Ansible"
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 5,
+            "type": "MC",
+            "question": "What is the main advantage of using virtual environments in Python?",
+            "choices": [
+                "They speed up program execution.",
+                "They ensure code works across all platforms.",
+                "They isolate project dependencies.",
+                "They increase memory management efficiency."
+            ],
+            "answer": [
+                3
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 6,
+            "type": "MC",
+            "question": "Which command is used to activate a virtual environment in Python?",
+            "choices": [
+                "python activate",
+                "venv start",
+                "venv\\Scripts\\activate",
+                "py manage"
+            ],
+            "answer": [
+                3
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 7,
+            "type": "MC",
+            "question": "What is the purpose of the Anaconda distribution in Python?",
+            "choices": [
+                "It is used for web development only.",
+                "It provides pre-installed libraries for data science and AI.",
+                "It only works for graphical applications.",
+                "It is required to run Python scripts."
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 8,
+            "type": "MC",
+            "question": "In Python, how are raw strings denoted?",
+            "choices": [
+                "By using the letter 'b' before the string",
+                "By using double quotes only",
+                "By using the letter 'r' before the string",
+                "By using backticks around the string"
+            ],
+            "answer": [
+                3
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 9,
+            "type": "MC",
+            "question": "Which Python method is used to convert text to uppercase?",
+            "choices": [
+                "str.lower()",
+                "str.capitalize()",
+                "str.upper()",
+                "str.strip()"
+            ],
+            "answer": [
+                3
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 10,
+            "type": "MC",
+            "question": "Which Python function returns the length of a string?",
+            "choices": [
+                "str.size()",
+                "count()",
+                "index()",
+                "len()"
+            ],
+            "answer": [
+                4
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 11,
+            "type": "MC",
+            "question": "Which of the following can be used for text substitution in Python?",
+            "choices": [
+                "re.find()",
+                "re.match()",
+                "re.split()",
+                "re.sub()"
+            ],
+            "answer": [
+                4
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 12,
+            "type": "MC",
+            "question": "Which function is used to tokenize a sentence in Python using spaces?",
+            "choices": [
+                "split()",
+                "tokenize()",
+                "find()",
+                "replace()"
+            ],
+            "answer": [
+                1
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 13,
+            "type": "MC",
+            "question": "Which method checks if a string contains only alphanumeric characters in Python?",
+            "choices": [
+                "isalpha()",
+                "isalnum()",
+                "isdigit()",
+                "isdecimal()"
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 14,
+            "type": "MC",
+            "question": "What is the advantage of using compiled regular expressions in Python?",
+            "choices": [
+                "It reduces memory usage.",
+                "It speeds up execution for repeated matches.",
+                "It simplifies syntax.",
+                "It makes code harder to read."
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 15,
+            "type": "MC",
+            "question": "Which of the following is NOT a common type of string literal in Python?",
+            "choices": [
+                "Short strings",
+                "Long strings",
+                "Escape sequences",
+                "Complex strings"
+            ],
+            "answer": [
+                4
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 16,
+            "type": "MC",
+            "question": "What happens when you apply np.random.shuffle() to a list of words from a sentence?",
+            "choices": [
+                "The words are sorted alphabetically.",
+                "The words are reversed.",
+                "The words are randomly reordered.",
+                "The words are removed."
+            ],
+            "answer": [
+                3
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 17,
+            "type": "MC",
+            "question": "What is the main drawback of Python regarding execution speed?",
+            "choices": [
+                "It is interpreted rather than compiled.",
+                "It is a high-level language.",
+                "It has a global interpreter lock.",
+                "It is not suitable for multi-threading."
+            ],
+            "answer": [
+                1
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 18,
+            "type": "MC",
+            "question": "What can be done to improve Python's execution speed?",
+            "choices": [
+                "Use a different programming language.",
+                "Optimize the code for multi-threading.",
+                "Use static typing and C extensions.",
+                "All of the above."
+            ],
+            "answer": [
+                4
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 19,
+            "type": "MC",
+            "question": "What is a potential problem with using different Python versions?",
+            "choices": [
+                "Code written for one version may not work in another version.",
+                "It slows down the execution of programs.",
+                "It increases the size of the program.",
+                "It makes the program harder to debug."
+            ],
+            "answer": [
+                1
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 20,
+            "type": "MC",
+            "question": "What is the Global Interpreter Lock (GIL)?",
+            "choices": [
+                "A mechanism to prevent multiple threads from accessing the same data simultaneously.",
+                "A mechanism to limit the number of threads that can run in Python.",
+                "A mechanism to ensure that only one thread can execute Python code at a time.",
+                "A mechanism to improve the performance of Python."
+            ],
+            "answer": [
+                3
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 21,
+            "type": "MC",
+            "question": "What is an Integrated Development Environment (IDE)?",
+            "choices": [
+                "A simple text editor for writing code.",
+                "A software suite that provides tools for writing, managing, and executing code.",
+                "A debugging tool for finding errors in code.",
+                "A web browser for accessing online resources."
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 22,
+            "type": "MC",
+            "question": "Which of the following is NOT typically a component of an Integrated Development Environment (IDE)?",
+            "choices": [
+                "Source editor",
+                "Debugger",
+                "Spreadsheet editor",
+                "Compiler"
+            ],
+            "answer": [
+                3
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 23,
+            "type": "MC",
+            "question": "Which of the following IDE features helps in detecting and correcting errors as you write code?",
+            "choices": [
+                "Code-completion",
+                "Syntax highlighting",
+                "Error highlighting and checks",
+                "Object explorer"
+            ],
+            "answer": [
+                3
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 24,
+            "type": "MC",
+            "question": "What is one advantage of using an IDE over a simple text editor for writing code?",
+            "choices": [
+                "IDEs allow for faster typing.",
+                "IDEs provide a suite of tools like debuggers and compilers.",
+                "IDEs are always easier to learn for beginners.",
+                "IDEs are more commonly available."
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 25,
+            "type": "MC",
+            "question": "Which package is required to set up a virtual environment in Python?",
+            "choices": [
+                "virtualenv",
+                "pip",
+                "setuptools",
+                "wheel"
+            ],
+            "answer": [
+                1
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 26,
+            "type": "MC",
+            "question": "What is a virtual environment in Python?",
+            "choices": [
+                "A text editor for writing Python code.",
+                "A standalone Python environment with its own interpreter and libraries.",
+                "A web development framework for Python.",
+                "A package manager for Python."
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 27,
+            "type": "MC",
+            "question": "What is a primary purpose of using a virtual environment in Python?",
+            "choices": [
+                "To improve the speed of Python scripts.",
+                "To isolate dependencies for different projects.",
+                "To enable multi-threading in Python applications.",
+                "To manage large datasets more efficiently."
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 28,
+            "type": "MC",
+            "question": "In Python, indexing of strings starts from:",
+            "choices": [
+                "1",
+                "0",
+                "-1",
+                "None of the above"
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 29,
+            "type": "MC",
+            "question": "What does the index -1 refer to in a string in Python?",
+            "choices": [
+                "The first character",
+                "The last character",
+                "The second last character",
+                "It's an invalid index"
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 30,
+            "type": "MC",
+            "question": "What will s[::2] do for a string s?",
+            "choices": [
+                "Return every second character starting from the first",
+                "Return every second character starting from the second",
+                "Return the string in reverse",
+                "Return the first two characters"
+            ],
+            "answer": [
+                1
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 31,
+            "type": "MC",
+            "question": "What is one of the main challenges associated with textual data?",
+            "choices": [
+                "High storage cost",
+                "Unstructured nature of data",
+                "Lack of variety in data types",
+                "Limited data availability"
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 32,
+            "type": "MC",
+            "question": "What are the 3Vs of data commonly associated with Big Data?",
+            "choices": [
+                "Volume, Variety, Velocity",
+                "Value, Variety, Volume",
+                "Volume, Validity, Veracity",
+                "Variety, Velocity, Veracity"
+            ],
+            "answer": [
+                1
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 33,
+            "type": "MC",
+            "question": "What is the main focus of Natural Language Processing?",
+            "choices": [
+                "Processing structured numerical data",
+                "Analyzing and understanding unstructured text data",
+                "Compressing multimedia files",
+                "Enhancing machine-to-machine communication"
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 34,
+            "type": "MC",
+            "question": "What is an example of a natural language?",
+            "choices": [
+                "Python",
+                "JavaScript",
+                "English",
+                "HTML"
+            ],
+            "answer": [
+                3
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 35,
+            "type": "MC",
+            "question": "Which field studies the structure, meaning, and context of language?",
+            "choices": [
+                "Programming",
+                "Linguistics",
+                "Data Science",
+                "Mathematics"
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 36,
+            "type": "MC",
+            "question": "What does the field of phonetics study?",
+            "choices": [
+                "The meaning of words",
+                "The acoustic properties of sounds",
+                "The grammar of sentences",
+                "The use of body language in communication"
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 37,
+            "type": "MC",
+            "question": "Which part of speech typically modifies a noun?",
+            "choices": [
+                "Verb",
+                "Adjective",
+                "Adverb",
+                "Preposition"
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 38,
+            "type": "MC",
+            "question": "What does the acronym 'POS' stand for in text processing?",
+            "choices": [
+                "Part of Syntax",
+                "Part of Sentence",
+                "Part of Speech",
+                "Point of Syntax"
+            ],
+            "answer": [
+                3
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 39,
+            "type": "MC",
+            "question": "In shallow parsing, which type of phrase has a noun as its head word?",
+            "choices": [
+                "Adjective phrase",
+                "Verb phrase",
+                "Prepositional phrase",
+                "Noun phrase"
+            ],
+            "answer": [
+                4
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 40,
+            "type": "MC",
+            "question": "Which syntactic category does the sentence 'The cat is sleeping' belong to?",
+            "choices": [
+                "Imperative",
+                "Declarative",
+                "Exclamative",
+                "Interrogative"
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 41,
+            "type": "MC",
+            "question": "What does the 'det' dependency tag represent?",
+            "choices": [
+                "A verb phrase",
+                "A noun subject",
+                "A determiner",
+                "An adjective modifier"
+            ],
+            "answer": [
+                3
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 42,
+            "type": "MC",
+            "question": "What is the main distinction between dependency grammar and constituency grammar?",
+            "choices": [
+                "Dependency grammar focuses on word relationships, while constituency grammar emphasizes hierarchical structure.",
+                "Dependency grammar uses trees, while constituency grammar uses graphs.",
+                "Constituency grammar is for formal languages, while dependency grammar is for natural languages.",
+                "Both grammars emphasize sentence structure over word order."
+            ],
+            "answer": [
+                1
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 43,
+            "type": "MC",
+            "question": "Which branch of linguistics deals with the meaning of words and how they combine to form sentences?",
+            "choices": [
+                "Syntax",
+                "Semantics",
+                "Morphology",
+                "Pragmatics"
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 44,
+            "type": "MC",
+            "question": "The study of how context affects the meaning of language expressions is known as:",
+            "choices": [
+                "Semiotics",
+                "Pragmatics",
+                "Discourse Analysis",
+                "Stylistics"
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 45,
+            "type": "MC",
+            "question": "Which field of linguistics would be most concerned with the analysis of conversations?",
+            "choices": [
+                "Discourse Analysis",
+                "Semantics",
+                "Syntax",
+                "Phonetics"
+            ],
+            "answer": [
+                1
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 46,
+            "type": "MC",
+            "question": "What does the process of 'shallow parsing' typically involve?",
+            "choices": [
+                "Analyzing the deep structure of sentences",
+                "Identifying the main verb in a sentence",
+                "Determining the constituents like phrases and clauses in a sentence",
+                "Translating sentences into another language"
+            ],
+            "answer": [
+                3
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 47,
+            "type": "MC",
+            "question": "In the sentence structure hierarchy, what directly combines to form a clause?",
+            "choices": [
+                "Words",
+                "Phrases",
+                "Sentences",
+                "Paragraphs"
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 48,
+            "type": "MC",
+            "question": "The POS tag for words that describe actions or states is:",
+            "choices": [
+                "N",
+                "V",
+                "ADJ",
+                "ADV"
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 49,
+            "type": "MC",
+            "question": "Which of the following is NOT a characteristic of dependency grammar?",
+            "choices": [
+                "Focuses on word-word relationships",
+                "Represents sentence structure using a directed acyclic graph",
+                "Uses dependency tags to denote the type of relationship between words",
+                "Emphasizes constituents like phrases and clauses"
+            ],
+            "answer": [
+                4
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 50,
+            "type": "MC",
+            "question": "Which of the following is NOT one of the five major categories of phrases?",
+            "choices": [
+                "Noun Phrase (NP)",
+                "Verb Phrase (VP)",
+                "Conjunction Phrase (CP)",
+                "Prepositional Phrase (PP)"
+            ],
+            "answer": [
+                3
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 51,
+            "type": "MC",
+            "question": "Which type of clause is used to issue a command or request?",
+            "choices": [
+                "Imperative",
+                "Declarative",
+                "Relative",
+                "Interrogative"
+            ],
+            "answer": [
+                1
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 52,
+            "type": "MC",
+            "question": "What is the main role of an adjective phrase (ADJP) in a sentence?",
+            "choices": [
+                "To describe or qualify nouns and pronouns",
+                "To act as the subject of a sentence",
+                "To provide direction",
+                "To act as a verb"
+            ],
+            "answer": [
+                1
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 53,
+            "type": "MC",
+            "question": "What does the dependency tag 'amod' represent in a dependency grammar tree?",
+            "choices": [
+                "Adjectival modifier",
+                "Adverbial modifier",
+                "Subject of the verb",
+                "Object of the preposition"
+            ],
+            "answer": [
+                1
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 54,
+            "type": "MC",
+            "question": "Which of the following statements about dependency grammars is TRUE?",
+            "choices": [
+                "They prioritize the order of words in a sentence.",
+                "The root of the sentence is always the noun.",
+                "They are not capable of representing semantic relationships between words.",
+                "They use a one-to-one relationship to represent each word in a sentence."
+            ],
+            "answer": [
+                4
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 55,
+            "type": "MC",
+            "question": "Which of the following best defines a 'constituent' in constituency grammar?",
+            "choices": [
+                "A group of words that function together as a unit",
+                "A word that can have multiple meanings",
+                "The main verb in a sentence",
+                "The subject of a sentence"
+            ],
+            "answer": [
+                1
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 56,
+            "type": "MC",
+            "question": "In the phrase structure rule, S \u2192 NP VP, what do NP and VP stand for?",
+            "choices": [
+                "Noun Phrase and Verb Phrase",
+                "Noun Phrase and Adjective Phrase",
+                "Noun Phrase and Prepositional Phrase",
+                "Noun Phrase and Conjunction Phrase"
+            ],
+            "answer": [
+                1
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 57,
+            "type": "MC",
+            "question": "Which of the following is not a possible component of a verb phrase (VP) according to the rules provided?",
+            "choices": [
+                "Adjective Phrase (ADJP)",
+                "Noun Phrase (NP)",
+                "Determiner (DET)",
+                "Adverbial Phrase (ADVP)"
+            ],
+            "answer": [
+                3
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 58,
+            "type": "MC",
+            "question": "What is the first step in text processing for natural language analysis?",
+            "choices": [
+                "Feature extraction",
+                "Data visualization",
+                "Deep learning",
+                "Cleaning and preprocessing"
+            ],
+            "answer": [
+                4
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 59,
+            "type": "MC",
+            "question": "Which of the following is not a typical step in text preprocessing?",
+            "choices": [
+                "Tokenization",
+                "Stemming",
+                "Convolution",
+                "Lemmatization"
+            ],
+            "answer": [
+                3
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 60,
+            "type": "MC",
+            "question": "HTML tags in text data are usually considered:",
+            "choices": [
+                "Essential for analysis",
+                "Irrelevant noise",
+                "Important for sentiment analysis",
+                "Crucial for text parsing"
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 61,
+            "type": "MC",
+            "question": "What Python library is commonly used to remove HTML tags from text data?",
+            "choices": [
+                "Pandas",
+                "BeautifulSoup",
+                "TensorFlow",
+                "Seaborn"
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 62,
+            "type": "MC",
+            "question": "Tokenization is the process of:",
+            "choices": [
+                "Reducing words to their root forms",
+                "Splitting text into smaller meaningful units",
+                "Correcting spelling mistakes",
+                "Removing punctuation marks"
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 63,
+            "type": "MC",
+            "question": "Which technique is used to break down a sentence into its constituent words?",
+            "choices": [
+                "Sentence tokenization",
+                "Word tokenization",
+                "Lemmatization",
+                "Chunking"
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 64,
+            "type": "MC",
+            "question": "What does stemming do?",
+            "choices": [
+                "Converts words into their base or root forms",
+                "Translates text into another language",
+                "Corrects misspelled words",
+                "Identifies named entities"
+            ],
+            "answer": [
+                1
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 65,
+            "type": "MC",
+            "question": "What is the main difference between stemming and lemmatization?",
+            "choices": [
+                "Stemming considers grammatical context.",
+                "Lemmatization results in valid words, while stemming may not.",
+                "Stemming is slower than lemmatization.",
+                "Lemmatization removes punctuation marks."
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 66,
+            "type": "MC",
+            "question": "What does the strip_html_tags function in Python typically do?",
+            "choices": [
+                "Eliminates HTML and iframe tags from text",
+                "Removes stopwords",
+                "Expands contractions",
+                "Tokenizes sentences into words"
+            ],
+            "answer": [
+                1
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 67,
+            "type": "MC",
+            "question": "Which tokenizer is commonly used for tokenizing text based on regular expressions?",
+            "choices": [
+                "PunktTokenizer",
+                "RegexTokenizer",
+                "SpaCyTokenizer",
+                "GensimTokenizer"
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 68,
+            "type": "MC",
+            "question": "What Python library can be used to convert accented characters into standard ASCII characters?",
+            "choices": [
+                "NumPy",
+                "unicodedata",
+                "Matplotlib",
+                "TensorFlow"
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 69,
+            "type": "MC",
+            "question": "The process of expanding words like 'can't' into 'cannot' is called:",
+            "choices": [
+                "Tokenization",
+                "Chunking",
+                "Expanding contractions",
+                "Lemmatization"
+            ],
+            "answer": [
+                3
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 70,
+            "type": "MC",
+            "question": "Which of the following functions is used to remove special characters from text?",
+            "choices": [
+                "remove_special_characters()",
+                "remove_stopwords()",
+                "correct_spelling()",
+                "remove_punctuation()"
+            ],
+            "answer": [
+                1
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 71,
+            "type": "MC",
+            "question": "The purpose of case conversion in text preprocessing is to:",
+            "choices": [
+                "Standardize the text for easier comparison and matching",
+                "Remove all punctuation",
+                "Increase computational efficiency",
+                "Parse grammatical structure"
+            ],
+            "answer": [
+                1
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 72,
+            "type": "MC",
+            "question": "What is the main function of a stemmer in text processing?",
+            "choices": [
+                "Correcting spelling",
+                "Translating text",
+                "Reducing words to their root form",
+                "Removing punctuation"
+            ],
+            "answer": [
+                3
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 73,
+            "type": "MC",
+            "question": "What is a disadvantage of stemming compared to lemmatization?",
+            "choices": [
+                "It is more computationally expensive.",
+                "It may not result in valid words.",
+                "It is too slow for large datasets.",
+                "It only works for the English language."
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 74,
+            "type": "MC",
+            "question": "What is the output of ps.stem('lying') where ps is a PorterStemmer object?",
+            "choices": [
+                "lie",
+                "lying",
+                "lay",
+                "lieing"
+            ],
+            "answer": [
+                1
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 75,
+            "type": "MC",
+            "question": "What are stopwords?",
+            "choices": [
+                "Words that are frequently used in a language.",
+                "Words that have little or no significance in a text.",
+                "Words that are always capitalized.",
+                "Words that are used to indicate the beginning or end of a sentence."
+            ],
+            "answer": [
+                2
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 76,
+            "type": "MC",
+            "question": "Why are stopwords removed from text?",
+            "choices": [
+                "To improve the speed of processing.",
+                "To reduce the size of the text.",
+                "To retain only the most important words.",
+                "All of the above."
+            ],
+            "answer": [
+                4
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        },
+        {
+            "id": 77,
+            "type": "MC",
+            "question": "Which of the following is a common stopword?",
+            "choices": [
+                "'is'",
+                "'the'",
+                "'and'",
+                "All of the above."
+            ],
+            "answer": [
+                4
+            ],
+            "group": {
+                "series": [],
+                "similar": []
+            },
+            "label": [],
+            "explanation": "",
+            "difficulty": 0
+        }
+    ],
+    "group": [
+        {
+            "id": 1,
+            "type": "",
+            "info": "",
+            "items": [],
+            "label": []
+        }
+    ],
+    "instructor": [
+        {
+            "id": 1,
+            "username": "instructor_1",
+            "password": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"
+        },
+        {
+            "id": 2,
+            "username": "instructor_2",
+            "password": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"
+        }
+    ],
+    "learner": [
+        {
+            "id": 1,
+            "username": "Sophia",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_C",
+            "attempts": []
+        },
+        {
+            "id": 2,
+            "username": "Ethan",
+            "password": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+            "group": "group_A",
+            "attempts": []
+        }
+    ],
+    "assignment": [
+        {
+            "id": 1,
+            "type": "quiz",
+            "name": "Python Basics",
+            "instructor_id": 1,
+            "learner_ids": [
+                1,
+                2
+            ],
+            "item_ids": [
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "weights": [
+                1,
+                2,
+                1,
+                2,
+                1
+            ],
+            "deadline": "2024-11-01T23:59:59Z",
+            "timestamp": "2024-10-20T10:00:00Z"
+        }
+    ],
+    "attempt": [
+        {
+            "id": 1,
+            "assignment_id": 1,
+            "learner_id": 1,
+            "submitted_answers": [
+                "1",
+                "2",
+                "4",
+                "2",
+                "3"
+            ],
+            "score": 85.0,
+            "duration": 450,
+            "attempt_count": 1,
+            "feedback": "",
+            "timestamp": "2024-10-25T10:00:00Z"
+        }
+    ]
+}
