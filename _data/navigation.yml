@@ -1,0 +1,18 @@
+header:
+  - title: About
+    url: /about.html
+
+  - title: People
+    url: /people.html
+
+  - title: Projects
+    url: /projects.html
+
+  - title: Publications
+    url: /publications.html
+
+  - title: Courses
+    url: /courses.html
+
+  - title: Resources
+    url: /resources.html
