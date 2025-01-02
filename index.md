@@ -9,7 +9,6 @@ article_header:
   theme: dark
   background_color: '#123'
   background_image:
-    src:
 excerpt: "under construction"
 ---
 
