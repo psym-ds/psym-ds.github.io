@@ -9,7 +9,7 @@ article_header:
   theme: dark
   background_color: '#123'
   background_image:
-    src: /assets/bg.webp
+    src:
 excerpt: "under construction"
 ---
 
